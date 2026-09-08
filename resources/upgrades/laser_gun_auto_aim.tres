@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "laser_gun_auto_aim"
+max_quantity = 1
+name = "聚群校准"
+description = "激光每 0.1 秒自动重新瞄准怪物最密集处。"

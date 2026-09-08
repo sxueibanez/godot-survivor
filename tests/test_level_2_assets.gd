@@ -23,6 +23,7 @@ func _init() -> void:
 	assert(load("res://resources/upgrades/laser_gun_damage_ramp.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/laser_gun_reflect.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/laser_gun_stun.tres") is AbilityUpgrade)
+	assert(load("res://resources/upgrades/laser_gun_kill_duration.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/critical_hit.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/axe_reflect.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/axe_distance_power.tres") is AbilityUpgrade)

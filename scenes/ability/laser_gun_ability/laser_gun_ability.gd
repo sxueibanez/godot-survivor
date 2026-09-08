@@ -7,6 +7,10 @@ const DURATION := 2.0
 const FLOATING_TEXT_INTERVAL := 0.2
 const STUN_HIT_INTERVAL := 0.2
 const STUN_HIT_WINDOW := 1.0
+const AUTO_AIM_INTERVAL := 0.1
+const AUTO_AIM_RANGE := 300.0
+const CLUSTER_RADIUS := 54.0
+const KILL_DURATION_EXTENSION := 0.3
 
 @export var source: Node2D
 @export var damage_per_second := 8.0
@@ -14,6 +18,8 @@ const STUN_HIT_WINDOW := 1.0
 @export var damage_ramp_enabled := false
 @export var reflection_enabled := false
 @export var stun_enabled := false
+@export var auto_aim_enabled := false
+@export var kill_duration_extension_enabled := false
 
 @onready var beam: Line2D = $Beam
 @onready var collision_shape: CollisionShape2D = $LaserArea/CollisionShape2D
@@ -28,6 +34,7 @@ var damage_totals := {}
 var critical_damage_totals := {}
 var stun_hit_times := {}
 var stun_hit_cooldowns := {}
+var auto_aim_time_left := AUTO_AIM_INTERVAL
 
 
 func _ready() -> void:
@@ -44,6 +51,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	global_position = source.global_position
+	update_auto_aim(delta)
 	configure_beam()
 	for area in laser_area.get_overlapping_areas():
 		apply_damage(area, delta)
@@ -60,6 +68,41 @@ func _physics_process(delta: float) -> void:
 	if time_left <= 0:
 		show_damage_numbers()
 		queue_free()
+
+
+func update_auto_aim(delta: float) -> void:
+	if !auto_aim_enabled:
+		return
+	auto_aim_time_left -= delta
+	if auto_aim_time_left > 0:
+		return
+	auto_aim_time_left = AUTO_AIM_INTERVAL
+	var enemies: Array = get_tree().get_nodes_in_group("enemy").filter(func(enemy: Node2D):
+		return is_instance_valid(enemy) and global_position.distance_squared_to(enemy.global_position) <= AUTO_AIM_RANGE * AUTO_AIM_RANGE
+	)
+	var target: Node2D = find_densest_enemy(enemies)
+	if target != null:
+		direction = global_position.direction_to(target.global_position)
+		rotation = direction.angle()
+
+
+func find_densest_enemy(enemies: Array) -> Node2D:
+	var densest_enemy: Node2D
+	var highest_count := 0
+	# ponytail: O(n²) candidate scan; spatial indexing only matters for much larger enemy caps.
+	for candidate_value: Variant in enemies:
+		var candidate: Node2D = candidate_value as Node2D
+		if candidate == null:
+			continue
+		var nearby_count := 0
+		for enemy_value: Variant in enemies:
+			var enemy: Node2D = enemy_value as Node2D
+			if enemy != null and candidate.global_position.distance_squared_to(enemy.global_position) <= CLUSTER_RADIUS * CLUSTER_RADIUS:
+				nearby_count += 1
+		if nearby_count > highest_count:
+			highest_count = nearby_count
+			densest_enemy = candidate
+	return densest_enemy
 
 
 func configure_beam() -> void:
@@ -104,8 +147,10 @@ func apply_damage(area: Area2D, delta: float) -> void:
 		damage_multiplier += (DURATION - time_left) / DURATION
 	var damage: float = damage_per_second * damage_multiplier * delta
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
-	area.health_component.damage(critical_hit["damage"])
+	var killed: bool = area.health_component.damage(critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])
+	if kill_duration_extension_enabled and killed and !area.get_parent().is_in_group("boss"):
+		time_left += KILL_DURATION_EXTENSION
 	damage_totals[area] = damage_totals.get(area, 0.0) + critical_hit["damage"]
 	critical_damage_totals[area] = critical_damage_totals.get(area, false) or critical_hit["critical"]
 	if stun_enabled:

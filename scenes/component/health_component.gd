@@ -12,11 +12,14 @@ func _ready():
 	current_health = max_health
 
 
-func damage(damage_amount: float):
+func damage(damage_amount: float) -> bool:
+	if current_health <= 0:
+		return false
 	# clamping
 	current_health = max(current_health - damage_amount, 0)
 	health_changed.emit()
 	Callable(check_death).call_deferred()
+	return current_health == 0
 
 
 func heal(heal_amount: float):

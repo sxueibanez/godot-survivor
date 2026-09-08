@@ -1,14 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://b00rwn6u7t8e1"]
 
-[ext_resource type="Script" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.gd" id="1_whip"]
-[ext_resource type="Texture2D" path="res://scenes/ability/lightning_whip_ability/lightning_whip.png" id="2_whip"]
+[ext_resource type="Script" uid="uid://dvdiwqf1haj78" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.gd" id="1_whip"]
+[ext_resource type="Texture2D" uid="uid://cxxghahp2fxlk" path="res://scenes/ability/lightning_whip_ability/lightning_whip.png" id="2_whip"]
 
-[node name="LightningWhipAbility" type="Node2D"]
+[node name="LightningWhipAbility" type="Node2D" unique_id=607624360]
 script = ExtResource("1_whip")
 
-[node name="Visuals" type="Node2D" parent="."]
+[node name="Visuals" type="Node2D" parent="." unique_id=256536389]
 
-[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
-position = Vector2(70, 0)
+[node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=881178827]
+position = Vector2(40, 0)
 scale = Vector2(2, 2)
 texture = ExtResource("2_whip")

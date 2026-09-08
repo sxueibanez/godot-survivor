@@ -1,13 +1,13 @@
 extends Node
 
-const MAX_RANGE := 72.0
+const MAX_RANGE := 50.0
 
 @export var lightning_whip_ability_scene: PackedScene
 
 var base_damage := 8.0
 var damage_multiplier := 1.0
 var size_multiplier := 1.0
-var base_wait_time := 2.0 / 0.75
+var base_wait_time := 2.0 / 2.0
 var permanent_damage_multiplier := 1.0
 var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0

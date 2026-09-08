@@ -31,6 +31,8 @@ var upgrade_laser_gun_cooldown := preload("res://resources/upgrades/laser_gun_co
 var upgrade_laser_gun_damage_ramp := preload("res://resources/upgrades/laser_gun_damage_ramp.tres")
 var upgrade_laser_gun_reflect := preload("res://resources/upgrades/laser_gun_reflect.tres")
 var upgrade_laser_gun_stun := preload("res://resources/upgrades/laser_gun_stun.tres")
+var upgrade_laser_gun_auto_aim := preload("res://resources/upgrades/laser_gun_auto_aim.tres")
+var upgrade_laser_gun_kill_duration := preload("res://resources/upgrades/laser_gun_kill_duration.tres")
 var upgrade_attack_count := preload("res://resources/upgrades/attack_count.tres")
 var upgrade_lightning_whip := preload("res://resources/upgrades/lightning_whip.tres")
 var upgrade_lightning_whip_damage := preload("res://resources/upgrades/lightning_whip_damage.tres")
@@ -104,6 +106,8 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_laser_gun_damage_ramp, "tree_laser_ramp", 8)
 		add_unlocked_special(upgrade_laser_gun_reflect, "tree_laser_reflect", 8)
 		add_unlocked_special(upgrade_laser_gun_stun, "tree_laser_stun", 8)
+		add_unlocked_special(upgrade_laser_gun_auto_aim, "tree_laser_auto_aim", 8)
+		add_unlocked_special(upgrade_laser_gun_kill_duration, "tree_laser_kill_duration", 8)
 	elif chosen_upgrade.id == upgrade_lightning_whip.id:
 		upgrade_pool.add_item(upgrade_lightning_whip_damage, 10)
 		upgrade_pool.add_item(upgrade_lightning_whip_size, 10)

@@ -1,12 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://y0fsfavo06b6"]
 
-[ext_resource type="Script" path="res://scenes/ability/lightning_whip_ability_controller/lightning_whip_ability_controller.gd" id="1_whip"]
-[ext_resource type="PackedScene" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.tscn" id="2_whip"]
+[ext_resource type="Script" uid="uid://tn18muylaqlj" path="res://scenes/ability/lightning_whip_ability_controller/lightning_whip_ability_controller.gd" id="1_whip"]
+[ext_resource type="PackedScene" uid="uid://b00rwn6u7t8e1" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.tscn" id="2_whip"]
 
-[node name="LightningWhipAbilityController" type="Node"]
+[node name="LightningWhipAbilityController" type="Node" unique_id=1559163192]
 script = ExtResource("1_whip")
 lightning_whip_ability_scene = ExtResource("2_whip")
 
-[node name="Timer" type="Timer" parent="."]
+[node name="Timer" type="Timer" parent="." unique_id=1353585794]
 wait_time = 2.0
 autostart = true

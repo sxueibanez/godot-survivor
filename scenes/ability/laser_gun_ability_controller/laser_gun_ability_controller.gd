@@ -18,6 +18,8 @@ var permanent_size_multiplier := 1.0
 var damage_ramp_enabled := false
 var reflection_enabled := false
 var stun_enabled := false
+var auto_aim_enabled := false
+var kill_duration_extension_enabled := false
 var character_damage_multiplier := 1.0
 
 
@@ -59,6 +61,8 @@ func on_timer_timeout() -> void:
 		laser.damage_ramp_enabled = damage_ramp_enabled
 		laser.reflection_enabled = reflection_enabled
 		laser.stun_enabled = stun_enabled
+		laser.auto_aim_enabled = auto_aim_enabled
+		laser.kill_duration_extension_enabled = kill_duration_extension_enabled
 		foreground.add_child(laser)
 
 
@@ -77,6 +81,10 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			reflection_enabled = true
 		"laser_gun_stun":
 			stun_enabled = true
+		"laser_gun_auto_aim":
+			auto_aim_enabled = true
+		"laser_gun_kill_duration":
+			kill_duration_extension_enabled = true
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count
 

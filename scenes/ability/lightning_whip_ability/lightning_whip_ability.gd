@@ -2,8 +2,8 @@ extends Node2D
 class_name LightningWhipAbility
 
 const DURATION := 0.4
-const RANGE := 72.0
-const HALF_ANGLE := PI / 4.0
+const RANGE := 50.0
+const HALF_ANGLE := PI / 2.0
 
 @export var damage := 8.0
 @export var size_multiplier := 1.0
