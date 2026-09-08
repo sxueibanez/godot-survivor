@@ -1,8 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://cqicho1cntsmr"]
+[gd_scene format=3 uid="uid://cqicho1cntsmr"]
 
-[ext_resource type="Script" path="res://scenes/ui/pause_menu.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/ui/sound_button.tscn" id="2"]
-[ext_resource type="Texture2D" path="res://scenes/game_object/player/player.png" id="3"]
+[ext_resource type="Script" uid="uid://jyamin6vjlwn" path="res://scenes/ui/pause_menu.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://dumjej53vmw4d" path="res://scenes/ui/sound_button.tscn" id="2"]
+[ext_resource type="Texture2D" uid="uid://jgxfupesel5x" path="res://scenes/game_object/player/player.png" id="3"]
 
 [sub_resource type="Animation" id="Reset"]
 length = 0.001
@@ -12,7 +12,12 @@ tracks/0/enabled = true
 tracks/0/path = NodePath("ColorRect:modulate")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
-tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [Color(1, 1, 1, 1)]}
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
 
 [sub_resource type="Animation" id="FadeIn"]
 resource_name = "default"
@@ -23,7 +28,12 @@ tracks/0/enabled = true
 tracks/0/path = NodePath("ColorRect:modulate")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
-tracks/0/keys = {"times": PackedFloat32Array(0, 0.15), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]}
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
 
 [sub_resource type="Animation" id="FadeOut"]
 resource_name = "out"
@@ -34,20 +44,29 @@ tracks/0/enabled = true
 tracks/0/path = NodePath("ColorRect:modulate")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
-tracks/0/keys = {"times": PackedFloat32Array(0, 0.15), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]}
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
 
 [sub_resource type="AnimationLibrary" id="Animations"]
-_data = {"RESET": SubResource("Reset"), "default": SubResource("FadeIn"), "out": SubResource("FadeOut")}
+_data = {
+&"RESET": SubResource("Reset"),
+&"default": SubResource("FadeIn"),
+&"out": SubResource("FadeOut")
+}
 
-[node name="PauseMenu" type="CanvasLayer" groups=["pause_menu"]]
+[node name="PauseMenu" type="CanvasLayer" unique_id=364667606 groups=["pause_menu"]]
 process_mode = 3
 layer = 2
 script = ExtResource("1")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {"": SubResource("Animations")}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=330391586]
+libraries/ = SubResource("Animations")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=2078684715]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -55,92 +74,89 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.04, 0.02, 0.06, 0.82)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1457525890]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=1022253184]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(500, 280)
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=2035648932]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=1193777589]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1243969897]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = "角色面板"
 horizontal_alignment = 1
 
-[node name="Content" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Content" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=231914040]
 custom_minimum_size = Vector2(0, 190)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 7
 
-[node name="LeftColumn" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content"]
+[node name="LeftColumn" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content" unique_id=1582711265]
 custom_minimum_size = Vector2(245, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="AttributesPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn"]
+[node name="AttributesPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn" unique_id=1344453784]
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 2
 
-[node name="AttributesLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/AttributesPanel"]
+[node name="AttributesLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/AttributesPanel" unique_id=1436797771]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 text = "属性"
+autowrap_mode = 2
 
-[node name="SkillsPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn"]
+[node name="SkillsPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn" unique_id=1184504640]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="SkillsScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/SkillsPanel"]
+[node name="SkillsScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/SkillsPanel" unique_id=1879362307]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="SkillsLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/SkillsPanel/SkillsScrollContainer"]
+[node name="SkillsLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/SkillsPanel/SkillsScrollContainer" unique_id=1867756805]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 18
 text = "武器与技能"
 autowrap_mode = 2
 
-[node name="PortraitPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content"]
+[node name="PortraitPanel" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content" unique_id=602703]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel" unique_id=1272967839]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer"]
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer" unique_id=1108752450]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 16
 text = "角色绘画"
 horizontal_alignment = 1
 
-[node name="CharacterPortrait" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer"]
+[node name="CharacterPortrait" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer" unique_id=642819653]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 150)
 layout_mode = 2
@@ -149,25 +165,25 @@ texture = ExtResource("3")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Buttons" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content"]
+[node name="Buttons" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content" unique_id=1890509047]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 8
 
-[node name="ResumeButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" instance=ExtResource("2")]
+[node name="ResumeButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" unique_id=639352670 instance=ExtResource("2")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
 text = "继续游戏"
 
-[node name="OptionsButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" instance=ExtResource("2")]
+[node name="OptionsButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" unique_id=195875488 instance=ExtResource("2")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
 text = "选项"
 
-[node name="QuitButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" instance=ExtResource("2")]
+[node name="QuitButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" unique_id=553122205 instance=ExtResource("2")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
