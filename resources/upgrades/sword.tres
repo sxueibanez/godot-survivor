@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("2")
 ability_controller_scene = ExtResource("1")
+weapon_type = 0
 id = "sword"
 max_quantity = 1
 name = "利剑"

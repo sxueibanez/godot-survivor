@@ -3,6 +3,7 @@ class_name AxeAbility
 
 const MAX_RADIUS := 100
 const MAX_ROTATION := 2
+const MAX_DISTANCE_MULTIPLIER := 2.0
 const PROJECTILE_REFLECT_RANGE := 20.0
 const KNOCKBACK_SPEED := 220.0
 
@@ -13,10 +14,15 @@ var base_rotation: Vector2
 var reflect_projectiles := false
 var return_to_player := false
 var knockback_enabled := false
+var distance_scaling_enabled := false
+var base_scale := Vector2.ONE
+var base_damage := 0.0
 
 
 func _ready() -> void:
 	base_rotation = Vector2.RIGHT.rotated(randf_range(0, TAU))
+	base_scale = scale
+	hitbox_component.damage = base_damage
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
 
 	var tween: Tween = create_tween()
@@ -41,8 +47,16 @@ func move_along_arc(current_radius: float, rotations: float) -> void:
 		return
 
 	global_position = player.global_position + (current_direction * current_radius)
+	if distance_scaling_enabled:
+		var multiplier := get_distance_multiplier(global_position.distance_to(player.global_position))
+		scale = base_scale * multiplier
+		hitbox_component.damage = base_damage * multiplier
 	if reflect_projectiles:
 		reflect_enemy_projectiles()
+
+
+static func get_distance_multiplier(distance: float) -> float:
+	return 1.0 + clampf(distance / MAX_RADIUS, 0.0, MAX_DISTANCE_MULTIPLIER - 1.0)
 
 
 func on_hitbox_area_entered(other_area: Area2D) -> void:

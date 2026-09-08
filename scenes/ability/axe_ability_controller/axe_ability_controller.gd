@@ -13,11 +13,13 @@ var reflect_projectiles := false
 var additional_axe_count := 0
 var return_to_player := false
 var knockback_enabled := false
+var distance_scaling_enabled := false
+var character_damage_multiplier := 1.0
 
 
 func _ready():
 	base_wait_time = $Timer.wait_time
-	permanent_damage_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
 	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
 	additional_damage_percent = permanent_damage_multiplier
@@ -41,10 +43,11 @@ func on_timer_timeout():
 		axe_instance.reflect_projectiles = reflect_projectiles
 		axe_instance.return_to_player = return_to_player
 		axe_instance.knockback_enabled = knockback_enabled
+		axe_instance.distance_scaling_enabled = distance_scaling_enabled
 		axe_instance.scale = Vector2.ONE * permanent_size_multiplier
+		axe_instance.base_damage = base_damage * additional_damage_percent
 		foreground.add_child(axe_instance)
 		axe_instance.global_position = player.global_position
-		axe_instance.hitbox_component.damage = base_damage * additional_damage_percent
 
 
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):
@@ -61,3 +64,5 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			return_to_player = true
 		"axe_knockback":
 			knockback_enabled = true
+		"axe_distance_power":
+			distance_scaling_enabled = true

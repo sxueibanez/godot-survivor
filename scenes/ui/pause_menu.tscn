@@ -140,7 +140,8 @@ theme_override_font_sizes/font_size = 13
 text = "角色绘画"
 horizontal_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer"]
+[node name="CharacterPortrait" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 150)
 layout_mode = 2
 size_flags_vertical = 3

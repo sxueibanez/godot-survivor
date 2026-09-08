@@ -18,10 +18,11 @@ var permanent_size_multiplier := 1.0
 var damage_ramp_enabled := false
 var reflection_enabled := false
 var stun_enabled := false
+var character_damage_multiplier := 1.0
 
 
 func _ready() -> void:
-	permanent_damage_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
 	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
 	damage_multiplier = permanent_damage_multiplier

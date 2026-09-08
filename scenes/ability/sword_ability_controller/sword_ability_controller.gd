@@ -23,12 +23,13 @@ var giant_sword_rain_enabled := false
 var giant_rain_threshold_met := false
 var sword_barrage_enabled := false
 var sword_hit_counts: Dictionary = {}
+var character_damage_multiplier := 1.0
 
 
 
 func _ready():
 	base_wait_time = $Timer.wait_time
-	permanent_damage_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
 	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
 	additional_damage_percent = permanent_damage_multiplier

@@ -32,6 +32,8 @@ var velocity := Vector2.ZERO
 var slow_multiplier := 1.0
 var slow_time_left := 0.0
 var stun_time_left := 0.0
+var knockback_time_left := 0.0
+var knockback_velocity := Vector2.ZERO
 var stun_indicator: StunIndicator
 
 
@@ -50,6 +52,12 @@ func _process(delta: float) -> void:
 	if stun_time_left > 0.0:
 		stun_time_left -= delta
 		velocity = Vector2.ZERO
+		return
+
+	if knockback_time_left > 0.0:
+		knockback_time_left -= delta
+		velocity = knockback_velocity
+		return
 
 	if slow_time_left <= 0:
 		if slow_multiplier != 1.0:
@@ -76,6 +84,12 @@ func apply_stun(duration: float) -> void:
 		stun_indicator.start(duration)
 
 
+func apply_knockback(direction: Vector2, speed: float, duration: float) -> void:
+	knockback_velocity = direction.normalized() * speed
+	velocity = knockback_velocity
+	knockback_time_left = maxf(knockback_time_left, duration)
+
+
 func accelerate_to_player():
 	var owner_node2d = owner as Node2D
 	if owner_node2d == null:
@@ -90,7 +104,7 @@ func accelerate_to_player():
 
 
 func accelerate_in_direction(direction: Vector2):
-	if stun_time_left > 0.0:
+	if stun_time_left > 0.0 or knockback_time_left > 0.0:
 		velocity = Vector2.ZERO
 		return
 	var desired_velocity = direction * max_speed * slow_multiplier

@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("2_laser")
 ability_controller_scene = ExtResource("1_laser")
+weapon_type = 1
 id = "laser_gun"
 max_quantity = 1
 name = "激光枪"

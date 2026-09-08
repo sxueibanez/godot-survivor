@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("2_whip")
 ability_controller_scene = ExtResource("1_whip")
+weapon_type = 0
 id = "lightning_whip"
 max_quantity = 1
 name = "闪电鞭"

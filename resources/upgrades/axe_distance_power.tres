@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "axe_distance_power"
+max_quantity = 1
+name = "远行巨斧"
+description = "飞斧离主角越远，体积与伤害越高，最高为初始值的200%。"

@@ -4,6 +4,7 @@ class_name PauseMenu
 @onready var panel_container = %PanelContainer
 @onready var attributes_label: Label = %AttributesLabel
 @onready var skills_label: Label = %SkillsLabel
+@onready var character_portrait: TextureRect = %CharacterPortrait
 
 var options_scene = preload("res://scenes/ui/options_menu.tscn")
 var is_closing := false
@@ -35,6 +36,10 @@ func update_character_panel() -> void:
 	var velocity: VelocityComponent = player.get_node_or_null("VelocityComponent") as VelocityComponent
 	if health == null or velocity == null:
 		return
+	var character: Resource = player.get("character") as Resource
+	var portrait_texture := character.get("sprite") as Texture2D
+	if portrait_texture != null:
+		character_portrait.texture = portrait_texture
 	attributes_label.text = "属性\n生命  %.0f / %.0f\n移速  %d\n暴击  %.0f%%\n吸血  %.0f%%\n攻击数量  %d" % [health.current_health, health.max_health, roundi(velocity.max_speed), GameEvents.critical_chance * 100.0, GameEvents.life_steal_percent * 100.0, GameEvents.weapon_attack_count]
 	var upgrade_manager: Node = get_parent().get_node_or_null("UpgradeManager")
 	if upgrade_manager == null:

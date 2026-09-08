@@ -20,6 +20,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_axe_knockback", "title": "震荡飞斧", "description": "飞斧命中敌人时造成击退。", "requires": ["tree_axe_return"]},
 		{"id": "tree_axe_reflect", "title": "弹幕反弹", "description": "飞斧接触敌方弹幕后将其反弹。", "requires": ["tree_axe_knockback"]},
 		{"id": "tree_axe_count", "title": "飞斧增殖", "description": "解锁局内“飞斧数量 +1”升级。", "requires": []},
+		{"id": "tree_axe_distance_power", "title": "远行巨斧", "description": "飞斧离主角越远，体积与伤害越高，最高为初始值的 200%。", "requires": []},
 	],
 	"laser_gun": [
 		{"id": "tree_laser_ramp", "title": "灼热聚焦", "description": "射线持续伤害可提高至初始伤害的 200%。", "requires": []},
