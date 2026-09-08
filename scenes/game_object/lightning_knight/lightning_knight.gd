@@ -14,7 +14,6 @@ const DASH_HIT_RADIUS := 23.0
 
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var velocity_component: VelocityComponent = $VelocityComponent
-@onready var health_bar: ProgressBar = $HealthBar
 @onready var visuals: Node2D = $Visuals
 @onready var sprite: AnimatedSprite2D = $Visuals/Sprite2D
 
@@ -131,10 +130,6 @@ class ThrownGreatsword extends Node2D:
 		draw_line(Vector2(0, -29), Vector2(0, 23), Color(0.3, 0.8, 1.0, 0.8), 1.4)
 
 
-func _ready() -> void:
-	health_component.health_changed.connect(update_health_bar)
-
-
 func _process(delta: float) -> void:
 	if attacking:
 		return
@@ -179,6 +174,7 @@ func dash() -> void:
 	var previous_collision_mask := collision_mask
 	collision_mask = 1 # Dash through enemies; terrain remains the only stopping point.
 	for _dash_index in DASH_COUNT:
+		var hit_player := false
 		var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
 		if player == null:
 			break
@@ -202,7 +198,7 @@ func dash() -> void:
 				break
 			travelled += step
 			animate_walk(get_process_delta_time(), 3.5)
-			knockback_dash_targets(direction)
+			hit_player = knockback_dash_targets(direction, hit_player)
 	collision_mask = previous_collision_mask
 	velocity = Vector2.ZERO
 	velocity_component.velocity = Vector2.ZERO
@@ -253,7 +249,7 @@ func strike(position: Vector2) -> void:
 			player_velocity.apply_stun(0.5)
 
 
-func knockback_dash_targets(direction: Vector2) -> void:
+func knockback_dash_targets(direction: Vector2, hit_player: bool) -> bool:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if enemy == self or not enemy is Node2D:
 			continue
@@ -264,13 +260,15 @@ func knockback_dash_targets(direction: Vector2) -> void:
 		if enemy_velocity != null:
 			enemy_velocity.apply_knockback(direction, 330.0, 0.18)
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	if player != null and global_position.distance_squared_to(player.global_position) <= DASH_HIT_RADIUS * DASH_HIT_RADIUS:
+	if not hit_player and player != null and global_position.distance_squared_to(player.global_position) <= DASH_HIT_RADIUS * DASH_HIT_RADIUS:
 		var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if player_health != null:
 			player_health.damage(DASH_DAMAGE)
 		var player_velocity := player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if player_velocity != null:
 			player_velocity.apply_knockback(direction, 390.0, 0.28)
+		return true
+	return hit_player
 
 
 func create_warning(position: Vector2, radius: float, duration: float, color: Color) -> void:
@@ -297,7 +295,3 @@ func animate_walk(delta: float, speed_multiplier: float = 1.0) -> void:
 	visuals.position.y = sin(walk_time * 2.0) * 0.8
 	if velocity.x != 0.0:
 		visuals.scale.x = absf(visuals.scale.x) * sign(velocity.x)
-
-
-func update_health_bar() -> void:
-	health_bar.value = health_component.get_health_percent()

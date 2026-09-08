@@ -11,6 +11,9 @@ var arena_difficulty := 0
 var critical_chance := 0.0
 var ability_critical_chance := 0.0
 var meta_critical_chance := 0.0
+var critical_damage_multiplier := 2.0
+var critical_disabled := false
+var speed_damage_no_crit := false
 var life_steal_percent := 0.0
 var player_damage_multiplier := 1.0
 
@@ -25,16 +28,22 @@ func emit_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dicti
 	elif upgrade.id == "critical_hit":
 		ability_critical_chance = current_upgrades[upgrade.id]["quantity"] * 0.05
 		refresh_critical_chance()
+	elif upgrade.id == "critical_damage":
+		critical_damage_multiplier = 2.0 + current_upgrades[upgrade.id]["quantity"] * 0.2
+	elif upgrade.id == "speed_damage_no_crit":
+		speed_damage_no_crit = true
+		critical_disabled = true
+		refresh_critical_chance()
 	ability_upgrade_added.emit(upgrade, current_upgrades)
 
 
 func refresh_critical_chance() -> void:
-	critical_chance = ability_critical_chance + meta_critical_chance
+	critical_chance = 0.0 if critical_disabled else ability_critical_chance + meta_critical_chance
 
 
 func get_critical_damage(damage: float) -> Dictionary:
-	var critical := randf() < critical_chance
-	return {"damage": damage * player_damage_multiplier * (2.0 if critical else 1.0), "critical": critical}
+	var critical := not critical_disabled and randf() < critical_chance
+	return {"damage": damage * player_damage_multiplier * (critical_damage_multiplier if critical else 1.0), "critical": critical}
 
 
 func heal_from_damage(damage: float) -> void:

@@ -24,7 +24,7 @@ const WEAPON_SKILLS: Dictionary = {
 	],
 	"laser_gun": [
 		{"id": "tree_laser_ramp", "title": "灼热聚焦", "description": "射线持续伤害可提高至初始伤害的 200%。", "requires": []},
-		{"id": "tree_laser_reflect", "title": "边界反射", "description": "射线碰到地图边缘后反射一次。", "requires": ["tree_laser_ramp"]},
+		{"id": "tree_laser_reflect", "title": "边界反射", "description": "主射线长度提升 50%；碰到地图边缘后反射三根扇形射线：长度 150%、伤害 75%、宽度 25%。", "requires": ["tree_laser_ramp"]},
 		{"id": "tree_laser_stun", "title": "过载眩晕", "description": "1 秒内受到 5 次激光伤害的敌人眩晕。", "requires": ["tree_laser_ramp"]},
 		{"id": "tree_laser_auto_aim", "title": "聚群校准", "description": "激光每 0.1 秒自动重新瞄准怪物最密集处。", "requires": []},
 		{"id": "tree_laser_kill_duration", "title": "余晖延迟", "description": "每击杀一名非首领小怪，激光结束延迟 0.3 秒。", "requires": []},

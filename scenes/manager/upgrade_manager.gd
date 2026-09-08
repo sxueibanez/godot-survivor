@@ -24,6 +24,8 @@ var upgrade_sword_barrage := preload("res://resources/upgrades/sword_barrage.tre
 var upgrade_player_speed := preload("res://resources/upgrades/player_speed.tres")
 var upgrade_player_health := preload("res://resources/upgrades/player_health.tres")
 var upgrade_critical_hit := preload("res://resources/upgrades/critical_hit.tres")
+var upgrade_critical_damage := preload("res://resources/upgrades/critical_damage.tres")
+var upgrade_speed_damage_no_crit := preload("res://resources/upgrades/speed_damage_no_crit.tres")
 var upgrade_laser_gun := preload("res://resources/upgrades/laser_gun.tres")
 var upgrade_laser_gun_damage := preload("res://resources/upgrades/laser_gun_damage.tres")
 var upgrade_laser_gun_size := preload("res://resources/upgrades/laser_gun_size.tres")
@@ -48,11 +50,16 @@ func _ready():
 	GameEvents.weapon_attack_count = 1
 	GameEvents.ability_critical_chance = 0.0
 	GameEvents.meta_critical_chance = MetaProgression.get_upgrade_count("meta_critical_chance") * 0.01
+	GameEvents.critical_damage_multiplier = 2.0
+	GameEvents.critical_disabled = false
+	GameEvents.speed_damage_no_crit = false
 	GameEvents.life_steal_percent = MetaProgression.get_upgrade_count("meta_life_steal") * 0.01
 	GameEvents.refresh_critical_chance()
 	upgrade_pool.add_item(upgrade_player_speed, 5)
 	upgrade_pool.add_item(upgrade_player_health, 8)
 	upgrade_pool.add_item(upgrade_critical_hit, 8)
+	upgrade_pool.add_item(upgrade_critical_damage, 5)
+	upgrade_pool.add_item(upgrade_speed_damage_no_crit, 5)
 	upgrade_pool.add_item(upgrade_attack_count, 5)
 	for weapon: Ability in weapon_upgrades:
 		weapon_pool.add_item(weapon, 10)
@@ -85,7 +92,10 @@ func apply_upgrade(upgrade: AbilityUpgrade):
 
 
 func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
-	if chosen_upgrade.id == upgrade_sword.id:
+	if chosen_upgrade.id == upgrade_speed_damage_no_crit.id:
+		upgrade_pool.remove_item(upgrade_critical_hit)
+		upgrade_pool.remove_item(upgrade_critical_damage)
+	elif chosen_upgrade.id == upgrade_sword.id:
 		upgrade_pool.add_item(upgrade_sword_rate, 10)
 		upgrade_pool.add_item(upgrade_sword_damage, 10)
 		add_unlocked_special(upgrade_sword_chain, "tree_sword_chain", 5)

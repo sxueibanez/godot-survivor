@@ -29,5 +29,8 @@ func _init() -> void:
 	assert(player_script.get_missing_health_stacks(150.0, 150.0) == 0)
 	assert(player_script.get_missing_health_stacks(150.0, 140.0) == 1)
 	assert(player_script.get_missing_health_stacks(150.0, 119.9) == 3)
+	assert(is_equal_approx(player_script.get_speed_damage_multiplier(19), 1.0))
+	assert(is_equal_approx(player_script.get_speed_damage_multiplier(20), 1.1))
+	assert(is_equal_approx(player_script.get_speed_damage_multiplier(75), 1.3))
 	assert(!bool(elf_ranger.get("custom_walk_animation")))
 	quit()

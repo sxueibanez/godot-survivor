@@ -25,6 +25,10 @@ func _init() -> void:
 	assert(load("res://resources/upgrades/laser_gun_stun.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/laser_gun_kill_duration.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/critical_hit.tres") is AbilityUpgrade)
+	var critical_damage_upgrade := load("res://resources/upgrades/critical_damage.tres") as AbilityUpgrade
+	var speed_damage_no_crit_upgrade := load("res://resources/upgrades/speed_damage_no_crit.tres") as AbilityUpgrade
+	assert(critical_damage_upgrade != null and critical_damage_upgrade.max_quantity == 0)
+	assert(speed_damage_no_crit_upgrade != null and speed_damage_no_crit_upgrade.max_quantity == 1)
 	assert(load("res://resources/upgrades/axe_reflect.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/axe_distance_power.tres") is AbilityUpgrade)
 	assert(is_equal_approx(AxeAbility.get_distance_multiplier(0.0), 1.0))
@@ -37,7 +41,12 @@ func _init() -> void:
 	var velocity := VelocityComponent.new()
 	velocity.apply_stun(0.5)
 	assert(is_equal_approx(velocity.stun_time_left, 0.5))
+	GameEvents.emit_ability_upgrade_added(critical_damage_upgrade, {"critical_damage": {"quantity": 1}})
 	GameEvents.critical_chance = 1.0
+	GameEvents.critical_disabled = false
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(10.0)
-	assert(critical_hit["critical"] and is_equal_approx(critical_hit["damage"], 20.0))
+	assert(critical_hit["critical"] and is_equal_approx(critical_hit["damage"], 22.0))
+	GameEvents.emit_ability_upgrade_added(speed_damage_no_crit_upgrade, {"speed_damage_no_crit": {"quantity": 1}})
+	var non_critical_hit: Dictionary = GameEvents.get_critical_damage(10.0)
+	assert(!non_critical_hit["critical"] and is_equal_approx(non_critical_hit["damage"], 10.0))
 	quit()

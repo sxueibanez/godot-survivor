@@ -7,6 +7,13 @@ func _init() -> void:
 	root.add_child(laser)
 	assert(is_equal_approx(laser.beam.width, 16.0))
 	assert(is_equal_approx((laser.collision_shape.shape as RectangleShape2D).size.y, 16.0))
+	assert(laser.bounce_beams.size() == 3)
+	for bounce_beam: Line2D in laser.bounce_beams:
+		assert(is_equal_approx(bounce_beam.width, 4.0))
+	assert(is_equal_approx(laser.get_primary_beam_length(), LaserGunAbility.BEAM_LENGTH))
+	laser.reflection_enabled = true
+	assert(is_equal_approx(laser.get_primary_beam_length(), LaserGunAbility.BEAM_LENGTH * 1.5))
+	laser.reflection_enabled = false
 	assert(is_equal_approx(laser.get_node("Sprite2D").scale.x, 0.75))
 	var enemies: Array = []
 	for position: Vector2 in [Vector2(100, 20), Vector2(110, 20), Vector2(250, 0)]:

@@ -72,10 +72,17 @@ static func get_missing_health_stacks(max_health: float, current_health: float) 
 	return floori(maxf(max_health - current_health, 0.0) / 10.0)
 
 
+static func get_speed_damage_multiplier(move_speed: int) -> float:
+	return 1.0 + floori(move_speed / 20.0) * 0.1
+
+
 func refresh_missing_health_passive() -> void:
 	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
+	var move_speed := roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1)) + stacks * int(character.get("missing_health_speed_bonus_per_10"))
+	velocity_component.max_speed = move_speed
 	GameEvents.player_damage_multiplier = 1.0 + stacks * float(character.get("missing_health_damage_bonus_per_10"))
-	velocity_component.max_speed = roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1)) + stacks * int(character.get("missing_health_speed_bonus_per_10"))
+	if GameEvents.speed_damage_no_crit:
+		GameEvents.player_damage_multiplier *= get_speed_damage_multiplier(move_speed)
 
 
 func _process(delta):
@@ -161,6 +168,8 @@ func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades:
 		abilities.add_child(controller)
 	elif ability_upgrade.id == "player_speed":
 		player_speed_upgrade_quantity = int(current_upgrades["player_speed"]["quantity"])
+		refresh_missing_health_passive()
+	elif ability_upgrade.id == "speed_damage_no_crit":
 		refresh_missing_health_passive()
 	elif ability_upgrade.id == "player_health":
 		var previous_max_health: float = health_component.max_health

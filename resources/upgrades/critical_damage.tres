@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1")
-id = "laser_gun_reflect"
-max_quantity = 1
-name = "边界折射"
-description = "主射线长度提升 50%；碰到地图边缘时反射三根扇形射线：长度 150%、伤害 75%、宽度 25%。"
+id = "critical_damage"
+max_quantity = 0
+name = "致命强化"
+description = "暴击伤害提升20%。无等级上限。"

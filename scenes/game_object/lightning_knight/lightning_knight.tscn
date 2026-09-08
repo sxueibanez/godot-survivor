@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scenes/game_object/lightning_knight/lightning_knight.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight.png" id="2"]
@@ -20,9 +20,6 @@ radius = 48.0
 
 [sub_resource type="CircleShape2D" id="body_shape"]
 radius = 38.0
-
-[sub_resource type="StyleBoxFlat" id="health_fill"]
-bg_color = Color(0.18, 0.78, 1, 1)
 
 [sub_resource type="SpriteFrames" id="walk_frames"]
 animations = [{
@@ -60,6 +57,7 @@ animations = [{
 }]
 
 [node name="LightningKnight" type="CharacterBody2D" groups=["enemy", "boss"]]
+metadata/display_name = "闪电骑士"
 collision_layer = 8
 collision_mask = 9
 script = ExtResource("1")
@@ -70,17 +68,6 @@ max_health = 3600.0
 [node name="VelocityComponent" parent="." instance=ExtResource("4")]
 max_speed = 68
 acceleration = 3.0
-
-[node name="HealthBar" type="ProgressBar" parent="."]
-custom_minimum_size = Vector2(102, 7)
-offset_left = -51.0
-offset_top = -70.0
-offset_right = 51.0
-offset_bottom = -63.0
-max_value = 1.0
-value = 1.0
-show_percentage = false
-theme_override_styles/fill = SubResource("health_fill")
 
 [node name="HurtboxComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
 health_component = NodePath("../HealthComponent")

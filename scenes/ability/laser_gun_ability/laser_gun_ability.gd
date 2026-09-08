@@ -11,6 +11,10 @@ const AUTO_AIM_INTERVAL := 0.1
 const AUTO_AIM_RANGE := 300.0
 const CLUSTER_RADIUS := 54.0
 const KILL_DURATION_EXTENSION := 0.3
+const REFLECTION_LENGTH_MULTIPLIER := 1.5
+const REFLECTION_DAMAGE_MULTIPLIER := 0.75
+const REFLECTION_WIDTH_MULTIPLIER := 0.25
+const REFLECTION_ANGLES := [-15.0, 0.0, 15.0]
 
 @export var source: Node2D
 @export var damage_per_second := 8.0
@@ -24,7 +28,6 @@ const KILL_DURATION_EXTENSION := 0.3
 @onready var beam: Line2D = $Beam
 @onready var collision_shape: CollisionShape2D = $LaserArea/CollisionShape2D
 @onready var laser_area: Area2D = $LaserArea
-@onready var bounce_collision_shape: CollisionShape2D = $LaserBounceArea/CollisionShape2D
 @onready var laser_bounce_area: Area2D = $LaserBounceArea
 
 var direction := Vector2.RIGHT
@@ -35,14 +38,30 @@ var critical_damage_totals := {}
 var stun_hit_times := {}
 var stun_hit_cooldowns := {}
 var auto_aim_time_left := AUTO_AIM_INTERVAL
+var bounce_areas: Array[Area2D] = []
+var bounce_collision_shapes: Array[CollisionShape2D] = []
+var bounce_beams: Array[Line2D] = []
 
 
 func _ready() -> void:
 	rotation = direction.angle()
 	beam.width = beam_width
 	(collision_shape.shape as RectangleShape2D).size.y = beam_width
-	(bounce_collision_shape.shape as RectangleShape2D).size.y = beam_width
-	laser_bounce_area.monitoring = false
+	for index in REFLECTION_ANGLES.size():
+		var bounce_area: Area2D = laser_bounce_area if index == 0 else laser_bounce_area.duplicate() as Area2D
+		if index > 0:
+			bounce_area.name = "LaserBounceArea%d" % (index + 1)
+			add_child(bounce_area)
+			var shape: CollisionShape2D = bounce_area.get_node("CollisionShape2D") as CollisionShape2D
+			shape.shape = shape.shape.duplicate()
+		bounce_areas.append(bounce_area)
+		bounce_collision_shapes.append(bounce_area.get_node("CollisionShape2D") as CollisionShape2D)
+		var bounce_beam := beam.duplicate() as Line2D
+		bounce_beam.name = "BounceBeam%d" % (index + 1)
+		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER
+		bounce_beam.visible = false
+		add_child(bounce_beam)
+		bounce_beams.append(bounce_beam)
 
 
 func _physics_process(delta: float) -> void:
@@ -55,9 +74,10 @@ func _physics_process(delta: float) -> void:
 	configure_beam()
 	for area in laser_area.get_overlapping_areas():
 		apply_damage(area, delta)
-	if laser_bounce_area.monitoring:
-		for area in laser_bounce_area.get_overlapping_areas():
-			apply_damage(area, delta)
+	for bounce_area: Area2D in bounce_areas:
+		if bounce_area.monitoring:
+			for area in bounce_area.get_overlapping_areas():
+				apply_damage(area, delta, REFLECTION_DAMAGE_MULTIPLIER)
 
 	floating_text_time_left -= delta
 	if floating_text_time_left <= 0:
@@ -106,9 +126,10 @@ func find_densest_enemy(enemies: Array) -> Node2D:
 
 
 func configure_beam() -> void:
+	var primary_beam_length := get_primary_beam_length()
 	var start: Vector2 = global_position + direction * BEAM_START
-	var end: Vector2 = global_position + direction * (BEAM_START + BEAM_LENGTH)
-	var first_length: float = BEAM_LENGTH
+	var end: Vector2 = global_position + direction * (BEAM_START + primary_beam_length)
+	var first_length: float = primary_beam_length
 	var query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(start, end, 1)
 	var hit: Dictionary = get_world_2d().direct_space_state.intersect_ray(query)
 	var hit_position: Vector2 = Vector2.ZERO
@@ -120,32 +141,47 @@ func configure_beam() -> void:
 	(collision_shape.shape as RectangleShape2D).size.x = first_length
 	collision_shape.position = Vector2(BEAM_START + first_length * 0.5, 0)
 	beam.points = PackedVector2Array([Vector2(BEAM_START, 0), Vector2(BEAM_START + first_length, 0)])
-	laser_bounce_area.monitoring = reflection_enabled and not hit.is_empty()
-	if not laser_bounce_area.monitoring:
+	var has_reflection := reflection_enabled and not hit.is_empty()
+	for bounce_area: Area2D in bounce_areas:
+		bounce_area.monitoring = has_reflection
+	for bounce_beam: Line2D in bounce_beams:
+		bounce_beam.visible = has_reflection
+	if not has_reflection:
 		return
 
-	var bounce_direction: Vector2 = direction.bounce(hit_normal)
-	var bounce_end: Vector2 = hit_position + bounce_direction * BEAM_LENGTH * 0.5
-	var bounce_query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(hit_position, bounce_end, 1)
-	var bounce_hit: Dictionary = get_world_2d().direct_space_state.intersect_ray(bounce_query)
-	var bounce_length: float = BEAM_LENGTH * 0.5
-	if not bounce_hit.is_empty():
-		var bounce_hit_position: Vector2 = bounce_hit["position"]
-		bounce_length = hit_position.distance_to(bounce_hit_position)
-	laser_bounce_area.global_position = hit_position
-	laser_bounce_area.global_rotation = bounce_direction.angle()
-	(bounce_collision_shape.shape as RectangleShape2D).size.x = bounce_length
-	bounce_collision_shape.position = Vector2(bounce_length * 0.5, 0)
-	beam.points = PackedVector2Array([Vector2(BEAM_START, 0), to_local(hit_position), to_local(hit_position + bounce_direction * bounce_length)])
+	var reflection_direction: Vector2 = direction.bounce(hit_normal)
+	for index in REFLECTION_ANGLES.size():
+		var bounce_direction: Vector2 = reflection_direction.rotated(deg_to_rad(float(REFLECTION_ANGLES[index])))
+		var bounce_end: Vector2 = hit_position + bounce_direction * BEAM_LENGTH * REFLECTION_LENGTH_MULTIPLIER
+		var bounce_query: PhysicsRayQueryParameters2D = PhysicsRayQueryParameters2D.create(hit_position, bounce_end, 1)
+		var bounce_hit: Dictionary = get_world_2d().direct_space_state.intersect_ray(bounce_query)
+		var bounce_length: float = BEAM_LENGTH * REFLECTION_LENGTH_MULTIPLIER
+		if not bounce_hit.is_empty():
+			bounce_length = hit_position.distance_to(bounce_hit["position"])
+		var bounce_area: Area2D = bounce_areas[index]
+		bounce_area.global_position = hit_position
+		bounce_area.global_rotation = bounce_direction.angle()
+		var bounce_shape: CollisionShape2D = bounce_collision_shapes[index]
+		(bounce_shape.shape as RectangleShape2D).size = Vector2(bounce_length, beam_width * REFLECTION_WIDTH_MULTIPLIER)
+		bounce_shape.position = Vector2(bounce_length * 0.5, 0)
+		var bounce_beam: Line2D = bounce_beams[index]
+		bounce_beam.global_position = hit_position
+		bounce_beam.global_rotation = bounce_direction.angle()
+		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER
+		bounce_beam.points = PackedVector2Array([Vector2.ZERO, Vector2.RIGHT * bounce_length])
 
 
-func apply_damage(area: Area2D, delta: float) -> void:
+func get_primary_beam_length() -> float:
+	return BEAM_LENGTH * (REFLECTION_LENGTH_MULTIPLIER if reflection_enabled else 1.0)
+
+
+func apply_damage(area: Area2D, delta: float, damage_scale: float = 1.0) -> void:
 	if not area is HurtboxComponent:
 		return
 	var damage_multiplier: float = 1.0
 	if damage_ramp_enabled:
 		damage_multiplier += (DURATION - time_left) / DURATION
-	var damage: float = damage_per_second * damage_multiplier * delta
+	var damage: float = damage_per_second * damage_multiplier * damage_scale * delta
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
 	var killed: bool = area.health_component.damage(critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])

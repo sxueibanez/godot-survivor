@@ -1,10 +1,10 @@
 extends CharacterBody2D
 
 
-const SLIME_SPRAY_COOLDOWN := 20.0
+const SLIME_SPRAY_COOLDOWN := 10.0
 const MINION_COUNT := 10
 const JUMP_COUNT := 3
-const TELEPORT_WARNING_DURATION := 0.28
+const TELEPORT_WARNING_DURATION := 0.5
 const TELEPORT_DAMAGE_RADIUS := 48.0
 const TELEPORT_DAMAGE := 45.0
 const JUMP_WARNING_DURATION := 0.6
@@ -16,7 +16,7 @@ const TRAIL_PUDDLE_LIFETIME := 3.8
 const TRAIL_PUDDLE_DAMAGE := 4.0
 const TRAIL_SLOW_PERCENT := 0.35
 const TRAIL_SLOW_DURATION := 0.7
-const TRAIL_INTERVAL := 0.35
+const TRAIL_INTERVAL := 0.5
 const CHARGE_WARNING_DURATION := 0.65
 const CHARGE_SPEED := 360.0
 const CHARGE_MAX_DISTANCE := 220.0
@@ -31,7 +31,6 @@ var corrosive_puddle_scene: PackedScene = preload("res://scenes/game_object/corr
 
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var velocity_component: VelocityComponent = $VelocityComponent
-@onready var health_bar: ProgressBar = $HealthBar
 @onready var visuals: Node2D = $Visuals
 
 var slime_spray_time_left := 5.0
@@ -87,10 +86,6 @@ class ChargeTelegraph extends Node2D:
 		var endpoint: Vector2 = direction * length
 		draw_line(Vector2.ZERO, endpoint, Color(1.0, 0.08, 0.08, 0.3 + pulse * 0.3), 7.0)
 		draw_circle(endpoint, CHARGE_HIT_RADIUS, Color(1.0, 0.12, 0.12, 0.16 + pulse * 0.18))
-
-
-func _ready() -> void:
-	health_component.health_changed.connect(update_health_bar)
 
 
 func _process(delta: float) -> void:
@@ -167,7 +162,7 @@ func leave_trail_puddle() -> void:
 	var puddle: CorrosivePuddle = corrosive_puddle_scene.instantiate() as CorrosivePuddle
 	puddle.configure(TRAIL_PUDDLE_LIFETIME, TRAIL_PUDDLE_DAMAGE, TRAIL_SLOW_PERCENT, TRAIL_SLOW_DURATION, 0.8)
 	foreground.add_child(puddle)
-	puddle.global_position = global_position
+	puddle.global_position = global_position - velocity.normalized() * 30.0
 	puddle.scale = Vector2.ONE
 	puddle.activate()
 
@@ -310,7 +305,3 @@ func animate_movement(delta: float) -> void:
 	var bounce: float = sin(movement_animation_time)
 	visuals.position.y = -absf(bounce) * 3.0
 	visuals.scale = Vector2(1.0 + bounce * 0.08, 1.0 - bounce * 0.08)
-
-
-func update_health_bar() -> void:
-	health_bar.value = health_component.get_health_percent()
