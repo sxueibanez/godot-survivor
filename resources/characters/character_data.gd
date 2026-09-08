@@ -3,8 +3,13 @@ class_name CharacterData
 
 @export var id: String
 @export var display_name: String
+@export var max_health := 100.0
+@export var move_speed := 90
 @export var melee_damage_bonus := 0.0
 @export var ranged_damage_bonus := 0.0
+@export var missing_health_damage_bonus_per_10 := 0.0
+@export var missing_health_speed_bonus_per_10 := 0
+@export_multiline var passive_description := ""
 @export var sprite: Texture2D
 @export var visual_scale := 1.0
 @export var sprite_offset := Vector2.ZERO

@@ -18,18 +18,14 @@ var number_colliding_bodies := 0
 var base_speed := 0
 var base_health := 0.0
 var previous_health := 0.0
+var player_speed_upgrade_quantity := 0
 var character_visual_scale := 1.0
 var walk_animation_time := 0.0
 
 
 func _ready():
 	apply_character_visual()
-	base_health = health_component.max_health * (1.0 + MetaProgression.get_upgrade_count("meta_health") * 0.01)
-	health_component.max_health = base_health
-	health_component.current_health = health_component.max_health
-	previous_health = health_component.current_health
-	base_speed = roundi(velocity_component.max_speed * (1.0 + MetaProgression.get_upgrade_count("meta_speed") * 0.01))
-	velocity_component.max_speed = base_speed
+	apply_character_base_stats()
 	
 	$CollisionArea2D.body_entered.connect(on_body_entered)
 	$CollisionArea2D.body_exited.connect(on_body_exited)
@@ -58,6 +54,28 @@ func apply_character_visual() -> void:
 func set_character(new_character: Resource) -> void:
 	character = new_character
 	apply_character_visual()
+	if is_node_ready():
+		apply_character_base_stats()
+
+
+func apply_character_base_stats() -> void:
+	base_health = float(character.get("max_health")) * (1.0 + MetaProgression.get_upgrade_count("meta_health") * 0.01)
+	health_component.max_health = base_health
+	health_component.current_health = base_health
+	previous_health = base_health
+	base_speed = roundi(int(character.get("move_speed")) * (1.0 + MetaProgression.get_upgrade_count("meta_speed") * 0.01))
+	refresh_missing_health_passive()
+	update_health_display()
+
+
+static func get_missing_health_stacks(max_health: float, current_health: float) -> int:
+	return floori(maxf(max_health - current_health, 0.0) / 10.0)
+
+
+func refresh_missing_health_passive() -> void:
+	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
+	GameEvents.player_damage_multiplier = 1.0 + stacks * float(character.get("missing_health_damage_bonus_per_10"))
+	velocity_component.max_speed = roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1)) + stacks * int(character.get("missing_health_speed_bonus_per_10"))
 
 
 func _process(delta):
@@ -125,6 +143,7 @@ func on_damage_interval_timer_timeout():
 
 
 func on_health_changed():
+	refresh_missing_health_passive()
 	if health_component.current_health < previous_health:
 		GameEvents.emit_player_damaged()
 		$HitRandomStreamPlayer.play_random()
@@ -141,7 +160,8 @@ func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades:
 		controller.set("character_damage_multiplier", character.call("get_weapon_damage_multiplier", ability))
 		abilities.add_child(controller)
 	elif ability_upgrade.id == "player_speed":
-		velocity_component.max_speed = base_speed + (base_speed * current_upgrades["player_speed"]["quantity"] * 0.1)
+		player_speed_upgrade_quantity = int(current_upgrades["player_speed"]["quantity"])
+		refresh_missing_health_passive()
 	elif ability_upgrade.id == "player_health":
 		var previous_max_health: float = health_component.max_health
 		health_component.max_health = base_health * (1.0 + current_upgrades["player_health"]["quantity"] * 0.1)

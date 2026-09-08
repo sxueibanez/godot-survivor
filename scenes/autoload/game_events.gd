@@ -12,6 +12,7 @@ var critical_chance := 0.0
 var ability_critical_chance := 0.0
 var meta_critical_chance := 0.0
 var life_steal_percent := 0.0
+var player_damage_multiplier := 1.0
 
 
 func emit_experience_vial_collected(number: float):
@@ -33,7 +34,7 @@ func refresh_critical_chance() -> void:
 
 func get_critical_damage(damage: float) -> Dictionary:
 	var critical := randf() < critical_chance
-	return {"damage": damage * (2.0 if critical else 1.0), "critical": critical}
+	return {"damage": damage * player_damage_multiplier * (2.0 if critical else 1.0), "critical": critical}
 
 
 func heal_from_damage(damage: float) -> void:
