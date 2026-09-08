@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sword_rain_giant"
+max_quantity = 1
+name = "巨型剑阵"
+description = "同时存在 3 个剑阵时，在主角位置召唤双倍大小、双倍伤害、持续时间减半的剑阵。"

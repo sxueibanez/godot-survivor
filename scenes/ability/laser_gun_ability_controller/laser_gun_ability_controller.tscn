@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/laser_gun_ability_controller/laser_gun_ability_controller.gd" id="1_laser"]
+[ext_resource type="PackedScene" path="res://scenes/ability/laser_gun_ability/laser_gun_ability.tscn" id="2_laser"]
+
+[node name="LaserGunAbilityController" type="Node"]
+script = ExtResource("1_laser")
+laser_gun_ability_scene = ExtResource("2_laser")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 4.0
+autostart = true

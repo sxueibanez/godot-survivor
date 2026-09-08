@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sword_rain"
+max_quantity = 1
+name = "剑阵"
+description = "场上同时存在超过 5 柄剑时，在怪物最密集处召唤剑阵。每 0.5 秒造成 80% 剑伤害，持续 5 秒。"

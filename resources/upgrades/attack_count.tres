@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_attack"]
+
+[resource]
+script = ExtResource("1_attack")
+id = "attack_count"
+max_quantity = 1
+name = "连发增幅"
+description = "所有武器每次攻击额外释放 1 次。"

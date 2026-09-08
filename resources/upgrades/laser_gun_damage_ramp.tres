@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "laser_gun_damage_ramp"
+max_quantity = 1
+name = "过载射线"
+description = "单次射线伤害随持续时间提高，最高为初始伤害的200%。"

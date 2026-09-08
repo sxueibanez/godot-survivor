@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "axe_reflect"
+max_quantity = 1
+name = "回旋反弹"
+description = "飞斧接触敌方弹幕时，将弹幕反弹向最近的敌人。"

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_health"]
+
+[resource]
+script = ExtResource("1_health")
+id = "meta_health"
+max_quantity = 0
+experience_cost = 10
+title = "永久生命"
+description = "每级最大生命提升 1%。"

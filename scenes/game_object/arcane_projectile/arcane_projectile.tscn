@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/game_object/arcane_projectile/arcane_projectile.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/enemies/arcane_projectile.png" id="2"]
+
+[node name="ArcaneProjectile" type="Node2D" groups=["enemy_projectile"]]
+script = ExtResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2")
+scale = Vector2(0.012, 0.012)

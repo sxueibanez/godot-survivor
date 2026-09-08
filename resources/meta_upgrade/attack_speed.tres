@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_meta"]
+
+[resource]
+script = ExtResource("1_meta")
+id = "meta_attack_speed"
+max_quantity = 10
+experience_cost = 200
+escalating_cost = true
+title = "永久攻速"
+description = "每级所有武器攻击间隔缩短 3%。每次购买的花费增加 200 瓶。"

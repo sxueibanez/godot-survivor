@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "laser_gun_stun"
+max_quantity = 1
+name = "神经震荡"
+description = "怪物在1秒内受到5次激光伤害时，眩晕0.5秒。"

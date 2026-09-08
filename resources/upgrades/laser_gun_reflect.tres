@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "laser_gun_reflect"
+max_quantity = 1
+name = "边界折射"
+description = "射线碰到地图边缘时反射一次，反射距离为原射程的50%。"

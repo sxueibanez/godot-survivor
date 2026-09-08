@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/component/health_vial_drop_component.gd" id="1_health"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/health_vial/health_vial.tscn" id="2_health"]
+
+[node name="HealthVialDropComponent" type="Node"]
+script = ExtResource("1_health")
+vial_scene = ExtResource("2_health")

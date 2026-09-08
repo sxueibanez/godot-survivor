@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3 uid="uid://b1j6h4bippirj"]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_6epyd"]
+
+[resource]
+script = ExtResource("1_6epyd")
+id = "experience_gain"
+max_quantity = 1
+experience_cost = 100
+title = "经验增益"
+description = "经验药瓶掉落概率提升 10%。"

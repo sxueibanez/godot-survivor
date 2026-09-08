@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_chain"]
+
+[resource]
+script = ExtResource("1_chain")
+id = "lightning_chain"
+max_quantity = 1
+name = "闪电链"
+description = "闪电鞭命中时有 50% 概率对附近敌人释放一条造成 4 点伤害的闪电链。"

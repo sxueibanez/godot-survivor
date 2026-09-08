@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_whip"]
+
+[resource]
+script = ExtResource("1_whip")
+id = "lightning_whip_damage"
+max_quantity = 0
+name = "鞭痕增幅"
+description = "闪电鞭伤害提升 20%。"

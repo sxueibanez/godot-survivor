@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sword_chain"
+max_quantity = 1
+name = "剑影追击"
+description = "剑命中敌人后有 30% 概率再次召唤一柄剑，连续触发同样有 30% 概率。"

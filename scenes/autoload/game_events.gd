@@ -1,0 +1,55 @@
+extends Node
+
+signal experience_vial_collected(number: float)
+signal ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary)
+signal sword_hit_target(target: Node2D)
+signal player_damaged
+signal player_healed
+
+var weapon_attack_count := 1
+var arena_difficulty := 0
+var critical_chance := 0.0
+var ability_critical_chance := 0.0
+var meta_critical_chance := 0.0
+var life_steal_percent := 0.0
+
+
+func emit_experience_vial_collected(number: float):
+	experience_vial_collected.emit(number)
+
+
+func emit_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):
+	if upgrade.id == "attack_count":
+		weapon_attack_count = current_upgrades[upgrade.id]["quantity"] + 1
+	elif upgrade.id == "critical_hit":
+		ability_critical_chance = current_upgrades[upgrade.id]["quantity"] * 0.05
+		refresh_critical_chance()
+	ability_upgrade_added.emit(upgrade, current_upgrades)
+
+
+func refresh_critical_chance() -> void:
+	critical_chance = ability_critical_chance + meta_critical_chance
+
+
+func get_critical_damage(damage: float) -> Dictionary:
+	var critical := randf() < critical_chance
+	return {"damage": damage * (2.0 if critical else 1.0), "critical": critical}
+
+
+func heal_from_damage(damage: float) -> void:
+	if life_steal_percent <= 0.0:
+		return
+	var player: Node = get_tree().get_first_node_in_group("player") as Node
+	if player == null:
+		return
+	var health_component: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
+	if health_component != null:
+		health_component.heal(damage * life_steal_percent)
+
+
+func emit_player_damaged():
+	player_damaged.emit()
+
+
+func emit_player_healed():
+	player_healed.emit()

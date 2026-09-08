@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "critical_hit"
+max_quantity = 10
+name = "致命一击"
+description = "暴击几率初始5%，每级提升5%。暴击造成200%伤害。"

@@ -1,0 +1,16 @@
+[gd_scene load_steps=5 format=3 uid="uid://b20x14h768t03"]
+
+[ext_resource type="Script" path="res://scenes/ability/sword_ability_controller/sword_ability_controller.gd" id="1_q8g0o"]
+[ext_resource type="PackedScene" uid="uid://dini725amwnfl" path="res://scenes/ability/sword_ability/sword_ability.tscn" id="2_3ercb"]
+[ext_resource type="PackedScene" path="res://scenes/ability/sword_rain_ability/sword_rain_ability.tscn" id="3_rain"]
+[ext_resource type="PackedScene" path="res://scenes/ability/sword_barrage_ability/sword_barrage_ability.tscn" id="4_barrage"]
+
+[node name="SwordAbilityController" type="Node"]
+script = ExtResource("1_q8g0o")
+sword_ability = ExtResource("2_3ercb")
+sword_rain_ability = ExtResource("3_rain")
+sword_barrage_ability = ExtResource("4_barrage")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 1.5
+autostart = true

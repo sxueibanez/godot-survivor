@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_meta"]
+
+[resource]
+script = ExtResource("1_meta")
+id = "meta_life_steal"
+max_quantity = 5
+experience_cost = 200
+escalating_cost = true
+title = "永久吸血"
+description = "每级造成伤害时，回复实际伤害的 1%。每次购买的花费增加 200 瓶。"

@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://scenes/ability/laser_gun_ability/laser_gun.png" id="1_laser"]
+[ext_resource type="Script" path="res://scenes/ability/laser_gun_ability/laser_gun_ability.gd" id="2_laser"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_laser"]
+resource_local_to_scene = true
+size = Vector2(260, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bounce"]
+resource_local_to_scene = true
+size = Vector2(130, 8)
+
+[node name="LaserGunAbility" type="Node2D"]
+script = ExtResource("2_laser")
+
+[node name="Beam" type="Line2D" parent="."]
+z_index = 1
+points = PackedVector2Array(24, 0, 284, 0)
+width = 8.0
+default_color = Color(0.231373, 0.952941, 1, 0.9)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(8, 0)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("1_laser")
+
+[node name="LaserArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 32
+monitoring = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserArea"]
+position = Vector2(154, 0)
+shape = SubResource("RectangleShape2D_laser")
+
+[node name="LaserBounceArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 32
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserBounceArea"]
+position = Vector2(65, 0)
+shape = SubResource("RectangleShape2D_bounce")

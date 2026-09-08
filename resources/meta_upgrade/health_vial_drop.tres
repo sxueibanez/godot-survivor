@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_vial"]
+
+[resource]
+script = ExtResource("1_vial")
+id = "health_vial_drop"
+max_quantity = 2
+experience_cost = 50
+title = "恢复瓶掉落"
+description = "每级使怪物额外有 5% 概率掉落恢复 10% 生命的恢复瓶。"
