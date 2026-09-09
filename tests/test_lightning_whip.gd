@@ -14,6 +14,7 @@ func run_test() -> void:
 	var second_enemy := make_enemy(Vector2(90, 40))
 
 	var whip := preload("res://scenes/ability/lightning_whip_ability/lightning_whip_ability.tscn").instantiate() as LightningWhipAbility
+	whip.size_multiplier = 2.0
 	root.add_child(whip)
 	assert((enemy.get_node("HealthComponent") as HealthComponent).current_health == 92.0)
 	assert((second_enemy.get_node("HealthComponent") as HealthComponent).current_health == 92.0)

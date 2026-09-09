@@ -41,12 +41,15 @@ var upgrade_lightning_whip_damage := preload("res://resources/upgrades/lightning
 var upgrade_lightning_whip_size := preload("res://resources/upgrades/lightning_whip_size.tres")
 var upgrade_lightning_whip_rate := preload("res://resources/upgrades/lightning_whip_rate.tres")
 var upgrade_lightning_chain := preload("res://resources/upgrades/lightning_chain.tres")
+var upgrade_lightning_cloud := preload("res://resources/upgrades/lightning_cloud.tres")
+var upgrade_lightning_wide_arc := preload("res://resources/upgrades/lightning_wide_arc.tres")
 
 var rng := RandomNumberGenerator.new()
 var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip]
 
 
 func _ready():
+	GameEvents.reset_run_stats()
 	GameEvents.weapon_attack_count = 1
 	GameEvents.ability_critical_chance = 0.0
 	GameEvents.meta_critical_chance = MetaProgression.get_upgrade_count("meta_critical_chance") * 0.01
@@ -123,6 +126,8 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		upgrade_pool.add_item(upgrade_lightning_whip_size, 10)
 		upgrade_pool.add_item(upgrade_lightning_whip_rate, 10)
 		add_unlocked_special(upgrade_lightning_chain, "tree_lightning_chain", 5)
+		add_unlocked_special(upgrade_lightning_cloud, "tree_lightning_cloud", 5)
+		add_unlocked_special(upgrade_lightning_wide_arc, "tree_lightning_wide_arc", 5)
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:

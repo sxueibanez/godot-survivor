@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/game_object/cyclops_laser/cyclops_laser.gd" id="1_laser"]
+
+[node name="CyclopsLaser" type="Node2D" groups=["enemy_projectile"]]
+script = ExtResource("1_laser")

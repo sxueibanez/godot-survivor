@@ -5,6 +5,7 @@ const BEAM_START := 24.0
 const BEAM_LENGTH := 260.0
 const DURATION := 2.0
 const FLOATING_TEXT_INTERVAL := 0.2
+const HIT_SOUND_INTERVAL := 0.2
 const STUN_HIT_INTERVAL := 0.2
 const STUN_HIT_WINDOW := 1.0
 const AUTO_AIM_INTERVAL := 0.1
@@ -29,6 +30,8 @@ const REFLECTION_ANGLES := [-15.0, 0.0, 15.0]
 @onready var collision_shape: CollisionShape2D = $LaserArea/CollisionShape2D
 @onready var laser_area: Area2D = $LaserArea
 @onready var laser_bounce_area: Area2D = $LaserBounceArea
+@onready var shot_sound: RandomAudioStreamPlayer2DComponent = $ShotSound
+@onready var hit_sound: RandomAudioStreamPlayer2DComponent = $HitSound
 
 var direction := Vector2.RIGHT
 var time_left := DURATION
@@ -38,12 +41,15 @@ var critical_damage_totals := {}
 var stun_hit_times := {}
 var stun_hit_cooldowns := {}
 var auto_aim_time_left := AUTO_AIM_INTERVAL
+var hit_sound_time_left := 0.0
 var bounce_areas: Array[Area2D] = []
 var bounce_collision_shapes: Array[CollisionShape2D] = []
 var bounce_beams: Array[Line2D] = []
 
 
 func _ready() -> void:
+	if is_instance_valid(source):
+		global_position = source.global_position
 	rotation = direction.angle()
 	beam.width = beam_width
 	(collision_shape.shape as RectangleShape2D).size.y = beam_width
@@ -62,6 +68,7 @@ func _ready() -> void:
 		bounce_beam.visible = false
 		add_child(bounce_beam)
 		bounce_beams.append(bounce_beam)
+	shot_sound.play_random()
 
 
 func _physics_process(delta: float) -> void:
@@ -70,6 +77,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	global_position = source.global_position
+	hit_sound_time_left = maxf(hit_sound_time_left - delta, 0.0)
 	update_auto_aim(delta)
 	configure_beam()
 	for area in laser_area.get_overlapping_areas():
@@ -184,6 +192,10 @@ func apply_damage(area: Area2D, delta: float, damage_scale: float = 1.0) -> void
 	var damage: float = damage_per_second * damage_multiplier * damage_scale * delta
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
 	var killed: bool = area.health_component.damage(critical_hit["damage"])
+	if hit_sound_time_left <= 0:
+		hit_sound.play_random()
+		hit_sound_time_left = HIT_SOUND_INTERVAL
+	GameEvents.record_weapon_damage("laser_gun", critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])
 	if kill_duration_extension_enabled and killed and !area.get_parent().is_in_group("boss"):
 		time_left += KILL_DURATION_EXTENSION

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://vqjgdqb3t2ju"]
+[gd_scene load_steps=10 format=3 uid="uid://vqjgdqb3t2ju"]
 
 [ext_resource type="Script" path="res://scenes/ui/end_screen.gd" id="1_qgnjn"]
 [ext_resource type="PackedScene" uid="uid://dumjej53vmw4d" path="res://scenes/ui/sound_button.tscn" id="2_4hyb7"]
@@ -61,8 +61,12 @@ _data = {
 "out": SubResource("Animation_c5l1u")
 }
 
+[sub_resource type="SystemFont" id="SystemFont_yahei"]
+font_names = PackedStringArray("Microsoft YaHei")
+
 [node name="EndScreen" type="CanvasLayer"]
 process_mode = 3
+layer = 3
 script = ExtResource("1_qgnjn")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -103,7 +107,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer"]
-custom_minimum_size = Vector2(180, 2.08165e-12)
+custom_minimum_size = Vector2(600, 2.08165e-12)
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
@@ -112,12 +116,13 @@ theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 8
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"BlueOutlineLabel"
+theme_override_fonts/font = SubResource("SystemFont_yahei")
 theme_override_constants/shadow_offset_x = 0
 theme_override_constants/shadow_offset_y = 0
 theme_override_font_sizes/font_size = 32
@@ -125,11 +130,73 @@ text = "胜利"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DescriptionLabel" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
+[node name="SummaryLabel" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(384, 0)
 layout_mode = 2
 theme_type_variation = &"BlueOutlineLabel"
-text = "你赢了！"
+theme_override_fonts/font = SubResource("SystemFont_yahei")
+theme_override_font_sizes/font_size = 26
+text = "本局战报"
+horizontal_alignment = 1
+
+[node name="ReportBoxes" type="HBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(584, 142)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Weapon1Panel" type="PanelContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/Weapon1Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="Weapon1Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/Weapon1Panel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_yahei")
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+
+[node name="Weapon2Panel" type="PanelContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/Weapon2Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="Weapon2Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/Weapon2Panel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_yahei")
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+
+[node name="OtherSkillsPanel" type="PanelContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/OtherSkillsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="OtherSkillsLabel" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/ReportBoxes/OtherSkillsPanel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_yahei")
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -137,9 +204,11 @@ layout_mode = 2
 [node name="ContinueButton" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" instance=ExtResource("2_4hyb7")]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_yahei")
 text = "继续"
 
 [node name="QuitButton" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/VBoxContainer" instance=ExtResource("2_4hyb7")]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_yahei")
 text = "返回主菜单"

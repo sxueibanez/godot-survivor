@@ -1,14 +1,59 @@
 [gd_scene format=3 uid="uid://b00rwn6u7t8e1"]
 
 [ext_resource type="Script" uid="uid://dvdiwqf1haj78" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.gd" id="1_whip"]
-[ext_resource type="Texture2D" uid="uid://cxxghahp2fxlk" path="res://scenes/ability/lightning_whip_ability/lightning_whip.png" id="2_whip"]
+[ext_resource type="Texture2D" uid="uid://bg8l05aokj3h3" path="res://scenes/ability/lightning_whip_ability/lightning_whip_frames.png" id="2_frames"]
+
+[sub_resource type="AtlasTexture" id="WhipFrame2"]
+atlas = ExtResource("2_frames")
+region = Rect2(836, 0, 418, 418)
+
+[sub_resource type="AtlasTexture" id="WhipFrame3"]
+atlas = ExtResource("2_frames")
+region = Rect2(0, 418, 418, 418)
+
+[sub_resource type="AtlasTexture" id="WhipFrame1"]
+atlas = ExtResource("2_frames")
+region = Rect2(418, 0, 418, 418)
+
+[sub_resource type="AtlasTexture" id="WhipFrame0"]
+atlas = ExtResource("2_frames")
+region = Rect2(0, 0, 418, 418)
+
+[sub_resource type="AtlasTexture" id="WhipFrame5"]
+atlas = ExtResource("2_frames")
+region = Rect2(836, 418, 418, 418)
+
+[sub_resource type="SpriteFrames" id="WhipFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("WhipFrame2")
+}, {
+"duration": 1.0,
+"texture": SubResource("WhipFrame3")
+}, {
+"duration": 1.0,
+"texture": SubResource("WhipFrame1")
+}, {
+"duration": 1.0,
+"texture": SubResource("WhipFrame0")
+}, {
+"duration": 1.0,
+"texture": SubResource("WhipFrame5")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 4.0
+}]
 
 [node name="LightningWhipAbility" type="Node2D" unique_id=607624360]
 script = ExtResource("1_whip")
 
 [node name="Visuals" type="Node2D" parent="." unique_id=256536389]
 
-[node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=881178827]
+[node name="Sprite2D" type="AnimatedSprite2D" parent="Visuals" unique_id=881178827]
 position = Vector2(40, 0)
-scale = Vector2(2, 2)
-texture = ExtResource("2_whip")
+scale = Vector2(0.18, 0.18)
+sprite_frames = SubResource("WhipFrames")
+autoplay = "default"
+frame_progress = 0.7615545

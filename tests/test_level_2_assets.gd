@@ -12,12 +12,11 @@ func _init() -> void:
 	assert(load("res://assets/enemies/arcane_projectile.png") is Texture2D)
 	assert(load("res://assets/enemies/explosion_smoke.png") is Texture2D)
 	assert(load("res://assets/enemies/lightning_knight.png") is Texture2D)
-	for frame_index in 9:
-		assert(load("res://assets/enemies/lightning_knight_walk_%d.png" % frame_index) is Texture2D)
+	assert(load("res://assets/enemies/lightning_knight_walk_frames.png") is Texture2D)
 	var knight_scene := load("res://scenes/game_object/lightning_knight/lightning_knight.tscn") as PackedScene
 	var knight: Node = knight_scene.instantiate()
 	var walk_sprite := knight.get_node("Visuals/Sprite2D") as AnimatedSprite2D
-	assert(walk_sprite.sprite_frames.get_frame_count(&"walk") == 9)
+	assert(walk_sprite.sprite_frames.get_frame_count(&"walk") == 8)
 	assert(load("res://scenes/game_object/explosion_smoke/explosion_smoke.tscn") is PackedScene)
 	assert(load("res://scenes/ui/player_stats_panel.tscn") is PackedScene)
 	assert(load("res://resources/upgrades/laser_gun_damage_ramp.tres") is AbilityUpgrade)

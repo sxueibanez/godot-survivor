@@ -21,7 +21,12 @@ var lightning_time_left := 2.0
 var dash_time_left := 4.0
 var sword_time_left := 1.0
 var attacking := false
+var attack_cancelled := false
 var walk_time := 0.0
+
+
+func _ready() -> void:
+	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 
 
 class WarningCircle extends Node2D:
@@ -152,7 +157,9 @@ func _process(delta: float) -> void:
 
 func cast_divine_punishment() -> void:
 	attacking = true
+	attack_cancelled = false
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
+	sprite.pause()
 	for bolt_index in LIGHTNING_COUNT:
 		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if player == null:
@@ -160,20 +167,28 @@ func cast_divine_punishment() -> void:
 		var target := player.global_position
 		create_warning(target, 22.0, WARNING_TIME, Color(0.3, 0.8, 1.0))
 		await get_tree().create_timer(WARNING_TIME).timeout
+		if is_attack_interrupted():
+			break
 		strike(target)
 		if bolt_index < LIGHTNING_COUNT - 1:
 			await get_tree().create_timer(LIGHTNING_INTERVAL).timeout
+			if is_attack_interrupted():
+				break
 	lightning_time_left = LIGHTNING_COOLDOWN
+	sprite.play()
 	visuals.scale = Vector2.ONE
 	attacking = false
 
 
 func dash() -> void:
 	attacking = true
+	attack_cancelled = false
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
 	var previous_collision_mask := collision_mask
 	collision_mask = 1 # Dash through enemies; terrain remains the only stopping point.
 	for _dash_index in DASH_COUNT:
+		if is_attack_interrupted():
+			break
 		var hit_player := false
 		var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
 		if player == null:
@@ -187,10 +202,14 @@ func dash() -> void:
 		var windup := create_tween()
 		windup.tween_property(visuals, "scale", Vector2(0.78 * facing, 1.18), WARNING_TIME)
 		await get_tree().create_timer(WARNING_TIME).timeout
+		if is_attack_interrupted():
+			break
 		visuals.scale = Vector2(1.18 * facing, 0.82)
 		var travelled := 0.0
 		while travelled < distance:
 			await get_tree().process_frame
+			if is_attack_interrupted():
+				break
 			var step := minf(DASH_SPEED * get_process_delta_time(), distance - travelled)
 			velocity = direction * DASH_SPEED
 			move_and_slide()
@@ -212,6 +231,7 @@ func throw_greatsword() -> void:
 	if player == null:
 		return
 	attacking = true
+	attack_cancelled = false
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
 	var direction := (player.global_position - global_position).normalized()
 	if direction == Vector2.ZERO:
@@ -220,6 +240,10 @@ func throw_greatsword() -> void:
 	var windup := create_tween()
 	windup.tween_property(visuals, "rotation", -0.14, WARNING_TIME)
 	await get_tree().create_timer(WARNING_TIME).timeout
+	if is_attack_interrupted():
+		visuals.rotation = 0.0
+		attacking = false
+		return
 	visuals.rotation = 0.0
 	var sword := ThrownGreatsword.new()
 	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
@@ -287,6 +311,14 @@ func create_dash_warning(direction: Vector2, length: float) -> void:
 	var warning := DashWarning.new(direction, length, WARNING_TIME)
 	foreground.add_child(warning)
 	warning.global_position = global_position
+
+
+func is_attack_interrupted() -> bool:
+	return attack_cancelled or get_tree().paused
+
+
+func on_ability_upgrade_added(_upgrade: AbilityUpgrade, _current_upgrades: Dictionary) -> void:
+	attack_cancelled = attacking
 
 
 func animate_walk(delta: float, speed_multiplier: float = 1.0) -> void:

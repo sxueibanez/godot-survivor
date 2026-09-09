@@ -37,6 +37,8 @@ func _ready():
 	$CheatUI/LearnSkillButton.pressed.connect(on_learn_skill_button_pressed)
 	$CheatUI/SpawnBossButton.pressed.connect(on_spawn_boss_button_pressed)
 	$CheatUI/SpawnLightningKnightButton.pressed.connect(spawn_lightning_knight)
+	$CheatUI/SpawnRandomEnemiesButton.pressed.connect($EnemyManager.spawn_test_enemies.bind(20))
+	$CheatUI/LevelSelect.item_selected.connect(on_test_level_selected)
 	show_character_select()
 
 
@@ -72,6 +74,16 @@ func on_spawn_boss_button_pressed() -> void:
 	spawn_boss_for_level(current_level)
 
 
+func on_test_level_selected(index: int) -> void:
+	match index:
+		0:
+			begin_level_1()
+		1:
+			begin_level_2()
+		2:
+			begin_level_3()
+
+
 func _process(_delta: float) -> void:
 	var time_elapsed: float = $ArenaTimeManager.get_time_elapsed()
 	if current_level == 1 and not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
@@ -79,11 +91,12 @@ func _process(_delta: float) -> void:
 		waiting_for_entrance = true
 		$EnemyManager.stop_spawning()
 		spawn_boss_for_level(current_level)
-	elif current_level >= 2 and not previous_boss_respawned and time_elapsed >= PREVIOUS_BOSS_RESPAWN_TIME:
+	elif current_level == 2 and not previous_boss_respawned and time_elapsed >= PREVIOUS_BOSS_RESPAWN_TIME:
 		previous_boss_respawned = true
 		spawn_boss_for_level(current_level - 1)
-	elif current_level >= 2 and not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
+	elif current_level == 2 and not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
 		current_level_boss_started = true
+		waiting_for_entrance = true
 		$EnemyManager.stop_spawning()
 		spawn_boss_for_level(current_level)
 
@@ -118,20 +131,42 @@ func spawn_level_entrance() -> void:
 	$Entities.add_child(entrance)
 	entrance.global_position = %Player.global_position + Vector2(72, 0)
 	var label := Label.new()
-	label.text = "第二关入口"
+	label.text = "第%d关入口" % (current_level + 1)
 	label.position = Vector2(-32, -36)
 	entrance.add_child(label)
 	while is_instance_valid(entrance) and %Player.global_position.distance_to(entrance.global_position) > 24.0:
 		await get_tree().process_frame
-	begin_level_2()
+	if current_level == 1:
+		begin_level_2()
+	else:
+		begin_level_3()
 	entrance.queue_free()
 
 
 func begin_level_2() -> void:
 	level_2_started = true
 	begin_level(2)
+	$MineMap.hide()
+	$TileMap.show()
 	$TileMap.modulate = Color(0.82, 0.72, 0.96)
 	$EnemyManager.start_level_2()
+
+
+func begin_level_1() -> void:
+	level_2_started = false
+	begin_level(1)
+	$MineMap.hide()
+	$TileMap.show()
+	$TileMap.modulate = Color.WHITE
+	$EnemyManager.start_level_1()
+
+
+func begin_level_3() -> void:
+	begin_level(3)
+	$TileMap.show()
+	$TileMap.modulate = Color("c69048")
+	$MineMap.show()
+	$EnemyManager.start_level_3()
 
 
 func begin_level(level: int) -> void:

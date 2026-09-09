@@ -1,7 +1,13 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Texture2D" path="res://scenes/ability/laser_gun_ability/laser_gun.png" id="1_laser"]
 [ext_resource type="Script" path="res://scenes/ability/laser_gun_ability/laser_gun_ability.gd" id="2_laser"]
+[ext_resource type="PackedScene" path="res://scenes/component/random_audio_stream_player_2d_component.tscn" id="3_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/click4.ogg" id="4_shot_a"]
+[ext_resource type="AudioStream" path="res://assets/audio/click5.ogg" id="5_shot_b"]
+[ext_resource type="AudioStream" path="res://assets/audio/impactMining_000.ogg" id="6_hit_a"]
+[ext_resource type="AudioStream" path="res://assets/audio/impactMining_001.ogg" id="7_hit_b"]
+[ext_resource type="AudioStream" path="res://assets/audio/impactMining_002.ogg" id="8_hit_c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_laser"]
 resource_local_to_scene = true
@@ -24,6 +30,14 @@ default_color = Color(0.231373, 0.952941, 1, 0.9)
 position = Vector2(8, 0)
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("1_laser")
+
+[node name="ShotSound" parent="." instance=ExtResource("3_audio")]
+streams = Array[AudioStream]([ExtResource("4_shot_a"), ExtResource("5_shot_b")])
+volume_db = -7.0
+
+[node name="HitSound" parent="." instance=ExtResource("3_audio")]
+streams = Array[AudioStream]([ExtResource("6_hit_a"), ExtResource("7_hit_b"), ExtResource("8_hit_c")])
+volume_db = -12.0
 
 [node name="LaserArea" type="Area2D" parent="."]
 collision_layer = 0

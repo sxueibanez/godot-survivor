@@ -23,6 +23,7 @@ func _ready() -> void:
 	base_rotation = Vector2.RIGHT.rotated(randf_range(0, TAU))
 	base_scale = scale
 	hitbox_component.damage = base_damage
+	hitbox_component.weapon_id = "axe"
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
 
 	var tween: Tween = create_tween()

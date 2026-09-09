@@ -15,6 +15,8 @@ func _init() -> void:
 	assert(is_equal_approx(laser.get_primary_beam_length(), LaserGunAbility.BEAM_LENGTH * 1.5))
 	laser.reflection_enabled = false
 	assert(is_equal_approx(laser.get_node("Sprite2D").scale.x, 0.75))
+	assert(laser.shot_sound.streams.size() == 2)
+	assert(laser.hit_sound.streams.size() == 3)
 	var enemies: Array = []
 	for position: Vector2 in [Vector2(100, 20), Vector2(110, 20), Vector2(250, 0)]:
 		var enemy := Node2D.new()

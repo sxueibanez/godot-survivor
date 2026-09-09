@@ -82,7 +82,7 @@ func get_skill_weapon_id(upgrade_id: String) -> String:
 		return "axe"
 	if upgrade_id.begins_with("laser_gun_"):
 		return "laser_gun"
-	if upgrade_id.begins_with("lightning_whip_") or upgrade_id == "lightning_chain":
+	if upgrade_id.begins_with("lightning_whip_") or upgrade_id in ["lightning_chain", "lightning_cloud", "lightning_wide_arc"]:
 		return "lightning_whip"
 	return ""
 

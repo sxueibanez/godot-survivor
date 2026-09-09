@@ -30,7 +30,9 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_laser_kill_duration", "title": "余晖延迟", "description": "每击杀一名非首领小怪，激光结束延迟 0.3 秒。", "requires": []},
 	],
 	"lightning_whip": [
-		{"id": "tree_lightning_chain", "title": "电弧连锁", "description": "闪电鞭命中后连锁附近敌人。", "requires": []},
+		{"id": "tree_lightning_chain", "title": "电弧连锁", "description": "命中时有 50% 概率对附近敌人释放两条可连锁闪电链，每条造成 50% 武器伤害。", "requires": []},
+		{"id": "tree_lightning_cloud", "title": "雷云召唤", "description": "普通攻击命中有 10% 概率生成雷云；雷云持续 5 秒，每秒电击一名敌人，造成 150% 武器伤害。", "requires": []},
+		{"id": "tree_lightning_wide_arc", "title": "雷霆横扫", "description": "普通攻击范围从 90° 提升至 180°。", "requires": []},
 	],
 }
 const SKILL_COST := 200

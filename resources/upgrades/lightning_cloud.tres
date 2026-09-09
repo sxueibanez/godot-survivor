@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_cloud"]
+
+[resource]
+script = ExtResource("1_cloud")
+id = "lightning_cloud"
+max_quantity = 1
+name = "雷云召唤"
+description = "普通攻击命中有 10% 概率生成雷云；雷云持续 5 秒，每秒电击一名敌人，造成 150% 武器伤害。"

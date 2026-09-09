@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://d0r3bty8yf7ik"]
 
-[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_chain"]
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1_chain"]
 
 [resource]
 script = ExtResource("1_chain")
 id = "lightning_chain"
 max_quantity = 1
-name = "闪电链"
-description = "闪电鞭命中时有 50% 概率对附近敌人释放一条造成 4 点伤害的闪电链。"
+name = "电弧连锁"
+description = "命中时有 50% 概率对附近敌人释放两条可连锁闪电链，每条造成 50% 武器伤害，最多触发 3 次。"

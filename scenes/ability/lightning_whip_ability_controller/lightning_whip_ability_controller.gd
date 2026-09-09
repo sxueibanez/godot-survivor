@@ -13,6 +13,8 @@ var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0
 var attack_count := 1
 var chain_enabled := false
+var cloud_enabled := false
+var wide_arc_enabled := false
 var character_damage_multiplier := 1.0
 
 
@@ -32,8 +34,9 @@ func on_timer_timeout() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
+	var attack_range := MAX_RANGE * size_multiplier
 	var enemies = get_tree().get_nodes_in_group("enemy").filter(func(enemy: Node2D):
-		return enemy.global_position.distance_squared_to(player.global_position) <= MAX_RANGE * MAX_RANGE
+		return enemy.global_position.distance_squared_to(player.global_position) <= attack_range * attack_range
 	)
 	if enemies.is_empty():
 		return
@@ -49,7 +52,8 @@ func on_timer_timeout() -> void:
 		whip.damage = base_damage * damage_multiplier
 		whip.size_multiplier = size_multiplier
 		whip.chain_enabled = chain_enabled
-		whip.chain_damage = 4.0 * permanent_damage_multiplier
+		whip.cloud_enabled = cloud_enabled
+		whip.wide_arc_enabled = wide_arc_enabled
 		foreground.add_child(whip)
 
 
@@ -64,5 +68,9 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			$Timer.start()
 		"lightning_chain":
 			chain_enabled = true
+		"lightning_cloud":
+			cloud_enabled = true
+		"lightning_wide_arc":
+			wide_arc_enabled = true
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count

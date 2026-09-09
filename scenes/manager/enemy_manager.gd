@@ -7,6 +7,7 @@ const SPAWN_RADIUS = 375
 @export var wizard_enemy_scene: PackedScene
 @export var exploder_enemy_scene: PackedScene
 @export var ranged_enemy_scene: PackedScene
+@export var cyclops_bat_scene: PackedScene
 @export var arena_time_manager: ArenaTimeManager
 
 @onready var timer = $Timer
@@ -67,6 +68,18 @@ func on_timer_timeout():
 	enemy.global_position = get_spawn_position()
 
 
+func spawn_test_enemies(count: int = 20) -> void:
+	var entities_layer := get_tree().get_first_node_in_group("entities_layer") as Node2D
+	if entities_layer == null:
+		return
+	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene]
+	for _index in count:
+		var enemy := enemy_scenes.pick_random().instantiate() as Node2D
+		apply_difficulty(enemy)
+		entities_layer.add_child(enemy)
+		enemy.global_position = get_spawn_position()
+
+
 func apply_difficulty(enemy: Node2D) -> void:
 	var health = enemy.get_node_or_null("HealthComponent") as HealthComponent
 	if health != null:
@@ -90,6 +103,15 @@ func stop_spawning() -> void:
 	timer.stop()
 
 
+func start_level_1() -> void:
+	level = 1
+	spawning = true
+	enemy_table = WeightedTable.new()
+	enemy_table.add_item(basic_enemy_scene, 10)
+	timer.wait_time = base_spawn_time
+	timer.start()
+
+
 func start_level_2() -> void:
 	level = 2
 	spawning = true
@@ -99,5 +121,19 @@ func start_level_2() -> void:
 	enemy_table.add_item(exploder_enemy_scene, 4)
 	enemy_table.add_item(ranged_enemy_scene, 5)
 	base_spawn_time = 0.7
+	timer.wait_time = base_spawn_time
+	timer.start()
+
+
+func start_level_3() -> void:
+	level = 3
+	spawning = true
+	enemy_table = WeightedTable.new()
+	enemy_table.add_item(basic_enemy_scene, 6)
+	enemy_table.add_item(wizard_enemy_scene, 5)
+	enemy_table.add_item(exploder_enemy_scene, 5)
+	enemy_table.add_item(ranged_enemy_scene, 5)
+	enemy_table.add_item(cyclops_bat_scene, 12)
+	base_spawn_time = 0.65
 	timer.wait_time = base_spawn_time
 	timer.start()

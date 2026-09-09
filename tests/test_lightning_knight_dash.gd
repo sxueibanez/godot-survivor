@@ -18,4 +18,11 @@ func run() -> void:
 	assert(is_equal_approx(health.current_health, 45.0))
 	assert(not knight.call("knockback_dash_targets", Vector2.RIGHT, true))
 	assert(is_equal_approx(health.current_health, 45.0))
+	assert(not knight.call("is_attack_interrupted"))
+	paused = true
+	assert(knight.call("is_attack_interrupted"))
+	paused = false
+	knight.set("attacking", true)
+	knight.call("on_ability_upgrade_added", AbilityUpgrade.new(), {})
+	assert(knight.call("is_attack_interrupted"))
 	quit()

@@ -1,87 +1,109 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene format=3 uid="uid://2ahylbd42n05"]
 
-[ext_resource type="Script" path="res://scenes/game_object/lightning_knight/lightning_knight.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight.png" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/component/health_component.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://scenes/component/velocity_component.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/component/hurtbox_component.tscn" id="5"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_0.png" id="6"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_1.png" id="7"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_2.png" id="8"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_3.png" id="9"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_4.png" id="10"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_5.png" id="11"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_6.png" id="12"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_7.png" id="13"]
-[ext_resource type="Texture2D" path="res://assets/enemies/lightning_knight_walk_8.png" id="14"]
+[ext_resource type="Script" uid="uid://cgamwkxfuuvaw" path="res://scenes/game_object/lightning_knight/lightning_knight.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bbc8djqbwbkak" path="res://assets/enemies/lightning_knight_walk_frames.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
 
 [sub_resource type="CircleShape2D" id="hurt_shape"]
 radius = 48.0
 
-[sub_resource type="CircleShape2D" id="body_shape"]
-radius = 38.0
+[sub_resource type="AtlasTexture" id="walk_frame_0"]
+atlas = ExtResource("2")
+region = Rect2(0, 0, 362, 543)
+
+[sub_resource type="AtlasTexture" id="walk_frame_1"]
+atlas = ExtResource("2")
+region = Rect2(362, 0, 362, 543)
+
+[sub_resource type="AtlasTexture" id="walk_frame_2"]
+atlas = ExtResource("2")
+region = Rect2(724, 0, 362, 543)
+
+[sub_resource type="AtlasTexture" id="walk_frame_3"]
+atlas = ExtResource("2")
+region = Rect2(1086, 0, 362, 543)
+
+[sub_resource type="AtlasTexture" id="walk_frame_4"]
+atlas = ExtResource("2")
+region = Rect2(0, 543, 362, 430)
+
+[sub_resource type="AtlasTexture" id="walk_frame_5"]
+atlas = ExtResource("2")
+region = Rect2(362, 543, 362, 418)
+
+[sub_resource type="AtlasTexture" id="walk_frame_6"]
+atlas = ExtResource("2")
+region = Rect2(724, 543, 362, 422)
+
+[sub_resource type="AtlasTexture" id="walk_frame_7"]
+atlas = ExtResource("2")
+region = Rect2(1086, 543, 362, 430)
 
 [sub_resource type="SpriteFrames" id="walk_frames"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("6")
+"texture": SubResource("walk_frame_0")
 }, {
 "duration": 1.0,
-"texture": ExtResource("7")
+"texture": SubResource("walk_frame_1")
 }, {
 "duration": 1.0,
-"texture": ExtResource("8")
+"texture": SubResource("walk_frame_2")
 }, {
 "duration": 1.0,
-"texture": ExtResource("9")
+"texture": SubResource("walk_frame_3")
 }, {
 "duration": 1.0,
-"texture": ExtResource("10")
+"texture": SubResource("walk_frame_4")
 }, {
 "duration": 1.0,
-"texture": ExtResource("11")
+"texture": SubResource("walk_frame_5")
 }, {
 "duration": 1.0,
-"texture": ExtResource("12")
+"texture": SubResource("walk_frame_6")
 }, {
 "duration": 1.0,
-"texture": ExtResource("13")
-}, {
-"duration": 1.0,
-"texture": ExtResource("14")
+"texture": SubResource("walk_frame_7")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
-"speed": 9.0
+"speed": 8.0
 }]
 
-[node name="LightningKnight" type="CharacterBody2D" groups=["enemy", "boss"]]
-metadata/display_name = "闪电骑士"
+[sub_resource type="CircleShape2D" id="body_shape"]
+radius = 38.0
+
+[node name="LightningKnight" type="CharacterBody2D" unique_id=1394565451 groups=["boss", "enemy"]]
 collision_layer = 8
 collision_mask = 9
 script = ExtResource("1")
+metadata/display_name = "闪电骑士"
 
-[node name="HealthComponent" parent="." instance=ExtResource("3")]
+[node name="HealthComponent" parent="." unique_id=405969793 instance=ExtResource("3")]
 max_health = 3600.0
 
-[node name="VelocityComponent" parent="." instance=ExtResource("4")]
+[node name="VelocityComponent" parent="." unique_id=1741594160 instance=ExtResource("4")]
 max_speed = 68
 acceleration = 3.0
 
-[node name="HurtboxComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
+[node name="HurtboxComponent" parent="." unique_id=1844555979 node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
 health_component = NodePath("../HealthComponent")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1751067354]
 shape = SubResource("hurt_shape")
 
-[node name="Visuals" type="Node2D" parent="."]
+[node name="Visuals" type="Node2D" parent="." unique_id=10390291]
 
-[node name="Sprite2D" type="AnimatedSprite2D" parent="Visuals"]
+[node name="Sprite2D" type="AnimatedSprite2D" parent="Visuals" unique_id=1577854693]
+scale = Vector2(0.245, 0.245)
 sprite_frames = SubResource("walk_frames")
 animation = &"walk"
 autoplay = "walk"
-scale = Vector2(0.245, 0.245)
+frame = 2
+frame_progress = 0.29346207
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=846710252]
 shape = SubResource("body_shape")

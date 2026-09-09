@@ -18,6 +18,7 @@ func _ready() -> void:
 	if root_damage <= 0.0:
 		root_damage = damage
 	hitbox_component.damage = damage
+	hitbox_component.weapon_id = "sword"
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
 
 

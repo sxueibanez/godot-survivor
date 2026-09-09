@@ -1,10 +1,17 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scenes/game_object/exploder_enemy/exploder_enemy.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/enemies/exploder_enemy.png" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/component/health_component.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/component/velocity_component.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/component/hurtbox_component.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/component/hit_flash_component.tscn" id="6"]
+[ext_resource type="Shader" path="res://scenes/component/hit_flash_component.gdshader" id="7"]
+
+[sub_resource type="ShaderMaterial" id="hit_flash_material"]
+resource_local_to_scene = true
+shader = ExtResource("7")
+shader_parameter/lerp_percent = 0.0
 
 [sub_resource type="CircleShape2D" id="hurt_shape"]
 radius = 15.6
@@ -34,6 +41,11 @@ max_health = 90.0
 [node name="VelocityComponent" parent="." instance=ExtResource("4")]
 max_speed = 28
 acceleration = 3.0
+
+[node name="HitFlashComponent" parent="." node_paths=PackedStringArray("health_component", "sprite") instance=ExtResource("6")]
+health_component = NodePath("../HealthComponent")
+sprite = NodePath("../Visuals/Sprite2D")
+hit_flash_material = SubResource("hit_flash_material")
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 custom_minimum_size = Vector2(18, 4)

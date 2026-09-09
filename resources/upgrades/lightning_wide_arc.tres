@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_arc"]
+
+[resource]
+script = ExtResource("1_arc")
+id = "lightning_wide_arc"
+max_quantity = 1
+name = "雷霆横扫"
+description = "普通攻击范围从 90° 提升至 180°。"

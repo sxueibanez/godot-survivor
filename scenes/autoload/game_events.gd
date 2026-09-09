@@ -16,10 +16,21 @@ var critical_disabled := false
 var speed_damage_no_crit := false
 var life_steal_percent := 0.0
 var player_damage_multiplier := 1.0
+var weapon_damage := {}
 
 
 func emit_experience_vial_collected(number: float):
 	experience_vial_collected.emit(number)
+
+
+func reset_run_stats() -> void:
+	weapon_damage.clear()
+
+
+func record_weapon_damage(weapon_id: String, damage: float) -> void:
+	if weapon_id.is_empty() or damage <= 0.0:
+		return
+	weapon_damage[weapon_id] = weapon_damage.get(weapon_id, 0.0) + damage
 
 
 func emit_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):

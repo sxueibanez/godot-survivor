@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxxghahp2fxlk"
-path="res://.godot/imported/lightning_whip.png-1b7114d1d4b87807b0970c712dcc144e.ctex"
+uid="uid://cm0hadwlwlem8"
+path="res://.godot/imported/cyclops_bat_walk_frames.png-72e8a80b03d0ef1658f0e5dd6346d370.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/ability/lightning_whip_ability/lightning_whip.png"
-dest_files=["res://.godot/imported/lightning_whip.png-1b7114d1d4b87807b0970c712dcc144e.ctex"]
+source_file="res://assets/enemies/cyclops_bat_walk_frames.png"
+dest_files=["res://.godot/imported/cyclops_bat_walk_frames.png-72e8a80b03d0ef1658f0e5dd6346d370.ctex"]
 
 [params]
 

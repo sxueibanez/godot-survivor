@@ -5,6 +5,7 @@ class_name EndScreen
 
 
 func _ready():
+	update_summary()
 	panel_container.pivot_offset = panel_container.size / 2
 	panel_container.scale = Vector2.ZERO
 	
@@ -21,8 +22,56 @@ func _ready():
 
 func set_defeat():
 	%TitleLabel.text = "失败"
-	%DescriptionLabel.text = "你失败了！"
+	update_summary()
 	play_jingle(true)
+
+
+func update_summary() -> void:
+	var upgrade_manager: Node = get_parent().get_node_or_null("UpgradeManager")
+	if upgrade_manager == null:
+		%Weapon1Label.text = "武器 1\n未装备"
+		%Weapon2Label.text = "武器 2\n未装备"
+		%OtherSkillsLabel.text = "其他技能\n暂无"
+		return
+	var upgrades: Dictionary = upgrade_manager.get("current_upgrades") as Dictionary
+	var weapons: Array[AbilityUpgrade] = []
+	for upgrade_id: String in upgrades:
+		var upgrade_data: Dictionary = upgrades[upgrade_id]
+		var weapon: AbilityUpgrade = upgrade_data["resource"] as AbilityUpgrade
+		if weapon is Ability:
+			weapons.append(weapon)
+	%Weapon1Label.text = get_weapon_text(1, weapons[0] if weapons.size() > 0 else null, upgrades)
+	%Weapon2Label.text = get_weapon_text(2, weapons[1] if weapons.size() > 1 else null, upgrades)
+	%OtherSkillsLabel.text = "其他技能\n%s" % get_skill_text("", upgrades)
+
+
+func get_weapon_text(slot: int, weapon: AbilityUpgrade, upgrades: Dictionary) -> String:
+	if weapon == null:
+		return "武器 %d\n未装备" % slot
+	return "武器 %d\n%s\n输出 %.0f\n技能：%s" % [slot, weapon.name, GameEvents.weapon_damage.get(weapon.id, 0.0), get_skill_text(weapon.id, upgrades)]
+
+
+func get_skill_text(weapon_id: String, upgrades: Dictionary) -> String:
+	var skills: Array[String] = []
+	for upgrade_id: String in upgrades:
+		var upgrade_data: Dictionary = upgrades[upgrade_id]
+		var upgrade: AbilityUpgrade = upgrade_data["resource"] as AbilityUpgrade
+		if upgrade is Ability or get_skill_weapon_id(upgrade.id) != weapon_id:
+			continue
+		skills.append("%s Lv.%d" % [upgrade.name, int(upgrade_data["quantity"])])
+	return "、".join(skills) if not skills.is_empty() else "暂无"
+
+
+func get_skill_weapon_id(upgrade_id: String) -> String:
+	if upgrade_id.begins_with("sword_"):
+		return "sword"
+	if upgrade_id.begins_with("axe_"):
+		return "axe"
+	if upgrade_id.begins_with("laser_gun_"):
+		return "laser_gun"
+	if upgrade_id.begins_with("lightning_whip_") or upgrade_id in ["lightning_chain", "lightning_cloud", "lightning_wide_arc"]:
+		return "lightning_whip"
+	return ""
 
 
 func play_jingle(defeat: bool = false):
