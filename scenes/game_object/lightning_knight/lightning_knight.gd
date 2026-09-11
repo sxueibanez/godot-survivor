@@ -118,7 +118,7 @@ class ThrownGreatsword extends Node2D:
 			hit_player = true
 			var health := player.get_node_or_null("HealthComponent") as HealthComponent
 			if health != null:
-				health.damage(DAMAGE)
+				health.damage(DAMAGE, "闪电骑士")
 			var velocity_component := player.get_node_or_null("VelocityComponent") as VelocityComponent
 			if velocity_component != null:
 				velocity_component.apply_knockback(direction, 310.0, 0.22)
@@ -266,7 +266,7 @@ func strike(position: Vector2) -> void:
 		return
 	var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(player_health.max_health * 0.1)
+		player_health.damage(player_health.max_health * 0.1, "闪电骑士")
 	if randf() < 0.5:
 		var player_velocity := player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if player_velocity != null:
@@ -287,7 +287,7 @@ func knockback_dash_targets(direction: Vector2, hit_player: bool) -> bool:
 	if not hit_player and player != null and global_position.distance_squared_to(player.global_position) <= DASH_HIT_RADIUS * DASH_HIT_RADIUS:
 		var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if player_health != null:
-			player_health.damage(DASH_DAMAGE)
+			player_health.damage(DASH_DAMAGE, "闪电骑士")
 		var player_velocity := player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if player_velocity != null:
 			player_velocity.apply_knockback(direction, 390.0, 0.28)

@@ -2,6 +2,8 @@ extends CharacterBody2D
 
 const MAX_SPEED = 125
 const ACCELERATION_SMOOTHING = 25
+const BOSS_CONTACT_KNOCKBACK_SPEED := 360.0
+const BOSS_CONTACT_KNOCKBACK_DURATION := 0.28
 
 @export var character: Resource = preload("res://resources/characters/warrior.tres")
 
@@ -124,7 +126,7 @@ func check_deal_damage():
 	if number_colliding_bodies == 0 || !damage_interval_timer.is_stopped():
 		return
 	
-	health_component.damage((1.0 + GameEvents.arena_difficulty * 0.05) * 10.0)
+	health_component.damage((1.0 + GameEvents.arena_difficulty * 0.05) * 10.0, get_contact_damage_source())
 	damage_interval_timer.start()
 	print(health_component.current_health)
 
@@ -138,11 +140,22 @@ func update_health_display():
 
 func on_body_entered(other_body: Node2D):
 	number_colliding_bodies += 1
+	if other_body.is_in_group("boss"):
+		var direction := global_position - other_body.global_position
+		velocity_component.apply_knockback(Vector2.RIGHT if direction == Vector2.ZERO else direction, BOSS_CONTACT_KNOCKBACK_SPEED, BOSS_CONTACT_KNOCKBACK_DURATION)
 	check_deal_damage()
 
 
 func on_body_exited(other_body: Node2D):
 	number_colliding_bodies -= 1
+
+
+func get_contact_damage_source() -> String:
+	var enemy_names := {"BasicEnemy": "小怪", "WizardEnemy": "法师怪", "RangedEnemy": "远程怪", "ExploderEnemy": "炸弹人", "CyclopsBat": "独眼蝙蝠", "IronGolem": "铁魔像"}
+	for body: Node2D in $CollisionArea2D.get_overlapping_bodies():
+		if body.is_in_group("enemy"):
+			return str(body.get_meta("display_name", enemy_names.get(body.name, "小怪")))
+	return "小怪"
 
 
 func on_damage_interval_timer_timeout():

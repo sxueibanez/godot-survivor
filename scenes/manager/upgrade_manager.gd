@@ -1,5 +1,7 @@
 extends Node
 
+signal initial_choices_completed
+
 @export var experience_manager: ExperienceManager
 @export var upgrade_screen_scene: PackedScene
 
@@ -43,9 +45,16 @@ var upgrade_lightning_whip_rate := preload("res://resources/upgrades/lightning_w
 var upgrade_lightning_chain := preload("res://resources/upgrades/lightning_chain.tres")
 var upgrade_lightning_cloud := preload("res://resources/upgrades/lightning_cloud.tres")
 var upgrade_lightning_wide_arc := preload("res://resources/upgrades/lightning_wide_arc.tres")
+var upgrade_bomb := preload("res://resources/upgrades/bomb.tres")
+var upgrade_bomb_bounce := preload("res://resources/upgrades/bomb_bounce.tres")
+var upgrade_bomb_burn := preload("res://resources/upgrades/bomb_burn.tres")
+var upgrade_bomb_cluster := preload("res://resources/upgrades/bomb_cluster.tres")
 
 var rng := RandomNumberGenerator.new()
-var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip]
+var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb]
+var initial_choices_remaining := 0
+var pending_upgrade_choices := 0
+var choice_screen_open := false
 
 
 func _ready():
@@ -68,7 +77,14 @@ func _ready():
 		weapon_pool.add_item(weapon, 10)
 
 	experience_manager.level_up.connect(on_level_up)
-	call_deferred("show_initial_weapon_choices")
+
+
+func start_initial_choices(choice_rounds: int = 1) -> void:
+	initial_choices_remaining = maxi(choice_rounds, 0)
+	if initial_choices_remaining == 0:
+		initial_choices_completed.emit()
+		return
+	show_initial_weapon_choices()
 
 
 func apply_upgrade(upgrade: AbilityUpgrade):
@@ -128,6 +144,10 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_lightning_chain, "tree_lightning_chain", 5)
 		add_unlocked_special(upgrade_lightning_cloud, "tree_lightning_cloud", 5)
 		add_unlocked_special(upgrade_lightning_wide_arc, "tree_lightning_wide_arc", 5)
+	elif chosen_upgrade.id == upgrade_bomb.id:
+		add_unlocked_special(upgrade_bomb_bounce, "tree_bomb_bounce", 8)
+		add_unlocked_special(upgrade_bomb_burn, "tree_bomb_burn", 8)
+		add_unlocked_special(upgrade_bomb_cluster, "tree_bomb_cluster", 8)
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:
@@ -202,16 +222,20 @@ func show_initial_weapon_choices() -> void:
 func show_upgrade_choices(choice_count: int = 3) -> void:
 	if upgrade_pool.items.is_empty():
 		return
+	if choice_screen_open:
+		pending_upgrade_choices += 1
+		return
 	show_choices(pick_upgrades(choice_count))
 
 
 func show_choices(chosen_upgrades: Array[AbilityUpgrade]) -> void:
 	if chosen_upgrades.is_empty():
 		return
+	choice_screen_open = true
 	var upgrade_screen_instance = upgrade_screen_scene.instantiate()
 	add_child(upgrade_screen_instance)
 	upgrade_screen_instance.set_ability_upgrades(chosen_upgrades)
-	upgrade_screen_instance.upgrade_selected.connect(on_upgrade_selected)
+	upgrade_screen_instance.upgrade_selected.connect(on_upgrade_selected.bind(upgrade_screen_instance))
 
 
 func pick_weapon_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
@@ -224,5 +248,19 @@ func pick_weapon_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
 	return chosen_upgrades
 
 
-func on_upgrade_selected(upgrade: AbilityUpgrade):
+func on_upgrade_selected(upgrade: AbilityUpgrade, upgrade_screen: Node = null):
 	apply_upgrade(upgrade)
+	var continue_initial_choices := false
+	if initial_choices_remaining > 0:
+		initial_choices_remaining -= 1
+		continue_initial_choices = initial_choices_remaining > 0
+		if initial_choices_remaining == 0:
+			initial_choices_completed.emit()
+	if upgrade_screen != null:
+		await upgrade_screen.tree_exited
+	choice_screen_open = false
+	if continue_initial_choices:
+		show_upgrade_choices(3)
+	elif pending_upgrade_choices > 0:
+		pending_upgrade_choices -= 1
+		show_upgrade_choices(3)

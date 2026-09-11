@@ -1,12 +1,13 @@
 extends CanvasLayer
 
 
-const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip"]
+const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
 	"axe": "飞斧",
 	"laser_gun": "激光枪",
 	"lightning_whip": "闪电鞭",
+	"bomb": "炸弹",
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
@@ -33,6 +34,11 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_lightning_chain", "title": "电弧连锁", "description": "命中时有 50% 概率对附近敌人释放两条可连锁闪电链，每条造成 50% 武器伤害。", "requires": []},
 		{"id": "tree_lightning_cloud", "title": "雷云召唤", "description": "普通攻击命中有 10% 概率生成雷云；雷云持续 5 秒，每秒电击一名敌人，造成 150% 武器伤害。", "requires": []},
 		{"id": "tree_lightning_wide_arc", "title": "雷霆横扫", "description": "普通攻击范围从 90° 提升至 180°。", "requires": []},
+	],
+	"bomb": [
+		{"id": "tree_bomb_bounce", "title": "跳弹", "description": "解锁局内跳弹升级；每级增加1次弹跳爆炸，最多3级。", "requires": []},
+		{"id": "tree_bomb_burn", "title": "燃烧弹", "description": "解锁局内燃烧弹升级；命中后每秒造成60%武器伤害，持续5秒。", "requires": []},
+		{"id": "tree_bomb_cluster", "title": "子母弹", "description": "解锁局内子母弹升级；每次主炸弹爆炸洒出5枚30%威力与范围的小炸弹。", "requires": []},
 	],
 }
 const SKILL_COST := 200

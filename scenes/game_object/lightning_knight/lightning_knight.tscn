@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
 
 [sub_resource type="CircleShape2D" id="hurt_shape"]
-radius = 48.0
+radius = 44.011364
 
 [sub_resource type="AtlasTexture" id="walk_frame_0"]
 atlas = ExtResource("2")
@@ -74,7 +74,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="body_shape"]
-radius = 38.0
+radius = 35.0
 
 [node name="LightningKnight" type="CharacterBody2D" unique_id=1394565451 groups=["boss", "enemy"]]
 collision_layer = 8
@@ -93,6 +93,7 @@ acceleration = 3.0
 health_component = NodePath("../HealthComponent")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1751067354]
+position = Vector2(1, 9)
 shape = SubResource("hurt_shape")
 
 [node name="Visuals" type="Node2D" parent="." unique_id=10390291]
@@ -106,4 +107,5 @@ frame = 2
 frame_progress = 0.29346207
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=846710252]
+position = Vector2(5, 10)
 shape = SubResource("body_shape")

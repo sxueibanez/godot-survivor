@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/bomb_ability/bomb_ability.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/bomb.png" id="2_bomb"]
+[ext_resource type="Texture2D" path="res://assets/abilities/bomb_explosion.png" id="3_explosion"]
+[ext_resource type="AudioStream" path="res://assets/audio/bomb_explosion.ogg" id="4_sound"]
+
+[node name="BombAbility" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="BombSprite" type="Sprite2D" parent="."]
+scale = Vector2(0.04, 0.04)
+texture = ExtResource("2_bomb")
+
+[node name="ExplosionSprite" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_explosion")
+hframes = 4
+vframes = 4
+
+[node name="ExplosionSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_sound")
+volume_db = -4.0
+bus = &"sfx"

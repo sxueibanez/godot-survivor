@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "bomb_bounce"
+max_quantity = 3
+name = "跳弹"
+description = "炸弹每级增加1次弹跳和后续爆炸，最多3级。"

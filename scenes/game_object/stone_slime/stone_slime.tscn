@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://c3w2v6676ubmp"]
+
+[ext_resource type="Script" uid="uid://bm5y7kx1xoemw" path="res://scenes/game_object/stone_slime/stone_slime.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://dnepdqvlbpm7w" path="res://assets/enemies/stone_slime_walk.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://ci3popyfx4vbv" path="res://scenes/component/vial_drop_component.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/component/health_vial_drop_component.tscn" id="7"]
+[ext_resource type="PackedScene" uid="uid://bkkq5ohgbnkxw" path="res://scenes/component/hit_flash_component.tscn" id="8"]
+[ext_resource type="Shader" uid="uid://brlprgsskeww5" path="res://scenes/component/hit_flash_component.gdshader" id="9"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xo05m"]
+resource_local_to_scene = true
+shader = ExtResource("9")
+shader_parameter/lerp_percent = 0.0
+
+[sub_resource type="StyleBoxFlat" id="health_background"]
+bg_color = Color(0.15, 0.08, 0.12, 1)
+
+[sub_resource type="StyleBoxFlat" id="health_fill"]
+bg_color = Color(0.95, 0.2, 0.25, 1)
+
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="body_shape"]
+radius = 14.0
+
+[node name="StoneSlime" type="CharacterBody2D" unique_id=696517721 groups=["enemy"]]
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("1")
+metadata/display_name = "石史莱姆"
+
+[node name="HealthComponent" parent="." unique_id=2089917512 instance=ExtResource("3")]
+max_health = 72.0
+
+[node name="VelocityComponent" parent="." unique_id=606253748 instance=ExtResource("4")]
+max_speed = 38
+acceleration = 3.0
+
+[node name="VialDropComponent" parent="." unique_id=1955859075 node_paths=PackedStringArray("health_component") instance=ExtResource("6")]
+drop_rate = 0.55
+health_component = NodePath("../HealthComponent")
+
+[node name="HealthVialDropComponent" parent="." unique_id=437044319 node_paths=PackedStringArray("health_component") instance=ExtResource("7")]
+health_component = NodePath("../HealthComponent")
+
+[node name="HitFlashComponent" parent="." unique_id=1245509932 node_paths=PackedStringArray("health_component", "sprite") instance=ExtResource("8")]
+health_component = NodePath("../HealthComponent")
+sprite = NodePath("../Visuals/Sprite2D")
+hit_flash_material = SubResource("ShaderMaterial_xo05m")
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=1449447450]
+custom_minimum_size = Vector2(24, 4)
+offset_left = -12.0
+offset_top = -31.0
+offset_right = 12.0
+offset_bottom = -27.0
+theme_override_styles/background = SubResource("health_background")
+theme_override_styles/fill = SubResource("health_fill")
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="HurtboxComponent" parent="." unique_id=167525107 node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=2067164295]
+position = Vector2(0, -4)
+shape = SubResource("hurt_shape")
+
+[node name="Visuals" type="Node2D" parent="." unique_id=744022863]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=1884247877]
+texture_filter = 1
+position = Vector2(-0.99999994, -4)
+scale = Vector2(0.12, 0.12)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 320, 328, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1008657701]
+position = Vector2(0, -4)
+shape = SubResource("body_shape")

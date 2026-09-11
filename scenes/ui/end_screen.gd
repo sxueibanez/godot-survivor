@@ -22,6 +22,7 @@ func _ready():
 
 func set_defeat():
 	%TitleLabel.text = "失败"
+	%DefeatReasonLabel.text = "被%s击败" % GameEvents.last_damage_source
 	update_summary()
 	play_jingle(true)
 
@@ -71,6 +72,8 @@ func get_skill_weapon_id(upgrade_id: String) -> String:
 		return "laser_gun"
 	if upgrade_id.begins_with("lightning_whip_") or upgrade_id in ["lightning_chain", "lightning_cloud", "lightning_wide_arc"]:
 		return "lightning_whip"
+	if upgrade_id.begins_with("bomb_"):
+		return "bomb"
 	return ""
 
 

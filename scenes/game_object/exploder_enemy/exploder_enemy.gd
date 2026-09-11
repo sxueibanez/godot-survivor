@@ -46,7 +46,7 @@ func detonate() -> void:
 	if player != null and global_position.distance_to(player.global_position) <= DETONATION_RANGE:
 		var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if player_health != null:
-			player_health.damage(DETONATION_DAMAGE * 10.0)
+			player_health.damage(DETONATION_DAMAGE * 10.0, "炸弹人")
 	spawn_smoke()
 	health_component.damage(9999.0)
 

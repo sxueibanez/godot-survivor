@@ -6,6 +6,7 @@ var options_scene = preload("res://scenes/ui/options_menu.tscn")
 
 func _ready():
 	%PlayButton.pressed.connect(on_play_pressed)
+	%EndlessButton.pressed.connect(on_endless_pressed)
 	%UpgradesButton.pressed.connect(on_upgrades_pressed)
 	%WeaponSkillsButton.pressed.connect(on_weapon_skills_pressed)
 	%OptionsButton.pressed.connect(on_options_pressed)
@@ -13,6 +14,14 @@ func _ready():
 
 
 func on_play_pressed():
+	GameEvents.game_mode = "campaign"
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
+	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+
+
+func on_endless_pressed():
+	GameEvents.game_mode = "endless"
 	ScreenTransition.transition()
 	await ScreenTransition.transitioned_halfway
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")

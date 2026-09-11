@@ -17,6 +17,12 @@ var speed_damage_no_crit := false
 var life_steal_percent := 0.0
 var player_damage_multiplier := 1.0
 var weapon_damage := {}
+var last_damage_source := "未知伤害"
+var game_mode := "campaign"
+
+
+func is_endless_mode() -> bool:
+	return game_mode == "endless"
 
 
 func emit_experience_vial_collected(number: float):
@@ -25,6 +31,7 @@ func emit_experience_vial_collected(number: float):
 
 func reset_run_stats() -> void:
 	weapon_damage.clear()
+	last_damage_source = "未知伤害"
 
 
 func record_weapon_damage(weapon_id: String, damage: float) -> void:

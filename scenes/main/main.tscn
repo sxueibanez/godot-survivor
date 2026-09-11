@@ -17,6 +17,7 @@
 
 [sub_resource type="SystemFont" id="SystemFont_cheat"]
 font_names = PackedStringArray("Microsoft YaHei")
+font_weight = 400
 
 [node name="Main" type="Node"]
 script = ExtResource("1_v8wic")
@@ -28,55 +29,70 @@ end_screen_scene = ExtResource("2_8tx6c")
 layer = 0
 
 [node name="LearnSkillButton" type="Button" parent="CheatUI"]
-offset_left = 500.0
-offset_top = 242.0
-offset_right = 636.0
-offset_bottom = 258.0
+offset_left = 424.0
+offset_top = 266.0
+offset_right = 492.0
+offset_bottom = 284.0
 theme_override_fonts/font = SubResource("SystemFont_cheat")
-theme_override_font_sizes/font_size = 8
-text = "测试：三选一技能"
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 9
+text = "选技能"
 
 [node name="SpawnBossButton" type="Button" parent="CheatUI"]
-offset_left = 500.0
-offset_top = 260.0
-offset_right = 636.0
-offset_bottom = 276.0
+offset_left = 494.0
+offset_top = 266.0
+offset_right = 562.0
+offset_bottom = 284.0
 theme_override_fonts/font = SubResource("SystemFont_cheat")
-theme_override_font_sizes/font_size = 8
-text = "测试：召唤史莱姆王"
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 9
+text = "史莱姆王"
 
 [node name="SpawnLightningKnightButton" type="Button" parent="CheatUI"]
-offset_left = 500.0
-offset_top = 278.0
-offset_right = 636.0
-offset_bottom = 294.0
+offset_left = 564.0
+offset_top = 266.0
+offset_right = 632.0
+offset_bottom = 284.0
 theme_override_fonts/font = SubResource("SystemFont_cheat")
-theme_override_font_sizes/font_size = 8
-text = "测试：召唤闪电骑士"
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 9
+text = "闪电骑士"
+
+[node name="SpawnIronArmMinerButton" type="Button" parent="CheatUI"]
+offset_left = 424.0
+offset_top = 286.0
+offset_right = 492.0
+offset_bottom = 304.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = SubResource("SystemFont_cheat")
+theme_override_font_sizes/font_size = 9
+text = "铁臂矿工"
 
 [node name="SpawnRandomEnemiesButton" type="Button" parent="CheatUI"]
-offset_left = 500.0
-offset_top = 296.0
-offset_right = 636.0
-offset_bottom = 312.0
+offset_left = 494.0
+offset_top = 286.0
+offset_right = 562.0
+offset_bottom = 304.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = SubResource("SystemFont_cheat")
-theme_override_font_sizes/font_size = 8
-text = "测试：随机20小怪"
+theme_override_font_sizes/font_size = 9
+text = "随机小怪"
 
 [node name="LevelSelect" type="OptionButton" parent="CheatUI"]
-offset_left = 500.0
-offset_top = 314.0
-offset_right = 636.0
-offset_bottom = 330.0
+offset_left = 564.0
+offset_top = 286.0
+offset_right = 632.0
+offset_bottom = 304.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = SubResource("SystemFont_cheat")
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 9
 item_count = 3
 selected = 0
-popup/item_0/text = "测试关卡：1"
+popup/item_0/text = "关卡1"
 popup/item_0/id = 0
-popup/item_1/text = "测试关卡：2"
+popup/item_1/text = "关卡2"
 popup/item_1/id = 1
-popup/item_2/text = "测试关卡：3"
+popup/item_2/text = "关卡3"
 popup/item_2/id = 2
 
 [node name="ArenaTimeUI" parent="." node_paths=PackedStringArray("arena_time_manager") instance=ExtResource("1_sfy4a")]

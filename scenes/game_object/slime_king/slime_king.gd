@@ -1,6 +1,11 @@
 extends CharacterBody2D
 
 
+const WALK_TEXTURE := preload("res://assets/enemies/slime_king_walk.png")
+const JUMP_TEXTURE := preload("res://assets/enemies/slime_king_jump.png")
+const FRAME_COLUMNS := [0, 444, 887, 1331, 1774]
+const FRAME_ROWS := [0, 444, 887]
+const FRAME_RATE := 8.0
 const SLIME_SPRAY_COOLDOWN := 10.0
 const MINION_COUNT := 10
 const JUMP_COUNT := 3
@@ -32,6 +37,7 @@ var corrosive_puddle_scene: PackedScene = preload("res://scenes/game_object/corr
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var velocity_component: VelocityComponent = $VelocityComponent
 @onready var visuals: Node2D = $Visuals
+@onready var sprite: Sprite2D = $Visuals/Sprite2D
 
 var slime_spray_time_left := 5.0
 var ability_time_left := 8.0
@@ -86,6 +92,10 @@ class ChargeTelegraph extends Node2D:
 		var endpoint: Vector2 = direction * length
 		draw_line(Vector2.ZERO, endpoint, Color(1.0, 0.08, 0.08, 0.3 + pulse * 0.3), 7.0)
 		draw_circle(endpoint, CHARGE_HIT_RADIUS, Color(1.0, 0.12, 0.12, 0.16 + pulse * 0.18))
+
+
+func _ready() -> void:
+	show_frame(WALK_TEXTURE, 0)
 
 
 func _process(delta: float) -> void:
@@ -202,18 +212,12 @@ func perform_triple_jump() -> void:
 			break
 		var destination: Vector2 = player.global_position
 		create_telegraph(destination, JUMP_DAMAGE_RADIUS, JUMP_WARNING_DURATION)
-		var windup_tween: Tween = create_tween()
-		windup_tween.tween_property(visuals, "scale", Vector2(1.22, 0.76), 0.14)
-		await get_tree().create_timer(JUMP_WARNING_DURATION).timeout
+		await play_frames(JUMP_TEXTURE, 0, 1, JUMP_WARNING_DURATION)
 		var tween: Tween = create_tween()
 		tween.tween_property(self, "global_position", destination, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		await tween.finished
-		visuals.scale = Vector2(1.4, 0.64)
+		await play_frames(JUMP_TEXTURE, 2, 5, 0.12)
 		deal_area_damage(destination, JUMP_DAMAGE_RADIUS, JUMP_DAMAGE)
-		var impact_tween: Tween = create_tween()
-		impact_tween.tween_property(visuals, "scale", Vector2.ONE, 0.14)
-		await impact_tween.finished
-		await get_tree().create_timer(0.08).timeout
+		await play_frames(JUMP_TEXTURE, 6, 7, 0.22)
 	ability_time_left = 6.0
 	performing_ability = false
 
@@ -282,13 +286,13 @@ func deal_area_damage(center: Vector2, radius: float, damage: float) -> void:
 		return
 	var player_health: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(damage)
+		player_health.damage(damage, "史莱姆王")
 
 
 func damage_and_knockback_player(player: Node2D, direction: Vector2) -> void:
 	var player_health: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(CHARGE_DAMAGE)
+		player_health.damage(CHARGE_DAMAGE, "史莱姆王")
 	var player_velocity: VelocityComponent = player.get_node_or_null("VelocityComponent") as VelocityComponent
 	if player_velocity != null:
 		player_velocity.velocity = direction * CHARGE_KNOCKBACK_SPEED
@@ -298,10 +302,22 @@ func damage_and_knockback_player(player: Node2D, direction: Vector2) -> void:
 func animate_movement(delta: float) -> void:
 	var speed: float = velocity_component.velocity.length()
 	if speed < 1.0:
-		visuals.position = visuals.position.lerp(Vector2.ZERO, minf(delta * 10.0, 1.0))
-		visuals.scale = visuals.scale.lerp(Vector2.ONE, minf(delta * 10.0, 1.0))
+		show_frame(WALK_TEXTURE, 0)
 		return
-	movement_animation_time += delta * (8.0 + speed * 0.06)
-	var bounce: float = sin(movement_animation_time)
-	visuals.position.y = -absf(bounce) * 3.0
-	visuals.scale = Vector2(1.0 + bounce * 0.08, 1.0 - bounce * 0.08)
+	movement_animation_time += delta
+	show_frame(WALK_TEXTURE, int(movement_animation_time * FRAME_RATE) % 8)
+
+
+func play_frames(texture: Texture2D, first: int, last: int, duration: float) -> void:
+	var elapsed := 0.0
+	while elapsed < duration:
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+		show_frame(texture, mini(first + int(elapsed / duration * (last - first + 1)), last))
+
+
+func show_frame(texture: Texture2D, frame: int) -> void:
+	var column := frame % 4
+	var row := floori(frame / 4.0)
+	sprite.texture = texture
+	sprite.region_rect = Rect2(FRAME_COLUMNS[column], FRAME_ROWS[row], FRAME_COLUMNS[column + 1] - FRAME_COLUMNS[column], FRAME_ROWS[row + 1] - FRAME_ROWS[row])

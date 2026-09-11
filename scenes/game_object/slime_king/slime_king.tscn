@@ -1,22 +1,22 @@
 [gd_scene format=3 uid="uid://bfowu0gosrngg"]
 
 [ext_resource type="Script" uid="uid://23eu81kl4nkr" path="res://scenes/game_object/slime_king/slime_king.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://b8wghhhwxmcpn" path="res://assets/enemies/slime_king.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/enemies/slime_king_walk.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4"]
 [ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
 
 [sub_resource type="CircleShape2D" id="hurt_shape"]
-radius = 44.0
+radius = 41.01219
 
 [sub_resource type="CircleShape2D" id="body_shape"]
-radius = 34.0
+radius = 30.016663
 
 [node name="SlimeKing" type="CharacterBody2D" unique_id=64623855 groups=["boss", "enemy"]]
-metadata/display_name = "史莱姆王"
 collision_layer = 8
 collision_mask = 9
 script = ExtResource("1")
+metadata/display_name = "史莱姆王"
 
 [node name="HealthComponent" parent="." unique_id=483995880 instance=ExtResource("3")]
 max_health = 2400.0
@@ -34,8 +34,11 @@ shape = SubResource("hurt_shape")
 [node name="Visuals" type="Node2D" parent="." unique_id=685195258]
 
 [node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=358379757]
-scale = Vector2(0.064, 0.064)
+texture_filter = 1
+scale = Vector2(0.18, 0.18)
 texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 0, 444, 444)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=758775120]
 shape = SubResource("body_shape")

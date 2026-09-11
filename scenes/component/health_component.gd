@@ -12,9 +12,13 @@ func _ready():
 	current_health = max_health
 
 
-func damage(damage_amount: float) -> bool:
+func damage(damage_amount: float, source: String = "") -> bool:
 	if current_health <= 0:
 		return false
+	if owner.is_in_group("player") and not source.is_empty():
+		var game_events := get_node_or_null("/root/GameEvents")
+		if game_events != null:
+			game_events.set("last_damage_source", source)
 	# clamping
 	current_health = max(current_health - damage_amount, 0)
 	health_changed.emit()

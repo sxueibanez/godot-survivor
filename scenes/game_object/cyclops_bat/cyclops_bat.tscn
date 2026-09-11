@@ -1,10 +1,26 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene format=3 uid="uid://bxwen6qujb5u8"]
 
-[ext_resource type="Script" path="res://scenes/game_object/cyclops_bat/cyclops_bat.gd" id="1_bat"]
-[ext_resource type="Texture2D" path="res://assets/enemies/cyclops_bat_walk_frames.png" id="2_frames"]
-[ext_resource type="PackedScene" path="res://scenes/component/health_component.tscn" id="3_health"]
-[ext_resource type="PackedScene" path="res://scenes/component/velocity_component.tscn" id="4_velocity"]
-[ext_resource type="PackedScene" path="res://scenes/component/hurtbox_component.tscn" id="5_hurtbox"]
+[ext_resource type="Script" uid="uid://u20wjrvj3my3" path="res://scenes/game_object/cyclops_bat/cyclops_bat.gd" id="1_bat"]
+[ext_resource type="Texture2D" uid="uid://cm0hadwlwlem8" path="res://assets/enemies/cyclops_bat_walk_frames.png" id="2_frames"]
+[ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3_health"]
+[ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4_velocity"]
+[ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5_hurtbox"]
+[ext_resource type="PackedScene" uid="uid://bkkq5ohgbnkxw" path="res://scenes/component/hit_flash_component.tscn" id="6_flash"]
+[ext_resource type="Shader" path="res://scenes/component/hit_flash_component.gdshader" id="7_flash_shader"]
+
+[sub_resource type="ShaderMaterial" id="hit_flash_material"]
+resource_local_to_scene = true
+shader = ExtResource("7_flash_shader")
+shader_parameter/lerp_percent = 0.0
+
+[sub_resource type="StyleBoxFlat" id="health_background"]
+bg_color = Color(0.15, 0.08, 0.12, 1)
+
+[sub_resource type="StyleBoxFlat" id="health_fill"]
+bg_color = Color(1, 0.2, 0.3, 1)
+
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 16.0
 
 [sub_resource type="AtlasTexture" id="frame_0"]
 atlas = ExtResource("2_frames")
@@ -40,61 +56,80 @@ region = Rect2(1901, 0, 271, 724)
 
 [sub_resource type="SpriteFrames" id="bat_frames"]
 animations = [{
-"frames": [{"duration": 1.0, "texture": SubResource("frame_0")}, {"duration": 1.0, "texture": SubResource("frame_1")}, {"duration": 1.0, "texture": SubResource("frame_2")}, {"duration": 1.0, "texture": SubResource("frame_3")}, {"duration": 1.0, "texture": SubResource("frame_4")}, {"duration": 1.0, "texture": SubResource("frame_5")}, {"duration": 1.0, "texture": SubResource("frame_6")}, {"duration": 1.0, "texture": SubResource("frame_7")}],
-"loop": true,
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("frame_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_7")
+}],
+"loop": 1,
 "name": &"fly",
 "speed": 10.0
 }]
 
-[sub_resource type="CircleShape2D" id="hurt_shape"]
-radius = 16.0
-
 [sub_resource type="CircleShape2D" id="body_shape"]
-radius = 10.0
 
-[sub_resource type="StyleBoxFlat" id="health_background"]
-bg_color = Color(0.15, 0.08, 0.12, 1)
-
-[sub_resource type="StyleBoxFlat" id="health_fill"]
-bg_color = Color(1, 0.2, 0.3, 1)
-
-[node name="CyclopsBat" type="CharacterBody2D" groups=["enemy"]]
+[node name="CyclopsBat" type="CharacterBody2D" unique_id=1888953286 groups=["enemy"]]
 collision_layer = 8
 collision_mask = 9
 script = ExtResource("1_bat")
 metadata/display_name = "独眼蝙蝠"
 
-[node name="HealthComponent" parent="." instance=ExtResource("3_health")]
+[node name="HealthComponent" parent="." unique_id=1277821333 instance=ExtResource("3_health")]
 max_health = 52.0
 
-[node name="VelocityComponent" parent="." instance=ExtResource("4_velocity")]
+[node name="VelocityComponent" parent="." unique_id=769848971 instance=ExtResource("4_velocity")]
 max_speed = 52
 acceleration = 3.0
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="HitFlashComponent" parent="." node_paths=PackedStringArray("health_component", "sprite") instance=ExtResource("6_flash")]
+health_component = NodePath("../HealthComponent")
+sprite = NodePath("../Sprite2D")
+hit_flash_material = SubResource("hit_flash_material")
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=1076612531]
 custom_minimum_size = Vector2(20, 4)
 offset_left = -10.0
 offset_top = -30.0
 offset_right = 10.0
 offset_bottom = -26.0
+theme_override_styles/background = SubResource("health_background")
+theme_override_styles/fill = SubResource("health_fill")
 max_value = 1.0
 value = 1.0
 show_percentage = false
-theme_override_styles/background = SubResource("health_background")
-theme_override_styles/fill = SubResource("health_fill")
 
-[node name="HurtboxComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("5_hurtbox")]
+[node name="HurtboxComponent" parent="." unique_id=1623325195 node_paths=PackedStringArray("health_component") instance=ExtResource("5_hurtbox")]
 health_component = NodePath("../HealthComponent")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1692652424]
 shape = SubResource("hurt_shape")
 
-[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1172032018]
 texture_filter = 1
-scale = Vector2(0.17, 0.17)
+scale = Vector2(0.11, 0.11)
 sprite_frames = SubResource("bat_frames")
 animation = &"fly"
 autoplay = "fly"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=377292172]
 shape = SubResource("body_shape")

@@ -26,7 +26,7 @@ func _process(delta: float) -> void:
 	if player != null and global_position.distance_to(player.global_position) < 12.0:
 		var health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if health != null:
-			health.damage(DAMAGE)
+			health.damage(DAMAGE, "远程怪")
 		queue_free()
 	elif time_left <= 0.0:
 		queue_free()

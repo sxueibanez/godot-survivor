@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://4yx6i1vm8phy"]
+
+[ext_resource type="Script" uid="uid://u41r6lmfquy2" path="res://scenes/game_object/iron_arm_miner/iron_arm_miner.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bl36f1uijshfs" path="res://assets/enemies/iron_arm_miner_run.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
+
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 43.0
+
+[sub_resource type="CircleShape2D" id="body_shape"]
+radius = 30.0
+
+[node name="IronArmMiner" type="CharacterBody2D" unique_id=2041072147 groups=["boss", "enemy"]]
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("1")
+metadata/display_name = "铁臂矿工"
+
+[node name="HealthComponent" parent="." unique_id=612007192 instance=ExtResource("3")]
+max_health = 5000.0
+
+[node name="VelocityComponent" parent="." unique_id=1689881628 instance=ExtResource("4")]
+max_speed = 65
+acceleration = 2.8
+
+[node name="HurtboxComponent" parent="." unique_id=2119676249 node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1400979929]
+position = Vector2(0, 7)
+shape = SubResource("hurt_shape")
+
+[node name="Visuals" type="Node2D" parent="." unique_id=117398241]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=1812633584]
+texture_filter = 1
+position = Vector2(0, -6)
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 300, 314, 345)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2016323921]
+position = Vector2(0, 12)
+shape = SubResource("body_shape")

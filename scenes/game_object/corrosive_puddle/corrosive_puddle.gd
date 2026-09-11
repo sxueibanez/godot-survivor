@@ -71,7 +71,7 @@ func deal_damage() -> void:
 		return
 	var player_health: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(damage)
+		player_health.damage(damage, "史莱姆王的腐蚀液")
 		var player_velocity: VelocityComponent = player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if player_velocity != null and slow_percent > 0.0:
 			player_velocity.apply_slow(slow_percent, slow_duration)
