@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ability/thunder_orb_book_controller/thunder_orb_book_controller.tscn" id="1_controller"]
+[ext_resource type="Script" path="res://resources/upgrades/ability.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/thunder_orb_book.png" id="3_icon"]
+
+[resource]
+script = ExtResource("2_script")
+ability_controller_scene = ExtResource("1_controller")
+weapon_type = 1
+icon = ExtResource("3_icon")
+id = "thunder_orb_book"
+max_quantity = 1
+name = "雷球书"
+description = "每4秒向最近敌人释放缓慢雷球；每名敌人每秒最多受到一次10点伤害。"

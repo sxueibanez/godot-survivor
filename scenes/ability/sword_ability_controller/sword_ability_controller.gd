@@ -16,6 +16,7 @@ var attack_count := 1
 var permanent_damage_multiplier := 1.0
 var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0
+var size_multiplier := 1.0
 var chain_enabled := false
 var sword_rain_enabled := false
 var sword_rain_threshold_met := false
@@ -32,6 +33,7 @@ func _ready():
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
 	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	size_multiplier = permanent_size_multiplier
 	additional_damage_percent = permanent_damage_multiplier
 	attack_count = GameEvents.weapon_attack_count
 	$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier
@@ -112,7 +114,7 @@ func on_timer_timeout():
 		var sword_instance = sword_ability.instantiate() as SwordAbility
 		sword_instance.damage = base_damage * additional_damage_percent
 		sword_instance.chain_enabled = chain_enabled
-		sword_instance.scale = Vector2.ONE * permanent_size_multiplier
+		sword_instance.scale = Vector2.ONE * size_multiplier
 		foreground_layer.add_child(sword_instance)
 		sword_instance.global_position = enemies[index % enemies.size()].global_position
 		sword_instance.global_position += Vector2.RIGHT.rotated(randf_range(0, TAU)) * 4
@@ -177,6 +179,8 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			$Timer.start()
 		"sword_damage":
 			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["sword_damage"]["quantity"] * 0.15)
+		"sword_size":
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count
 		"sword_chain":

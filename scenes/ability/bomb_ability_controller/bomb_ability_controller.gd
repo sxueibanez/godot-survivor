@@ -11,6 +11,9 @@ var base_damage := 15.0
 var base_wait_time := 2.0
 var damage_multiplier := 1.0
 var size_multiplier := 1.0
+var permanent_damage_multiplier := 1.0
+var permanent_attack_speed_multiplier := 1.0
+var permanent_size_multiplier := 1.0
 var attack_count := 1
 var bounce_level := 0
 var burn_enabled := false
@@ -19,10 +22,13 @@ var character_damage_multiplier := 1.0
 
 
 func _ready() -> void:
-	damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
-	size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
+	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
+	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	damage_multiplier = permanent_damage_multiplier
+	size_multiplier = permanent_size_multiplier
 	attack_count = GameEvents.weapon_attack_count
-	$Timer.wait_time = base_wait_time * (1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03)
+	$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier
 	$Timer.timeout.connect(on_timer_timeout)
 	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 
@@ -66,6 +72,13 @@ static func find_densest_enemy(enemies: Array) -> Node2D:
 
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
+		"bomb_damage":
+			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+		"bomb_size":
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+		"bomb_rate":
+			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.15)
+			$Timer.start()
 		"bomb_bounce":
 			bounce_level = int(current_upgrades[upgrade.id]["quantity"])
 		"bomb_burn":

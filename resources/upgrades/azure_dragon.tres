@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ability/azure_dragon_controller/azure_dragon_controller.tscn" id="1_controller"]
+[ext_resource type="Script" path="res://resources/upgrades/ability.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/azure_dragon_frames.png" id="3_frames"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_frames")
+region = Rect2(0, 0, 418, 418)
+
+[resource]
+script = ExtResource("2_script")
+ability_controller_scene = ExtResource("1_controller")
+weapon_type = 0
+id = "azure_dragon"
+max_quantity = 1
+name = "青龙"
+description = "召唤盘绕在身旁的青龙，每4秒蓄力并直线冲撞附近敌人，造成20点伤害。"
+icon = SubResource("AtlasTexture_icon")

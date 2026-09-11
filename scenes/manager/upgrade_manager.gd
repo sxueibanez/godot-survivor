@@ -17,8 +17,11 @@ var upgrade_axe_count := preload("res://resources/upgrades/axe_count.tres")
 var upgrade_axe_return := preload("res://resources/upgrades/axe_return.tres")
 var upgrade_axe_knockback := preload("res://resources/upgrades/axe_knockback.tres")
 var upgrade_axe_distance_power := preload("res://resources/upgrades/axe_distance_power.tres")
+var upgrade_axe_size := preload("res://resources/upgrades/axe_size.tres")
+var upgrade_axe_rate := preload("res://resources/upgrades/axe_rate.tres")
 var upgrade_sword_rate := preload("res://resources/upgrades/sword_rate.tres")
 var upgrade_sword_damage := preload("res://resources/upgrades/sword_damage.tres")
+var upgrade_sword_size := preload("res://resources/upgrades/sword_size.tres")
 var upgrade_sword_chain := preload("res://resources/upgrades/sword_chain.tres")
 var upgrade_sword_rain := preload("res://resources/upgrades/sword_rain.tres")
 var upgrade_sword_rain_giant := preload("res://resources/upgrades/sword_rain_giant.tres")
@@ -49,9 +52,25 @@ var upgrade_bomb := preload("res://resources/upgrades/bomb.tres")
 var upgrade_bomb_bounce := preload("res://resources/upgrades/bomb_bounce.tres")
 var upgrade_bomb_burn := preload("res://resources/upgrades/bomb_burn.tres")
 var upgrade_bomb_cluster := preload("res://resources/upgrades/bomb_cluster.tres")
+var upgrade_bomb_damage := preload("res://resources/upgrades/bomb_damage.tres")
+var upgrade_bomb_size := preload("res://resources/upgrades/bomb_size.tres")
+var upgrade_bomb_rate := preload("res://resources/upgrades/bomb_rate.tres")
+var upgrade_thunder_orb_book := preload("res://resources/upgrades/thunder_orb_book.tres")
+var upgrade_thunder_orb_chain := preload("res://resources/upgrades/thunder_orb_chain.tres")
+var upgrade_thunder_orb_count := preload("res://resources/upgrades/thunder_orb_count.tres")
+var upgrade_thunder_orb_growth := preload("res://resources/upgrades/thunder_orb_growth.tres")
+var upgrade_thunder_orb_plasma := preload("res://resources/upgrades/thunder_orb_plasma.tres")
+var upgrade_thunder_orb_boss_tracking := preload("res://resources/upgrades/thunder_orb_boss_tracking.tres")
+var upgrade_thunder_orb_damage := preload("res://resources/upgrades/thunder_orb_damage.tres")
+var upgrade_thunder_orb_size := preload("res://resources/upgrades/thunder_orb_size.tres")
+var upgrade_thunder_orb_rate := preload("res://resources/upgrades/thunder_orb_rate.tres")
+var upgrade_azure_dragon := preload("res://resources/upgrades/azure_dragon.tres")
+var upgrade_azure_dragon_damage := preload("res://resources/upgrades/azure_dragon_damage.tres")
+var upgrade_azure_dragon_size := preload("res://resources/upgrades/azure_dragon_size.tres")
+var upgrade_azure_dragon_rate := preload("res://resources/upgrades/azure_dragon_rate.tres")
 
 var rng := RandomNumberGenerator.new()
-var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb]
+var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon]
 var initial_choices_remaining := 0
 var pending_upgrade_choices := 0
 var choice_screen_open := false
@@ -117,12 +136,15 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 	elif chosen_upgrade.id == upgrade_sword.id:
 		upgrade_pool.add_item(upgrade_sword_rate, 10)
 		upgrade_pool.add_item(upgrade_sword_damage, 10)
+		upgrade_pool.add_item(upgrade_sword_size, 10)
 		add_unlocked_special(upgrade_sword_chain, "tree_sword_chain", 5)
 		add_unlocked_special(upgrade_sword_rain, "tree_sword_rain", 5)
 		add_unlocked_special(upgrade_sword_rain_giant, "tree_sword_rain_giant", 5)
 		add_unlocked_special(upgrade_sword_barrage, "tree_sword_barrage", 5)
 	elif chosen_upgrade.id == upgrade_axe.id:
 		upgrade_pool.add_item(upgrade_axe_damage, 10)
+		upgrade_pool.add_item(upgrade_axe_size, 10)
+		upgrade_pool.add_item(upgrade_axe_rate, 10)
 		add_unlocked_special(upgrade_axe_reflect, "tree_axe_reflect", 8)
 		add_unlocked_special(upgrade_axe_count, "tree_axe_count", 10)
 		add_unlocked_special(upgrade_axe_return, "tree_axe_return", 8)
@@ -145,9 +167,25 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_lightning_cloud, "tree_lightning_cloud", 5)
 		add_unlocked_special(upgrade_lightning_wide_arc, "tree_lightning_wide_arc", 5)
 	elif chosen_upgrade.id == upgrade_bomb.id:
+		upgrade_pool.add_item(upgrade_bomb_damage, 10)
+		upgrade_pool.add_item(upgrade_bomb_size, 10)
+		upgrade_pool.add_item(upgrade_bomb_rate, 10)
 		add_unlocked_special(upgrade_bomb_bounce, "tree_bomb_bounce", 8)
 		add_unlocked_special(upgrade_bomb_burn, "tree_bomb_burn", 8)
 		add_unlocked_special(upgrade_bomb_cluster, "tree_bomb_cluster", 8)
+	elif chosen_upgrade.id == upgrade_thunder_orb_book.id:
+		upgrade_pool.add_item(upgrade_thunder_orb_damage, 10)
+		upgrade_pool.add_item(upgrade_thunder_orb_size, 10)
+		upgrade_pool.add_item(upgrade_thunder_orb_rate, 10)
+		add_unlocked_special(upgrade_thunder_orb_chain, "tree_thunder_orb_chain", 8)
+		add_unlocked_special(upgrade_thunder_orb_count, "tree_thunder_orb_count", 10)
+		add_unlocked_special(upgrade_thunder_orb_growth, "tree_thunder_orb_growth", 8)
+		add_unlocked_special(upgrade_thunder_orb_plasma, "tree_thunder_orb_plasma", 8)
+		add_unlocked_special(upgrade_thunder_orb_boss_tracking, "tree_thunder_orb_boss_tracking", 8)
+	elif chosen_upgrade.id == upgrade_azure_dragon.id:
+		upgrade_pool.add_item(upgrade_azure_dragon_damage, 10)
+		upgrade_pool.add_item(upgrade_azure_dragon_size, 10)
+		upgrade_pool.add_item(upgrade_azure_dragon_rate, 10)
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:

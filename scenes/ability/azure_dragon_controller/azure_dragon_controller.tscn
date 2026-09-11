@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/azure_dragon_controller/azure_dragon_controller.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ability/azure_dragon/azure_dragon.tscn" id="2_dragon"]
+
+[node name="AzureDragonController" type="Node"]
+script = ExtResource("1_script")
+azure_dragon_scene = ExtResource("2_dragon")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 4.0
+autostart = true

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "azure_dragon_size"
+max_quantity = 0
+name = "龙躯扩张"
+description = "青龙体型与冲撞范围提升20%。"

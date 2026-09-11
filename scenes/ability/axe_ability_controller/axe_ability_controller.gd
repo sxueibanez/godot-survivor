@@ -9,6 +9,7 @@ var attack_count := 1
 var permanent_damage_multiplier := 1.0
 var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0
+var size_multiplier := 1.0
 var reflect_projectiles := false
 var additional_axe_count := 0
 var return_to_player := false
@@ -22,6 +23,7 @@ func _ready():
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
 	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	size_multiplier = permanent_size_multiplier
 	additional_damage_percent = permanent_damage_multiplier
 	attack_count = GameEvents.weapon_attack_count
 	$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier
@@ -44,7 +46,7 @@ func on_timer_timeout():
 		axe_instance.return_to_player = return_to_player
 		axe_instance.knockback_enabled = knockback_enabled
 		axe_instance.distance_scaling_enabled = distance_scaling_enabled
-		axe_instance.scale = Vector2.ONE * permanent_size_multiplier
+		axe_instance.scale = Vector2.ONE * size_multiplier
 		axe_instance.base_damage = base_damage * additional_damage_percent
 		foreground.add_child(axe_instance)
 		axe_instance.global_position = player.global_position
@@ -54,6 +56,11 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 	match upgrade.id:
 		"axe_damage":
 			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["axe_damage"]["quantity"] * 0.1)
+		"axe_size":
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+		"axe_rate":
+			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.15)
+			$Timer.start()
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count
 		"axe_reflect":

@@ -1,13 +1,15 @@
 extends CanvasLayer
 
 
-const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb"]
+const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
 	"axe": "飞斧",
 	"laser_gun": "激光枪",
 	"lightning_whip": "闪电鞭",
 	"bomb": "炸弹",
+	"thunder_orb_book": "雷球书",
+	"azure_dragon": "青龙",
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
@@ -40,6 +42,14 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_bomb_burn", "title": "燃烧弹", "description": "解锁局内燃烧弹升级；命中后每秒造成60%武器伤害，持续5秒。", "requires": []},
 		{"id": "tree_bomb_cluster", "title": "子母弹", "description": "解锁局内子母弹升级；每次主炸弹爆炸洒出5枚30%威力与范围的小炸弹。", "requires": []},
 	],
+	"thunder_orb_book": [
+		{"id": "tree_thunder_orb_chain", "title": "雷链", "description": "解锁局内雷链升级；雷球每秒攻击周围最多3名敌人。", "requires": []},
+		{"id": "tree_thunder_orb_count", "title": "雷球增殖", "description": "解锁局内雷球数量升级；每级数量+1，最多3级。", "requires": []},
+		{"id": "tree_thunder_orb_growth", "title": "雷霆膨胀", "description": "解锁局内成长升级；雷球距离越远体积越大。", "requires": []},
+		{"id": "tree_thunder_orb_plasma", "title": "雷浆爆裂", "description": "解锁局内终点爆炸与持续3秒的雷浆。", "requires": []},
+		{"id": "tree_thunder_orb_boss_tracking", "title": "雷霆追猎", "description": "解锁局内BOSS追踪；没有BOSS时雷球保持原本直线轨迹。", "requires": []},
+	],
+	"azure_dragon": [],
 }
 const SKILL_COST := 200
 
