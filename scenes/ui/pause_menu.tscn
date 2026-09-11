@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://jyamin6vjlwn" path="res://scenes/ui/pause_menu.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://dumjej53vmw4d" path="res://scenes/ui/sound_button.tscn" id="2"]
 [ext_resource type="Texture2D" uid="uid://jgxfupesel5x" path="res://scenes/game_object/player/player.png" id="3"]
-[ext_resource type="FontFile" uid="uid://c3jrbyl5vgidu" path="res://resources/fonts/NotoSansSC.ttf" id="4_noto"]
 
 [sub_resource type="Animation" id="Reset"]
 length = 0.001
@@ -59,10 +58,6 @@ _data = {
 &"out": SubResource("FadeOut")
 }
 
-[sub_resource type="SystemFont" id="SystemFont_microsoft_yahei"]
-fallbacks = Array[Font]([ExtResource("4_noto")])
-font_names = PackedStringArray("Microsoft YaHei", "Microsoft YaHei UI")
-
 [node name="PauseMenu" type="CanvasLayer" unique_id=364667606 groups=["pause_menu"]]
 process_mode = 3
 layer = 2
@@ -104,7 +99,6 @@ theme_override_constants/separation = 5
 
 [node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1243969897]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 theme_override_font_sizes/font_size = 14
 text = "角色面板"
 horizontal_alignment = 1
@@ -128,7 +122,6 @@ layout_mode = 2
 [node name="AttributesLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/LeftColumn/AttributesPanel" unique_id=1436797771]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 theme_override_font_sizes/font_size = 10
 text = "属性"
 autowrap_mode = 2
@@ -146,7 +139,6 @@ horizontal_scroll_mode = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 theme_override_font_sizes/font_size = 10
 text = "武器与技能"
 autowrap_mode = 2
@@ -160,7 +152,6 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/PortraitPanel/VBoxContainer" unique_id=1108752450]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 theme_override_font_sizes/font_size = 16
 text = "角色绘画"
 horizontal_alignment = 1
@@ -184,19 +175,16 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 text = "继续游戏"
 
 [node name="OptionsButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" unique_id=195875488 instance=ExtResource("2")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 text = "选项"
 
 [node name="QuitButton" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Content/Buttons" unique_id=553122205 instance=ExtResource("2")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 18)
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_microsoft_yahei")
 text = "返回主菜单"

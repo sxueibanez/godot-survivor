@@ -1,6 +1,6 @@
 [gd_resource type="Theme" format=3 uid="uid://c3hhobt5yor42"]
 
-[ext_resource type="FontFile" uid="uid://ba3f2bejkjtdg" path="res://resources/themes/Rockboxcond12.ttf" id="1_fxvgl"]
+[ext_resource type="FontFile" path="res://resources/fonts/FusionPixel12ProportionalZhHans.woff2" id="1_fxvgl"]
 [ext_resource type="Texture2D" uid="uid://m1p3h77wdeke" path="res://assets/ui/ui.png" id="1_vusi2"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bvm1a"]
