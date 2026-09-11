@@ -7,6 +7,3 @@ Play here: https://sxueibanez.github.io/godot-survivor/
 
 ## Screenshot
 <img width="1277" alt="screenshot" src="https://github.com/user-attachments/assets/82eb6ab6-2b63-4d8c-a54c-3070d105fa66">
-
-## Reference
-- [Create a Complete 2D Survivor Style Game in Godot 4](https://www.udemy.com/course/create-a-complete-2d-arena-survival-roguelike-game-in-godot-4/)(Udemy) by [Firebelly Games](https://www.udemy.com/user/firebelley-games/)
