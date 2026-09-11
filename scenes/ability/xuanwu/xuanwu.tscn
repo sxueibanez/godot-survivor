@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/xuanwu/xuanwu.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/xuanwu_frames.png" id="2_frames"]
+
+[node name="XuanwuAbility" type="Node2D"]
+z_index = -1
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.07, 0.07)
+texture = ExtResource("2_frames")
+hframes = 3
+vframes = 3
+
+[node name="ShieldTimer" type="Timer" parent="."]
+wait_time = 30.0
+autostart = true

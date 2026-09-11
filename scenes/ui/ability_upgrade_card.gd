@@ -21,6 +21,7 @@ const ICON_SHEETS := {
 	"thunder": preload("res://assets/icons/skills/thunder_orb_skill_icons.png"),
 	"general": preload("res://assets/icons/skills/general_skill_icons.png"),
 	"whip_weapon": preload("res://scenes/ability/lightning_whip_ability/lightning_whip_frames.png"),
+	"azure_skills": preload("res://assets/icons/skills/azure_dragon_skill_icons.png"),
 }
 
 const ICON_REGIONS := {
@@ -77,6 +78,10 @@ const ICON_REGIONS := {
 	"speed_damage_no_crit": ["general", Rect2(0, 836, 627, 418)],
 	"attack_count": ["general", Rect2(627, 836, 627, 418)],
 	"lightning_whip": ["whip_weapon", Rect2(0, 0, 418, 418)],
+	"azure_dragon_vermilion_bird": ["azure_skills", Rect2(0, 0, 627, 627)],
+	"azure_dragon_xuanwu": ["azure_skills", Rect2(627, 0, 627, 627)],
+	"azure_dragon_white_tiger": ["azure_skills", Rect2(0, 627, 627, 627)],
+	"azure_dragon_four_beasts": ["azure_skills", Rect2(627, 627, 627, 627)],
 }
 
 @onready var name_label: Label = %NameLabel

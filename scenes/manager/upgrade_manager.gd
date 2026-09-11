@@ -68,6 +68,10 @@ var upgrade_azure_dragon := preload("res://resources/upgrades/azure_dragon.tres"
 var upgrade_azure_dragon_damage := preload("res://resources/upgrades/azure_dragon_damage.tres")
 var upgrade_azure_dragon_size := preload("res://resources/upgrades/azure_dragon_size.tres")
 var upgrade_azure_dragon_rate := preload("res://resources/upgrades/azure_dragon_rate.tres")
+var upgrade_azure_dragon_vermilion_bird := preload("res://resources/upgrades/azure_dragon_vermilion_bird.tres")
+var upgrade_azure_dragon_xuanwu := preload("res://resources/upgrades/azure_dragon_xuanwu.tres")
+var upgrade_azure_dragon_white_tiger := preload("res://resources/upgrades/azure_dragon_white_tiger.tres")
+var upgrade_azure_dragon_four_beasts := preload("res://resources/upgrades/azure_dragon_four_beasts.tres")
 
 var rng := RandomNumberGenerator.new()
 var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon]
@@ -186,11 +190,25 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		upgrade_pool.add_item(upgrade_azure_dragon_damage, 10)
 		upgrade_pool.add_item(upgrade_azure_dragon_size, 10)
 		upgrade_pool.add_item(upgrade_azure_dragon_rate, 10)
+		add_unlocked_special(upgrade_azure_dragon_vermilion_bird, "tree_azure_dragon_vermilion_bird", 8)
+		add_unlocked_special(upgrade_azure_dragon_xuanwu, "tree_azure_dragon_xuanwu", 8)
+		add_unlocked_special(upgrade_azure_dragon_white_tiger, "tree_azure_dragon_white_tiger", 8)
+	elif chosen_upgrade.id in [upgrade_azure_dragon_vermilion_bird.id, upgrade_azure_dragon_xuanwu.id, upgrade_azure_dragon_white_tiger.id]:
+		try_unlock_four_beasts_upgrade()
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:
 	if MetaProgression.get_weapon_skill_count(tree_skill_id) > 0:
 		upgrade_pool.add_item(upgrade, weight)
+
+
+func try_unlock_four_beasts_upgrade() -> void:
+	if MetaProgression.get_weapon_skill_count("tree_azure_dragon_four_beasts") == 0:
+		return
+	for upgrade_id: String in ["azure_dragon_vermilion_bird", "azure_dragon_xuanwu", "azure_dragon_white_tiger"]:
+		if not current_upgrades.has(upgrade_id):
+			return
+	upgrade_pool.add_item(upgrade_azure_dragon_four_beasts, 8)
 
 
 func update_weapon_pool() -> void:

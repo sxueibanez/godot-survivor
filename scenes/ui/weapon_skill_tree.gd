@@ -49,7 +49,12 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_thunder_orb_plasma", "title": "雷浆爆裂", "description": "解锁局内终点爆炸与持续3秒的雷浆。", "requires": []},
 		{"id": "tree_thunder_orb_boss_tracking", "title": "雷霆追猎", "description": "解锁局内BOSS追踪；没有BOSS时雷球保持原本直线轨迹。", "requires": []},
 	],
-	"azure_dragon": [],
+	"azure_dragon": [
+		{"id": "tree_azure_dragon_vermilion_bird", "title": "朱雀降临", "description": "解锁局内朱雀召唤；每秒发射3枚燃烧火球。", "requires": []},
+		{"id": "tree_azure_dragon_xuanwu", "title": "玄武守护", "description": "解锁局内玄武召唤；提供护盾与一次免死。", "requires": []},
+		{"id": "tree_azure_dragon_white_tiger", "title": "白虎啸风", "description": "解锁局内白虎召唤；定期释放聚怪龙卷风。", "requires": []},
+		{"id": "tree_azure_dragon_four_beasts", "title": "四圣共鸣", "description": "集齐四圣兽后，解锁每15秒一次的持续5秒穿梭攻击。", "requires": ["tree_azure_dragon_vermilion_bird", "tree_azure_dragon_xuanwu", "tree_azure_dragon_white_tiger"]},
+	],
 }
 const SKILL_COST := 200
 

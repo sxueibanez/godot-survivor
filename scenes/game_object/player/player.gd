@@ -10,6 +10,7 @@ const BOSS_CONTACT_KNOCKBACK_DURATION := 0.28
 @onready var damage_interval_timer = $DamageIntervalTimer
 @onready var health_component = $HealthComponent
 @onready var health_bar = $HealthBar
+@onready var shield_bar = $ShieldBar
 @onready var abilities = $Abilities
 @onready var animation_player = $AnimationPlayer
 @onready var visuals = $Visuals
@@ -33,8 +34,10 @@ func _ready():
 	$CollisionArea2D.body_exited.connect(on_body_exited)
 	damage_interval_timer.timeout.connect(on_damage_interval_timer_timeout)
 	health_component.health_changed.connect(on_health_changed)
+	health_component.shield_changed.connect(update_shield_display)
 	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 	update_health_display()
+	update_shield_display(health_component.shield)
 
 
 func apply_character_visual() -> void:
@@ -133,6 +136,10 @@ func check_deal_damage():
 
 func update_health_display():
 	health_bar.value = health_component.get_health_percent()
+
+
+func update_shield_display(current_shield: float) -> void:
+	shield_bar.value = current_shield / health_component.max_health if health_component.max_health > 0.0 else 0.0
 
 
 #---------------------------------------------

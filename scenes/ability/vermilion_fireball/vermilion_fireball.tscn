@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/vermilion_fireball/vermilion_fireball.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/vermilion_fireball_frames.png" id="2_frames"]
+
+[node name="VermilionFireball" type="Node2D"]
+z_index = -1
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.045, 0.045)
+texture = ExtResource("2_frames")
+region_enabled = true
+region_rect = Rect2(0, 0, 512, 341)

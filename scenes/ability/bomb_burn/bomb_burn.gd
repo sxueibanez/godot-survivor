@@ -10,6 +10,7 @@ const FRAME_DURATION := 0.1
 var damage := 0.0
 var ticks_left := TICK_COUNT
 var animation_time := 0.0
+var weapon_id := "bomb"
 
 
 func _ready() -> void:
@@ -35,7 +36,7 @@ func tick() -> void:
 		return
 	var damage_amount: float = damage * GameEvents.player_damage_multiplier
 	hurtbox.health_component.damage(damage_amount)
-	GameEvents.record_weapon_damage("bomb", damage_amount)
+	GameEvents.record_weapon_damage(weapon_id, damage_amount)
 	GameEvents.heal_from_damage(damage_amount)
 	hurtbox.show_damage(damage_amount)
 	hurtbox.hit.emit()

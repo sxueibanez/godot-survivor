@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "azure_dragon_four_beasts"
+max_quantity = 1
+name = "四圣共鸣"
+description = "集齐四圣兽后，每15秒共同穿梭5秒并伤害触碰的敌人；期间暂停其他攻击。"

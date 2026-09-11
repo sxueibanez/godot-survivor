@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/white_tiger/white_tiger.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/white_tiger_frames.png" id="2_frames"]
+[ext_resource type="PackedScene" path="res://scenes/ability/sacred_tornado/sacred_tornado.tscn" id="3_tornado"]
+
+[node name="WhiteTigerAbility" type="Node2D"]
+z_index = -1
+script = ExtResource("1_script")
+tornado_scene = ExtResource("3_tornado")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.075, 0.075)
+texture = ExtResource("2_frames")
+region_enabled = true
+region_rect = Rect2(0, 0, 512, 341)
+
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true

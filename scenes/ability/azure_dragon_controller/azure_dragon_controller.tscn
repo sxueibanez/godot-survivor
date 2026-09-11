@@ -1,12 +1,21 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/ability/azure_dragon_controller/azure_dragon_controller.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/ability/azure_dragon/azure_dragon.tscn" id="2_dragon"]
+[ext_resource type="PackedScene" path="res://scenes/ability/vermilion_bird/vermilion_bird.tscn" id="3_bird"]
+[ext_resource type="PackedScene" path="res://scenes/ability/xuanwu/xuanwu.tscn" id="4_xuanwu"]
+[ext_resource type="PackedScene" path="res://scenes/ability/white_tiger/white_tiger.tscn" id="5_tiger"]
 
 [node name="AzureDragonController" type="Node"]
 script = ExtResource("1_script")
 azure_dragon_scene = ExtResource("2_dragon")
+vermilion_bird_scene = ExtResource("3_bird")
+xuanwu_scene = ExtResource("4_xuanwu")
+white_tiger_scene = ExtResource("5_tiger")
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 4.0
 autostart = true
+
+[node name="FourBeastsTimer" type="Timer" parent="."]
+wait_time = 15.0

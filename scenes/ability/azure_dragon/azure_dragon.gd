@@ -25,6 +25,7 @@ var animation_time := 0.0
 var dash_origin := Vector2.ZERO
 var attack_direction := Vector2.RIGHT
 var hit_enemies: Dictionary = {}
+var ultimate_active := false
 
 
 func _ready() -> void:
@@ -42,6 +43,8 @@ func configure(new_damage: float, new_size_multiplier: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if ultimate_active:
+		return
 	if not is_instance_valid(player):
 		player = get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
@@ -120,3 +123,9 @@ func damage_enemies() -> void:
 
 func refresh_visual_size() -> void:
 	dragon_sprite.scale = Vector2.ONE * BASE_SPRITE_SCALE * size_multiplier
+
+
+func set_ultimate_active(active: bool) -> void:
+	ultimate_active = active
+	if active:
+		state = State.IDLE
