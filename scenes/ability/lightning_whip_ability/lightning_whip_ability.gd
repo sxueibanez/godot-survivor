@@ -24,6 +24,7 @@ var lightning_cloud_scene := preload("res://scenes/ability/lightning_cloud_abili
 
 
 func _ready() -> void:
+	$LaunchSound.play()
 	rotation = direction.angle()
 	scale = Vector2.ONE * size_multiplier
 	attack_half_angle = WIDE_HALF_ANGLE if wide_arc_enabled else BASE_HALF_ANGLE
@@ -40,6 +41,7 @@ func _physics_process(delta: float) -> void:
 
 func strike() -> void:
 	var attack_range := RANGE * size_multiplier
+	var hit_any_enemy := false
 	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
 		var offset: Vector2 = enemy.global_position - global_position
 		if offset.length_squared() > attack_range * attack_range || abs(direction.angle_to(offset.normalized())) > attack_half_angle:
@@ -54,6 +56,7 @@ func strike() -> void:
 		GameEvents.heal_from_damage(critical_hit["damage"])
 		hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])
 		hurtbox.hit.emit()
+		hit_any_enemy = true
 		var velocity := enemy.get_node_or_null("VelocityComponent") as VelocityComponent
 		if velocity != null:
 			velocity.apply_slow(0.25, 3.0)
@@ -61,6 +64,8 @@ func strike() -> void:
 			spawn_cloud(enemy)
 		if chain_enabled and randf() <= CHAIN_TRIGGER_CHANCE:
 			spawn_chains(enemy)
+	if hit_any_enemy:
+		$HitSound.play()
 
 
 func spawn_chains(source_enemy: Node2D) -> void:

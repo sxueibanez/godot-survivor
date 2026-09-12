@@ -7,4 +7,4 @@ script = ExtResource("1_whip")
 id = "lightning_whip_rate"
 max_quantity = 3
 name = "迅捷挥鞭"
-description = "闪电鞭冷却时间减少 15%。"
+description = "闪电鞭冷却时间减少5%。"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "nine_treasure_pagoda_damage"
+max_quantity = 3
+name = "琉璃增辉"
+description = "所有武器的伤害提升10%。"

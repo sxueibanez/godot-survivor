@@ -72,9 +72,18 @@ var upgrade_azure_dragon_vermilion_bird := preload("res://resources/upgrades/azu
 var upgrade_azure_dragon_xuanwu := preload("res://resources/upgrades/azure_dragon_xuanwu.tres")
 var upgrade_azure_dragon_white_tiger := preload("res://resources/upgrades/azure_dragon_white_tiger.tres")
 var upgrade_azure_dragon_four_beasts := preload("res://resources/upgrades/azure_dragon_four_beasts.tres")
+var upgrade_nine_treasure_pagoda := preload("res://resources/upgrades/nine_treasure_pagoda.tres")
+var upgrade_nine_treasure_pagoda_damage := preload("res://resources/upgrades/nine_treasure_pagoda_damage.tres")
+var upgrade_nine_treasure_pagoda_size := preload("res://resources/upgrades/nine_treasure_pagoda_size.tres")
+var upgrade_nine_treasure_pagoda_rate := preload("res://resources/upgrades/nine_treasure_pagoda_rate.tres")
+var upgrade_nine_treasure_damage := preload("res://resources/upgrades/nine_treasure_damage.tres")
+var upgrade_nine_treasure_attack_speed := preload("res://resources/upgrades/nine_treasure_attack_speed.tres")
+var upgrade_nine_treasure_health := preload("res://resources/upgrades/nine_treasure_health.tres")
+var upgrade_nine_treasure_move_speed := preload("res://resources/upgrades/nine_treasure_move_speed.tres")
+var upgrade_nine_treasure_extra_attack := preload("res://resources/upgrades/nine_treasure_extra_attack.tres")
 
 var rng := RandomNumberGenerator.new()
-var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon]
+var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon, upgrade_nine_treasure_pagoda]
 var initial_choices_remaining := 0
 var pending_upgrade_choices := 0
 var choice_screen_open := false
@@ -193,6 +202,15 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_azure_dragon_vermilion_bird, "tree_azure_dragon_vermilion_bird", 8)
 		add_unlocked_special(upgrade_azure_dragon_xuanwu, "tree_azure_dragon_xuanwu", 8)
 		add_unlocked_special(upgrade_azure_dragon_white_tiger, "tree_azure_dragon_white_tiger", 8)
+	elif chosen_upgrade.id == upgrade_nine_treasure_pagoda.id:
+		upgrade_pool.add_item(upgrade_nine_treasure_pagoda_damage, 10)
+		upgrade_pool.add_item(upgrade_nine_treasure_pagoda_size, 10)
+		upgrade_pool.add_item(upgrade_nine_treasure_pagoda_rate, 10)
+		add_unlocked_special(upgrade_nine_treasure_damage, "tree_nine_treasure_damage", 8)
+		add_unlocked_special(upgrade_nine_treasure_attack_speed, "tree_nine_treasure_attack_speed", 8)
+		add_unlocked_special(upgrade_nine_treasure_health, "tree_nine_treasure_health", 8)
+		add_unlocked_special(upgrade_nine_treasure_move_speed, "tree_nine_treasure_move_speed", 8)
+		add_unlocked_special(upgrade_nine_treasure_extra_attack, "tree_nine_treasure_extra_attack", 8)
 	elif chosen_upgrade.id in [upgrade_azure_dragon_vermilion_bird.id, upgrade_azure_dragon_xuanwu.id, upgrade_azure_dragon_white_tiger.id]:
 		try_unlock_four_beasts_upgrade()
 

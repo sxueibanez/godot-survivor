@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "axe_rate"
 max_quantity = 3
 name = "飞斧迅捷"
-description = "飞斧的冷却时间减少15%。"
+description = "飞斧的冷却时间减少5%。"

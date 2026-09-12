@@ -7,4 +7,4 @@ script = ExtResource("1_2q5jw")
 id = "sword_rate"
 max_quantity = 5
 name = "利剑迅捷"
-description = "剑的攻击速度提升 10%。"
+description = "剑的冷却时间减少5%。"

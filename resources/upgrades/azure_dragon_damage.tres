@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "azure_dragon_damage"
 max_quantity = 0
 name = "龙威强化"
-description = "青龙冲撞伤害提升20%。"
+description = "四圣兽伤害提升5%。"

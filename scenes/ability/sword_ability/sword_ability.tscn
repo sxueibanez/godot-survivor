@@ -1,8 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dini725amwnfl"]
+[gd_scene load_steps=10 format=3 uid="uid://dini725amwnfl"]
 
 [ext_resource type="Texture2D" uid="uid://hpmgxym8g133" path="res://scenes/ability/sword_ability/sword.png" id="1_65jmi"]
 [ext_resource type="Script" path="res://scenes/ability/sword_ability/sword_ability.gd" id="1_kdjon"]
 [ext_resource type="PackedScene" uid="uid://b07jrrt845lfp" path="res://scenes/component/hitbox_component.tscn" id="2_xrg4e"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/sword_launch.wav" id="3_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/sword_hit.wav" id="4_hit"]
 
 [sub_resource type="Animation" id="Animation_jsajo"]
 length = 0.001
@@ -127,3 +129,13 @@ collision_mask = 32
 position = Vector2(15, 0)
 shape = SubResource("RectangleShape2D_2govn")
 disabled = true
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_launch")
+volume_db = -8.0
+bus = &"sfx"
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_hit")
+volume_db = -8.0
+bus = &"sfx"

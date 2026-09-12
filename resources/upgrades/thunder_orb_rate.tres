@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "thunder_orb_rate"
 max_quantity = 3
 name = "快速咏唱"
-description = "雷球书的冷却时间减少15%。"
+description = "雷球书的冷却时间减少5%。"

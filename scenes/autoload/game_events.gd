@@ -7,6 +7,7 @@ signal player_damaged
 signal player_healed
 
 var weapon_attack_count := 1
+var base_weapon_attack_count := 1
 var arena_difficulty := 0
 var critical_chance := 0.0
 var ability_critical_chance := 0.0
@@ -16,6 +17,12 @@ var critical_disabled := false
 var speed_damage_no_crit := false
 var life_steal_percent := 0.0
 var player_damage_multiplier := 1.0
+var support_damage_multiplier := 1.0
+var support_health_multiplier := 1.0
+var support_move_speed_multiplier := 1.0
+var support_size_multiplier := 1.0
+var support_attack_interval_multiplier := 1.0
+var support_weapon_attack_count_bonus := 0
 var weapon_damage := {}
 var last_damage_source := "未知伤害"
 var game_mode := "campaign"
@@ -30,6 +37,14 @@ func emit_experience_vial_collected(number: float):
 
 
 func reset_run_stats() -> void:
+	weapon_attack_count = 1
+	base_weapon_attack_count = 1
+	support_damage_multiplier = 1.0
+	support_health_multiplier = 1.0
+	support_move_speed_multiplier = 1.0
+	support_size_multiplier = 1.0
+	support_attack_interval_multiplier = 1.0
+	support_weapon_attack_count_bonus = 0
 	weapon_damage.clear()
 	last_damage_source = "未知伤害"
 
@@ -42,7 +57,8 @@ func record_weapon_damage(weapon_id: String, damage: float) -> void:
 
 func emit_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):
 	if upgrade.id == "attack_count":
-		weapon_attack_count = current_upgrades[upgrade.id]["quantity"] + 1
+		base_weapon_attack_count = current_upgrades[upgrade.id]["quantity"] + 1
+		weapon_attack_count = base_weapon_attack_count + support_weapon_attack_count_bonus
 	elif upgrade.id == "critical_hit":
 		ability_critical_chance = current_upgrades[upgrade.id]["quantity"] * 0.05
 		refresh_critical_chance()
@@ -61,7 +77,7 @@ func refresh_critical_chance() -> void:
 
 func get_critical_damage(damage: float) -> Dictionary:
 	var critical := not critical_disabled and randf() < critical_chance
-	return {"damage": damage * player_damage_multiplier * (critical_damage_multiplier if critical else 1.0), "critical": critical}
+	return {"damage": damage * player_damage_multiplier * support_damage_multiplier * (critical_damage_multiplier if critical else 1.0), "critical": critical}
 
 
 func heal_from_damage(damage: float) -> void:

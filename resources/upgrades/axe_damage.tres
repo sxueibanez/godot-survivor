@@ -7,4 +7,4 @@ script = ExtResource("1_7opda")
 id = "axe_damage"
 max_quantity = 0
 name = "飞斧伤害"
-description = "飞斧伤害提升 10%。"
+description = "飞斧伤害提升5%。"

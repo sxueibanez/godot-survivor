@@ -75,6 +75,7 @@ func start_attack(target_position: Vector2) -> bool:
 	dash_origin = global_position
 	attack_direction = global_position.direction_to(target_position)
 	rotation = attack_direction.angle()
+	$LaunchSound.play()
 	return true
 
 
@@ -118,6 +119,7 @@ func damage_enemies() -> void:
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))
 		hurtbox.hit.emit()
+		$HitSound.play()
 		hit_enemies[enemy_id] = true
 
 

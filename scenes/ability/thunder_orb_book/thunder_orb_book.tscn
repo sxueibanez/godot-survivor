@@ -1,14 +1,26 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/ability/thunder_orb_book/thunder_orb_book.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/abilities/thunder_orb_frames.png" id="2_frames"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/thunder_orb_book_launch.wav" id="3_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/thunder_orb_book_hit.wav" id="4_hit"]
 
 [node name="ThunderOrbBookAbility" type="Node2D"]
 z_index = -1
 script = ExtResource("1_script")
 
 [node name="OrbSprite" type="Sprite2D" parent="."]
-scale = Vector2(0.18, 0.18)
+scale = Vector2(0.09, 0.09)
 texture = ExtResource("2_frames")
 hframes = 4
 vframes = 4
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_launch")
+volume_db = -8.0
+bus = &"sfx"
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_hit")
+volume_db = -8.0
+bus = &"sfx"

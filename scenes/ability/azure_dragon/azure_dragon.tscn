@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/ability/azure_dragon/azure_dragon.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/abilities/azure_dragon_frames.png" id="2_frames"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/azure_dragon_launch.wav" id="3_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/azure_dragon_hit.wav" id="4_hit"]
 
 [node name="AzureDragonAbility" type="Node2D"]
 z_index = -1
@@ -13,3 +15,13 @@ scale = Vector2(0.065, 0.065)
 texture = ExtResource("2_frames")
 hframes = 3
 vframes = 3
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_launch")
+volume_db = -8.0
+bus = &"sfx"
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_hit")
+volume_db = -8.0
+bus = &"sfx"

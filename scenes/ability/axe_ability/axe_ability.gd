@@ -8,6 +8,8 @@ const PROJECTILE_REFLECT_RANGE := 20.0
 const KNOCKBACK_SPEED := 220.0
 
 @onready var hitbox_component: HitboxComponent = $HitboxComponent
+@onready var launch_sound: AudioStreamPlayer2D = $LaunchSound
+@onready var hit_sound: AudioStreamPlayer2D = $HitSound
 
 
 var base_rotation: Vector2
@@ -25,6 +27,7 @@ func _ready() -> void:
 	hitbox_component.damage = base_damage
 	hitbox_component.weapon_id = "axe"
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
+	launch_sound.play()
 
 	var tween: Tween = create_tween()
 	tween.tween_method(move_outward, 0.0, 1.0, 1.5)
@@ -61,6 +64,8 @@ static func get_distance_multiplier(distance: float) -> float:
 
 
 func on_hitbox_area_entered(other_area: Area2D) -> void:
+	if other_area is HurtboxComponent:
+		hit_sound.play()
 	if not knockback_enabled or not other_area is HurtboxComponent:
 		return
 	var target: Node2D = other_area.get_parent() as Node2D

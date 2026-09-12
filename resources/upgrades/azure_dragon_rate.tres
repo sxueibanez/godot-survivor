@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "azure_dragon_rate"
 max_quantity = 0
 name = "龙行加速"
-description = "青龙冲撞冷却时间缩短15%。"
+description = "四圣兽攻击冷却时间减少5%。"

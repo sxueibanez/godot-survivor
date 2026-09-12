@@ -174,13 +174,13 @@ func find_densest_enemy(enemies: Array) -> Node2D:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):
 	match upgrade.id:
 		"sword_rate":
-			var percent_reduction = current_upgrades["sword_rate"]["quantity"] * 0.1
+			var percent_reduction = current_upgrades["sword_rate"]["quantity"] * 0.05
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1 - percent_reduction)
 			$Timer.start()
 		"sword_damage":
-			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["sword_damage"]["quantity"] * 0.15)
+			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["sword_damage"]["quantity"] * 0.05)
 		"sword_size":
-			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count
 		"sword_chain":

@@ -15,6 +15,7 @@ func run() -> void:
 	assert((load("res://resources/upgrades/thunder_orb_boss_tracking.tres") as AbilityUpgrade).max_quantity == 1)
 	assert(is_equal_approx(ThunderController.MAX_RANGE, LaserGunAbility.BEAM_LENGTH))
 	assert(is_equal_approx(ThunderOrb.MAX_DISTANCE, LaserGunAbility.BEAM_LENGTH))
+	assert(is_equal_approx(ThunderOrb.BASE_SPRITE_SCALE, 0.09) and is_equal_approx(ThunderOrb.TOUCH_RADIUS, 10.0))
 	assert(is_equal_approx(ThunderOrb.get_visual_scale(0.0, true), 1.0))
 	assert(is_equal_approx(ThunderOrb.get_visual_scale(1.0, true), 1.8))
 	assert(ThunderOrb.CHAIN_TARGET_COUNT == 3 and ThunderOrb.HIT_INTERVAL_MS == 1000)

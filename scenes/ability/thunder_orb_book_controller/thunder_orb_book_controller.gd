@@ -66,11 +66,11 @@ static func find_nearest_enemy(enemies: Array, origin: Vector2) -> Node2D:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
 		"thunder_orb_damage":
-			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"thunder_orb_size":
-			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"thunder_orb_rate":
-			cooldown_multiplier = 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.15
+			cooldown_multiplier = 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05
 			update_cooldown()
 			$Timer.start()
 		"thunder_orb_chain":

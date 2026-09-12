@@ -221,6 +221,7 @@ func begin_level_3() -> void:
 
 func begin_level(level: int) -> void:
 	current_level = level
+	MusicPlayer.play_level(level)
 	previous_boss_respawned = false
 	current_level_boss_started = false
 	$ArenaTimeManager.time_elapsed = 0.0

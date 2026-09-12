@@ -6,6 +6,8 @@ const MAX_CHAIN_DEPTH := 2
 const CHAIN_DAMAGE_MULTIPLIER := 0.25
 
 @onready var hitbox_component: HitboxComponent = $HitboxComponent
+@onready var launch_sound: AudioStreamPlayer2D = $LaunchSound
+@onready var hit_sound: AudioStreamPlayer2D = $HitSound
 
 var damage := 5.0
 var chain_enabled := false
@@ -20,11 +22,13 @@ func _ready() -> void:
 	hitbox_component.damage = damage
 	hitbox_component.weapon_id = "sword"
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
+	launch_sound.play()
 
 
 func on_hitbox_area_entered(other_area: Area2D) -> void:
 	var target: Node2D = other_area.get_parent() as Node2D
 	if other_area is HurtboxComponent and target != null:
+		hit_sound.play()
 		GameEvents.sword_hit_target.emit(target)
 	if not chain_enabled or chain_depth >= MAX_CHAIN_DEPTH or not other_area is HurtboxComponent or randf() > CHAIN_CHANCE:
 		return

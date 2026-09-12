@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "thunder_orb_size"
 max_quantity = 3
 name = "雷球扩张"
-description = "雷球的大小与碰撞范围提升20%。"
+description = "雷球的大小与碰撞范围提升5%。"

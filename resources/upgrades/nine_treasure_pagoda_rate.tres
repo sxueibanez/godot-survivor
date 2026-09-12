@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "nine_treasure_pagoda_rate"
+max_quantity = 3
+name = "祈愿加速"
+description = "所有武器的冷却时间减少10%。"

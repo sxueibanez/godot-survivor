@@ -22,6 +22,7 @@ var base_speed := 0
 var base_health := 0.0
 var previous_health := 0.0
 var player_speed_upgrade_quantity := 0
+var player_health_upgrade_quantity := 0
 var character_visual_scale := 1.0
 var walk_animation_time := 0.0
 
@@ -65,9 +66,9 @@ func set_character(new_character: Resource) -> void:
 
 func apply_character_base_stats() -> void:
 	base_health = float(character.get("max_health")) * (1.0 + MetaProgression.get_upgrade_count("meta_health") * 0.01)
-	health_component.max_health = base_health
-	health_component.current_health = base_health
-	previous_health = base_health
+	health_component.max_health = get_upgraded_max_health()
+	health_component.current_health = health_component.max_health
+	previous_health = health_component.max_health
 	base_speed = roundi(int(character.get("move_speed")) * (1.0 + MetaProgression.get_upgrade_count("meta_speed") * 0.01))
 	refresh_missing_health_passive()
 	update_health_display()
@@ -84,10 +85,24 @@ static func get_speed_damage_multiplier(move_speed: int) -> float:
 func refresh_missing_health_passive() -> void:
 	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
 	var move_speed := roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1)) + stacks * int(character.get("missing_health_speed_bonus_per_10"))
+	move_speed = roundi(move_speed * GameEvents.support_move_speed_multiplier)
 	velocity_component.max_speed = move_speed
 	GameEvents.player_damage_multiplier = 1.0 + stacks * float(character.get("missing_health_damage_bonus_per_10"))
 	if GameEvents.speed_damage_no_crit:
 		GameEvents.player_damage_multiplier *= get_speed_damage_multiplier(move_speed)
+
+
+func get_upgraded_max_health() -> float:
+	return base_health * (1.0 + player_health_upgrade_quantity * 0.1) * GameEvents.support_health_multiplier
+
+
+func refresh_support_stats() -> void:
+	var health_ratio: float = health_component.get_health_percent()
+	health_component.max_health = get_upgraded_max_health()
+	health_component.current_health = health_component.max_health * health_ratio
+	previous_health = health_component.current_health
+	health_component.health_changed.emit()
+	update_shield_display(health_component.shield)
 
 
 func _process(delta):
@@ -193,5 +208,6 @@ func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades:
 		refresh_missing_health_passive()
 	elif ability_upgrade.id == "player_health":
 		var previous_max_health: float = health_component.max_health
-		health_component.max_health = base_health * (1.0 + current_upgrades["player_health"]["quantity"] * 0.1)
+		player_health_upgrade_quantity = int(current_upgrades["player_health"]["quantity"])
+		health_component.max_health = get_upgraded_max_health()
 		health_component.heal(health_component.max_health - previous_max_health)

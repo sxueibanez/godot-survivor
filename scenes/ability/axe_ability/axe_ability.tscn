@@ -1,8 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://baftexcjd10nj"]
+[gd_scene load_steps=10 format=3 uid="uid://baftexcjd10nj"]
 
 [ext_resource type="Texture2D" uid="uid://eej7sjoj47rw" path="res://scenes/ability/axe_ability/axe.png" id="1_00a7p"]
 [ext_resource type="Script" path="res://scenes/ability/axe_ability/axe_ability.gd" id="1_6ao8s"]
 [ext_resource type="PackedScene" uid="uid://b07jrrt845lfp" path="res://scenes/component/hitbox_component.tscn" id="3_3sl5y"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/axe_launch.wav" id="4_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/axe_hit.wav" id="5_hit"]
 
 [sub_resource type="Animation" id="Animation_phit0"]
 resource_name = "default"
@@ -61,3 +63,13 @@ collision_mask = 32
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
 shape = SubResource("CircleShape2D_ny4dx")
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_launch")
+volume_db = -8.0
+bus = &"sfx"
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_hit")
+volume_db = -8.0
+bus = &"sfx"

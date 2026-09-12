@@ -5,6 +5,7 @@ var options_scene = preload("res://scenes/ui/options_menu.tscn")
 
 
 func _ready():
+	MusicPlayer.play_level(1)
 	%PlayButton.pressed.connect(on_play_pressed)
 	%EndlessButton.pressed.connect(on_endless_pressed)
 	%UpgradesButton.pressed.connect(on_upgrades_pressed)

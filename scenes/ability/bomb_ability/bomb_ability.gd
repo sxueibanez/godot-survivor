@@ -12,6 +12,7 @@ const BOUNCE_TARGET_RANGE := 140.0
 @onready var bomb_sprite: Sprite2D = $BombSprite
 @onready var explosion_sprite: Sprite2D = $ExplosionSprite
 @onready var explosion_sound: AudioStreamPlayer2D = $ExplosionSound
+@onready var launch_sound: AudioStreamPlayer2D = $LaunchSound
 
 var start_position := Vector2.ZERO
 var target_position := Vector2.ZERO
@@ -44,6 +45,8 @@ func _ready() -> void:
 	explosion_sprite.scale = Vector2.ONE * radius / 150.0
 	explosion_sprite.visible = false
 	explosion_sound.volume_db = -12.0 if is_mini else -4.0
+	launch_sound.volume_db = -14.0 if is_mini else -8.0
+	launch_sound.play()
 
 
 func _process(delta: float) -> void:

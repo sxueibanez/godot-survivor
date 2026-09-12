@@ -14,6 +14,6 @@ ability_controller_scene = ExtResource("1_controller")
 weapon_type = 0
 id = "azure_dragon"
 max_quantity = 1
-name = "青龙"
+name = "四圣兽"
 description = "召唤盘绕在身旁的青龙，每4秒蓄力并直线冲撞附近敌人，造成20点伤害。"
 icon = SubResource("AtlasTexture_icon")

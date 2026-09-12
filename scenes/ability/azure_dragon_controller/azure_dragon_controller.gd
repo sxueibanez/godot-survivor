@@ -24,6 +24,7 @@ var permanent_damage_multiplier := 1.0
 var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0
 var character_damage_multiplier := 1.0
+var attack_count := 1
 var dragon: AzureDragonAbility
 var vermilion_bird: VermilionBirdAbility
 var xuanwu: XuanwuAbility
@@ -41,6 +42,7 @@ func _ready() -> void:
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
+	attack_count = GameEvents.weapon_attack_count
 	update_cooldown()
 	$Timer.timeout.connect(on_timer_timeout)
 	$FourBeastsTimer.timeout.connect(begin_four_beasts_rush)
@@ -124,6 +126,20 @@ func on_timer_timeout() -> void:
 	var target := find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
 	if target != null:
 		dragon.start_attack(target.global_position)
+		spawn_extra_attack_dragons(target.global_position)
+
+
+func spawn_extra_attack_dragons(target_position: Vector2) -> void:
+	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	if foreground == null:
+		return
+	for index in range(1, attack_count):
+		var extra_dragon := azure_dragon_scene.instantiate() as AzureDragonAbility
+		extra_dragon.configure(base_damage * damage_multiplier, size_multiplier)
+		foreground.add_child(extra_dragon)
+		extra_dragon.global_position = dragon.global_position + Vector2(0, (index - attack_count * 0.5) * 8.0)
+		extra_dragon.start_attack(target_position)
+		get_tree().create_timer(AzureDragonAbility.WINDUP_DURATION + AzureDragonAbility.DASH_DURATION + 0.1).timeout.connect(extra_dragon.queue_free)
 
 
 static func find_nearest_enemy(enemies: Array, origin: Vector2) -> Node2D:
@@ -141,13 +157,13 @@ static func find_nearest_enemy(enemies: Array, origin: Vector2) -> Node2D:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
 		"azure_dragon_damage":
-			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 			refresh_dragon()
 		"azure_dragon_size":
-			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 			refresh_dragon()
 		"azure_dragon_rate":
-			cooldown_multiplier = maxf(0.1, 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.15)
+			cooldown_multiplier = maxf(0.1, 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
 			update_cooldown()
 			refresh_dragon()
 			$Timer.start()
@@ -159,6 +175,8 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			spawn_white_tiger()
 		"azure_dragon_four_beasts":
 			$FourBeastsTimer.start(FOUR_BEASTS_INTERVAL)
+		"attack_count":
+			attack_count = GameEvents.weapon_attack_count
 
 
 func refresh_dragon() -> void:

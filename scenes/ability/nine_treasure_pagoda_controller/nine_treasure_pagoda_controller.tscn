@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/nine_treasure_pagoda_controller/nine_treasure_pagoda_controller.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ability/nine_treasure_pagoda/nine_treasure_pagoda.tscn" id="2_pagoda"]
+
+[node name="NineTreasurePagodaController" type="Node"]
+script = ExtResource("1_script")
+pagoda_scene = ExtResource("2_pagoda")

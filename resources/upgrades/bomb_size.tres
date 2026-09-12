@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "bomb_size"
 max_quantity = 3
 name = "爆炸扩张"
-description = "炸弹的爆炸范围提升20%。"
+description = "炸弹的爆炸范围提升5%。"

@@ -7,4 +7,4 @@ script = ExtResource("1_laser")
 id = "laser_gun_size"
 max_quantity = 3
 name = "射线扩张"
-description = "激光射线宽度提升 20%。"
+description = "激光射线宽度提升5%。"

@@ -3,7 +3,7 @@ class_name ThunderOrbBookAbility
 
 const MAX_DISTANCE := LaserGunAbility.BEAM_LENGTH
 const SPEED := 65.0
-const TOUCH_RADIUS := 20.0
+const TOUCH_RADIUS := 10.0
 const CHAIN_RANGE := 120.0
 const CHAIN_TARGET_COUNT := 3
 const HIT_INTERVAL_MS := 1000
@@ -16,12 +16,13 @@ const EXPLOSION_RADIUS := 55.0
 const PLASMA_RADIUS := 30.0
 const FRAME_COUNT := 16
 const FRAME_DURATION := 0.08
-const BASE_SPRITE_SCALE := 0.18
+const BASE_SPRITE_SCALE := 0.09
 
 var plasma_scene := preload("res://scenes/ability/thunder_plasma/thunder_plasma.tscn")
 var chain_texture := preload("res://assets/abilities/thunder_orb_chain.png")
 
 @onready var orb_sprite: Sprite2D = $OrbSprite
+@onready var hit_sound: AudioStreamPlayer2D = $HitSound
 
 var direction := Vector2.RIGHT
 var damage := 10.0
@@ -35,6 +36,10 @@ var distance_traveled := 0.0
 var animation_time := 0.0
 var chain_time_left := CHAIN_INTERVAL
 var exploding := false
+
+
+func _ready() -> void:
+	$LaunchSound.play()
 
 
 func configure(start: Vector2, travel_direction: Vector2, weapon_damage: float, chains: bool, grows: bool, plasma: bool, tracks_boss: bool = false, size_multiplier: float = 1.0) -> void:
@@ -144,6 +149,8 @@ func damage_enemy(enemy: Node2D, amount: float) -> bool:
 	GameEvents.heal_from_damage(critical_hit["damage"])
 	hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])
 	hurtbox.hit.emit()
+	if not hit_sound.playing:
+		hit_sound.play()
 	return true
 
 

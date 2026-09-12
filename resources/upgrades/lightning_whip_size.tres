@@ -7,4 +7,4 @@ script = ExtResource("1_whip")
 id = "lightning_whip_size"
 max_quantity = 3
 name = "鞭幅扩张"
-description = "闪电鞭攻击范围提升 20%。"
+description = "闪电鞭攻击范围提升5%。"

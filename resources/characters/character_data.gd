@@ -19,4 +19,8 @@ class_name CharacterData
 
 
 func get_weapon_damage_multiplier(weapon: Ability) -> float:
-	return 1.0 + melee_damage_bonus if weapon.weapon_type == Ability.WeaponType.MELEE else 1.0 + ranged_damage_bonus
+	if weapon.weapon_type == Ability.WeaponType.MELEE:
+		return 1.0 + melee_damage_bonus
+	if weapon.weapon_type == Ability.WeaponType.RANGED:
+		return 1.0 + ranged_damage_bonus
+	return 1.0

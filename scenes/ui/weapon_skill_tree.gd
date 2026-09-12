@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon"]
+const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
 	"axe": "飞斧",
@@ -9,7 +9,8 @@ const WEAPON_NAMES: Dictionary = {
 	"lightning_whip": "闪电鞭",
 	"bomb": "炸弹",
 	"thunder_orb_book": "雷球书",
-	"azure_dragon": "青龙",
+	"azure_dragon": "四圣兽",
+	"nine_treasure_pagoda": "九宝琉璃塔",
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
@@ -55,9 +56,14 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_azure_dragon_white_tiger", "title": "白虎啸风", "description": "解锁局内白虎召唤；定期释放聚怪龙卷风。", "requires": []},
 		{"id": "tree_azure_dragon_four_beasts", "title": "四圣共鸣", "description": "集齐四圣兽后，解锁每15秒一次的持续5秒穿梭攻击。", "requires": ["tree_azure_dragon_vermilion_bird", "tree_azure_dragon_xuanwu", "tree_azure_dragon_white_tiger"]},
 	],
+	"nine_treasure_pagoda": [
+		{"id": "tree_nine_treasure_damage", "title": "一曰·增幅", "description": "解锁局内伤害加成+15%。", "requires": []},
+		{"id": "tree_nine_treasure_attack_speed", "title": "二曰·速攻", "description": "解锁局内攻速加成+20%。", "requires": ["tree_nine_treasure_damage"]},
+		{"id": "tree_nine_treasure_health", "title": "三曰·生息", "description": "解锁局内生命加成+20%。", "requires": ["tree_nine_treasure_attack_speed"]},
+		{"id": "tree_nine_treasure_move_speed", "title": "四曰·疾行", "description": "解锁局内移速加成+20%。", "requires": ["tree_nine_treasure_health"]},
+		{"id": "tree_nine_treasure_extra_attack", "title": "五曰·连击", "description": "解锁局内所有武器额外释放1次攻击。", "requires": ["tree_nine_treasure_move_speed"]},
+	],
 }
-const SKILL_COST := 200
-
 @onready var currency_label: Label = %CurrencyLabel
 @onready var weapon_tabs: HBoxContainer = %WeaponTabs
 @onready var tree_container: VBoxContainer = %TreeContainer
@@ -97,6 +103,7 @@ func refresh_tree() -> void:
 func add_skill_node(skill: Dictionary) -> void:
 	var skill_id := str(skill["id"])
 	var unlocked := MetaProgression.get_weapon_skill_count(skill_id) > 0
+	var skill_cost := MetaProgression.get_next_weapon_skill_cost()
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(0, 58)
 	var content := VBoxContainer.new()
@@ -108,8 +115,8 @@ func add_skill_node(skill: Dictionary) -> void:
 	description.text = str(skill["description"])
 	content.add_child(description)
 	var button := Button.new()
-	button.text = "已点亮" if unlocked else "点亮（%d 瓶）" % SKILL_COST
-	button.disabled = unlocked or !requirements_met(skill) or int(MetaProgression.save_data["meta_upgrade_currency"]) < SKILL_COST
+	button.text = "已点亮" if unlocked else "点亮（%d 瓶）" % skill_cost
+	button.disabled = unlocked or !requirements_met(skill) or int(MetaProgression.save_data["meta_upgrade_currency"]) < skill_cost
 	button.pressed.connect(on_skill_purchased.bind(skill_id))
 	content.add_child(button)
 	tree_container.add_child(card)
@@ -129,7 +136,7 @@ func on_weapon_selected(weapon_id: String) -> void:
 
 
 func on_skill_purchased(skill_id: String) -> void:
-	MetaProgression.purchase_weapon_skill(skill_id, SKILL_COST)
+	MetaProgression.purchase_weapon_skill(skill_id)
 	refresh_tree()
 
 

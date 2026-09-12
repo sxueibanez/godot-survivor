@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "nine_treasure_attack_speed"
+max_quantity = 1
+name = "二曰·速攻"
+description = "九宝琉璃塔提供的攻速加成额外提高20%。"

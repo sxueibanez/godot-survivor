@@ -7,4 +7,4 @@ script = ExtResource("1_laser")
 id = "laser_gun_cooldown"
 max_quantity = 3
 name = "极速充能"
-description = "激光冷却时间减少 15%。"
+description = "激光冷却时间减少5%。"

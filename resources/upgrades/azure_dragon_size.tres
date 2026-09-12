@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "azure_dragon_size"
 max_quantity = 0
 name = "龙躯扩张"
-description = "青龙体型与冲撞范围提升20%。"
+description = "四圣兽大小与攻击范围提升5%。"

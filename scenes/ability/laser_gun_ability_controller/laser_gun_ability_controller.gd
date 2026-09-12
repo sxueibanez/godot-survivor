@@ -69,11 +69,11 @@ func on_timer_timeout() -> void:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
 		"laser_gun_damage":
-			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			damage_multiplier = permanent_damage_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"laser_gun_size":
-			beam_size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			beam_size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"laser_gun_cooldown":
-			cooldown_reduction = current_upgrades[upgrade.id]["quantity"] * 0.15
+			cooldown_reduction = current_upgrades[upgrade.id]["quantity"] * 0.05
 			update_cooldown()
 		"laser_gun_damage_ramp":
 			damage_ramp_enabled = true

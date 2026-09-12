@@ -2,6 +2,8 @@ extends Node
 
 
 const SAVE_FILE_PATH := "user://game.save"
+const WEAPON_SKILL_BASE_COST := 200
+const WEAPON_SKILL_COST_INCREMENT := 200
 
 var save_data: Dictionary = {
 	"meta_upgrade_currency": 0,
@@ -55,9 +57,24 @@ func get_weapon_skill_count(skill_id: String) -> int:
 	return int(weapon_skills.get(skill_id, 0))
 
 
-func purchase_weapon_skill(skill_id: String, cost: int) -> bool:
+func get_next_weapon_skill_cost() -> int:
+	var unlocked_count := 0
+	for count: Variant in (save_data["weapon_skills"] as Dictionary).values():
+		if int(count) > 0:
+			unlocked_count += 1
+	return calculate_weapon_skill_cost(unlocked_count)
+
+
+static func calculate_weapon_skill_cost(unlocked_count: int) -> int:
+	return WEAPON_SKILL_BASE_COST + maxi(0, unlocked_count) * WEAPON_SKILL_COST_INCREMENT
+
+
+func purchase_weapon_skill(skill_id: String) -> bool:
+	if get_weapon_skill_count(skill_id) > 0:
+		return false
+	var cost := get_next_weapon_skill_cost()
 	var currency: int = int(save_data["meta_upgrade_currency"])
-	if cost <= 0 or currency < cost:
+	if currency < cost:
 		return false
 	var weapon_skills: Dictionary = save_data["weapon_skills"] as Dictionary
 	weapon_skills[skill_id] = get_weapon_skill_count(skill_id) + 1

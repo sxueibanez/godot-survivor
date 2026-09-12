@@ -55,11 +55,11 @@ func on_timer_timeout():
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary):
 	match upgrade.id:
 		"axe_damage":
-			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["axe_damage"]["quantity"] * 0.1)
+			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["axe_damage"]["quantity"] * 0.05)
 		"axe_size":
-			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.2)
+			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"axe_rate":
-			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.15)
+			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
 			$Timer.start()
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count

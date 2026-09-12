@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "axe_size"
 max_quantity = 3
 name = "巨型飞斧"
-description = "飞斧的大小提升20%。"
+description = "飞斧的大小提升5%。"

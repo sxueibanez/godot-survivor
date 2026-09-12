@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "bomb_rate"
 max_quantity = 3
 name = "快速投弹"
-description = "炸弹的冷却时间减少15%。"
+description = "炸弹的冷却时间减少5%。"

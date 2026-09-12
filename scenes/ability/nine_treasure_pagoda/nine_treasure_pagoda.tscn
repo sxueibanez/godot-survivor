@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/nine_treasure_pagoda/nine_treasure_pagoda.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/nine_treasure_pagoda_frames.png" id="2_frames"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/nine_treasure_pagoda_launch.wav" id="3_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/nine_treasure_pagoda_hit.wav" id="4_hit"]
+
+[node name="NineTreasurePagodaAbility" type="Node2D"]
+z_index = -2
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_frames")
+region_enabled = true
+region_rect = Rect2(0, 0, 458, 381)
+
+[node name="WhiteLightTimer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_launch")
+volume_db = -10.0
+bus = &"sfx"
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_hit")
+volume_db = -10.0
+bus = &"sfx"

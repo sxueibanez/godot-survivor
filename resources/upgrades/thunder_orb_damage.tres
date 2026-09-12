@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "thunder_orb_damage"
 max_quantity = 0
 name = "雷球增幅"
-description = "雷球书的伤害提升20%。"
+description = "雷球书的伤害提升5%。"

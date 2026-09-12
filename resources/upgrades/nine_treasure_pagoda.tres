@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ability/nine_treasure_pagoda_controller/nine_treasure_pagoda_controller.tscn" id="1_controller"]
+[ext_resource type="Script" path="res://resources/upgrades/ability.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/nine_treasure_pagoda_frames.png" id="3_frames"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("3_frames")
+region = Rect2(0, 0, 458, 381)
+
+[resource]
+script = ExtResource("2_script")
+ability_controller_scene = ExtResource("1_controller")
+weapon_type = 2
+id = "nine_treasure_pagoda"
+max_quantity = 1
+name = "九宝琉璃塔"
+description = "停留在玩家背后的辅助武器：攻速+20%、伤害+15%、生命+20%；连续站立不动时加成翻倍。"
+icon = SubResource("AtlasTexture_icon")
