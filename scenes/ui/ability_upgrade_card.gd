@@ -2,13 +2,15 @@ extends PanelContainer
 class_name AbilityUpgradeCard
 
 signal selected
+signal disabled_for_run
 
 const WEAPON_ICONS := {
-	"sword": preload("res://scenes/ability/sword_ability/sword.png"),
+	"sword": preload("res://assets/abilities/sword_rain_sword.png"),
 	"axe": preload("res://scenes/ability/axe_ability/axe.png"),
 	"laser_gun": preload("res://scenes/ability/laser_gun_ability/laser_gun.png"),
 	"bomb": preload("res://assets/abilities/bomb.png"),
 	"thunder_orb_book": preload("res://assets/abilities/thunder_orb_book.png"),
+	"heaven_shaking_hammer": preload("res://assets/abilities/heaven_shaking_hammer.png"),
 }
 
 const ICON_SHEETS := {
@@ -33,6 +35,7 @@ const ICON_REGIONS := {
 	"thunder_orb_damage": ["common", Rect2(0, 0, 627, 627)],
 	"azure_dragon_damage": ["common", Rect2(0, 0, 627, 627)],
 	"nine_treasure_pagoda_damage": ["common", Rect2(0, 0, 627, 627)],
+	"heaven_shaking_hammer_damage": ["common", Rect2(0, 0, 627, 627)],
 	"nine_treasure_damage": ["common", Rect2(0, 0, 627, 627)],
 	"sword_size": ["common", Rect2(627, 0, 627, 627)],
 	"axe_size": ["common", Rect2(627, 0, 627, 627)],
@@ -42,6 +45,7 @@ const ICON_REGIONS := {
 	"thunder_orb_size": ["common", Rect2(627, 0, 627, 627)],
 	"azure_dragon_size": ["common", Rect2(627, 0, 627, 627)],
 	"nine_treasure_pagoda_size": ["common", Rect2(627, 0, 627, 627)],
+	"heaven_shaking_hammer_size": ["common", Rect2(627, 0, 627, 627)],
 	"sword_rate": ["common", Rect2(0, 627, 627, 627)],
 	"axe_rate": ["common", Rect2(0, 627, 627, 627)],
 	"laser_gun_cooldown": ["common", Rect2(0, 627, 627, 627)],
@@ -50,6 +54,7 @@ const ICON_REGIONS := {
 	"thunder_orb_rate": ["common", Rect2(0, 627, 627, 627)],
 	"azure_dragon_rate": ["common", Rect2(0, 627, 627, 627)],
 	"nine_treasure_pagoda_rate": ["common", Rect2(0, 627, 627, 627)],
+	"heaven_shaking_hammer_rate": ["common", Rect2(0, 627, 627, 627)],
 	"nine_treasure_attack_speed": ["common", Rect2(0, 627, 627, 627)],
 	"sword_chain": ["sword", Rect2(0, 0, 627, 627)],
 	"sword_rain": ["sword", Rect2(627, 0, 627, 627)],
@@ -95,6 +100,7 @@ const ICON_REGIONS := {
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
 @onready var icon_texture: TextureRect = %IconTexture
+@onready var disable_button: Button = %DisableButton
 
 var disabled := false
 
@@ -102,6 +108,7 @@ var disabled := false
 func _ready():
 	gui_input.connect(on_gui_input)
 	mouse_entered.connect(on_mouse_entered)
+	disable_button.pressed.connect(on_disable_pressed)
 
 
 func play_in(delay: float = 0):
@@ -147,6 +154,15 @@ func select_card():
 	
 	await $AnimationPlayer.animation_finished
 	selected.emit()
+
+
+func on_disable_pressed() -> void:
+	if disabled:
+		return
+	disabled = true
+	disable_button.disabled = true
+	disabled_for_run.emit()
+	play_discard()
 
 
 func on_gui_input(event: InputEvent):

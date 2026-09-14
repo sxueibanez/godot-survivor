@@ -16,6 +16,8 @@ const REFLECTION_LENGTH_MULTIPLIER := 1.5
 const REFLECTION_DAMAGE_MULTIPLIER := 0.75
 const REFLECTION_WIDTH_MULTIPLIER := 0.25
 const REFLECTION_ANGLES := [-15.0, 0.0, 15.0]
+const BEAM_FRAME_SHEET: Texture2D = preload("res://assets/abilities/laser_beam_frames.png")
+const BEAM_VISUAL_WIDTH_MULTIPLIER := 3.0
 
 @export var source: Node2D
 @export var damage_per_second := 8.0
@@ -51,7 +53,11 @@ func _ready() -> void:
 	if is_instance_valid(source):
 		global_position = source.global_position
 	rotation = direction.angle()
-	beam.width = beam_width
+	beam.width = beam_width * BEAM_VISUAL_WIDTH_MULTIPLIER
+	beam.texture_mode = Line2D.LINE_TEXTURE_STRETCH
+	beam.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	beam.default_color = Color.WHITE
+	beam.texture = BEAM_FRAME_SHEET
 	(collision_shape.shape as RectangleShape2D).size.y = beam_width
 	for index in REFLECTION_ANGLES.size():
 		var bounce_area: Area2D = laser_bounce_area if index == 0 else laser_bounce_area.duplicate() as Area2D
@@ -64,7 +70,7 @@ func _ready() -> void:
 		bounce_collision_shapes.append(bounce_area.get_node("CollisionShape2D") as CollisionShape2D)
 		var bounce_beam := beam.duplicate() as Line2D
 		bounce_beam.name = "BounceBeam%d" % (index + 1)
-		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER
+		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER * BEAM_VISUAL_WIDTH_MULTIPLIER
 		bounce_beam.visible = false
 		add_child(bounce_beam)
 		bounce_beams.append(bounce_beam)
@@ -175,7 +181,7 @@ func configure_beam() -> void:
 		var bounce_beam: Line2D = bounce_beams[index]
 		bounce_beam.global_position = hit_position
 		bounce_beam.global_rotation = bounce_direction.angle()
-		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER
+		bounce_beam.width = beam_width * REFLECTION_WIDTH_MULTIPLIER * BEAM_VISUAL_WIDTH_MULTIPLIER
 		bounce_beam.points = PackedVector2Array([Vector2.ZERO, Vector2.RIGHT * bounce_length])
 
 

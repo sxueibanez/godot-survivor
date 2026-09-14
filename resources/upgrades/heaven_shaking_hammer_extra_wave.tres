@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://dmj2gpunpforc"]
+
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://oj6t4senju3f" path="res://assets/abilities/heaven_shaking_hammer_shockwave_frames.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wave"]
+atlas = ExtResource("2_sheet")
+region = Rect2(418, 418, 418, 418)
+
+[resource]
+script = ExtResource("1")
+id = "heaven_shaking_hammer_extra_wave"
+max_quantity = 4
+name = "连环震波"
+description = "每级额外向锤击方向释放一道冲击波，最多4级。"
+icon = SubResource("AtlasTexture_wave")

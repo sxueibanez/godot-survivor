@@ -37,9 +37,9 @@ var four_beasts_rings: Array[Line2D] = []
 
 
 func _ready() -> void:
-	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
-	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
-	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("azure_dragon", "damage")) * character_damage_multiplier
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("azure_dragon", "attack_speed"))
+	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("azure_dragon", "size")
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
 	attack_count = GameEvents.weapon_attack_count

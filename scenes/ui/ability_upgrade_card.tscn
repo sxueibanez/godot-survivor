@@ -261,3 +261,11 @@ layout_mode = 2
 theme_type_variation = &"BlueOutlineLabel"
 text = "升级说明"
 autowrap_mode = 2
+
+[node name="DisableButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 0
+theme_override_font_sizes/font_size = 12
+text = "本局禁用"

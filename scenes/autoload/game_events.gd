@@ -32,6 +32,12 @@ func is_endless_mode() -> bool:
 	return game_mode == "endless"
 
 
+func wait_for_combat_frame() -> void:
+	await get_tree().process_frame
+	while get_tree().paused:
+		await get_tree().process_frame
+
+
 func emit_experience_vial_collected(number: float):
 	experience_vial_collected.emit(number)
 

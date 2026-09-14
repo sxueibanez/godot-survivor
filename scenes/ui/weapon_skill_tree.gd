@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda"]
+const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
 	"axe": "飞斧",
@@ -11,6 +11,7 @@ const WEAPON_NAMES: Dictionary = {
 	"thunder_orb_book": "雷球书",
 	"azure_dragon": "四圣兽",
 	"nine_treasure_pagoda": "九宝琉璃塔",
+	"heaven_shaking_hammer": "震天锤",
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
@@ -63,80 +64,192 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_nine_treasure_move_speed", "title": "四曰·疾行", "description": "解锁局内移速加成+20%。", "requires": ["tree_nine_treasure_health"]},
 		{"id": "tree_nine_treasure_extra_attack", "title": "五曰·连击", "description": "解锁局内所有武器额外释放1次攻击。", "requires": ["tree_nine_treasure_move_speed"]},
 	],
+	"heaven_shaking_hammer": [
+		{"id": "tree_heaven_shaking_hammer_extra_wave", "title": "连环震波", "description": "解锁局内冲击波升级；每级额外向锤击方向释放一道冲击波，最多4级。", "requires": []},
+	],
 }
+const NODE_COSTS := [50, 100, 150, 200]
+const NODE_COLORS := [Color("35b95a"), Color("289ee8"), Color("a64fc2"), Color("ef3f45")]
+const NODE_NAMES := ["攻击 +5%", "攻速 +5%", "大小 +5%"]
+const NODE_STATS := ["damage", "attack_speed", "size"]
+const TREE_CENTER := Vector2(300, 125)
+const NODE_RADII := [36.0, 61.0, 86.0, 104.0]
+const SPECIAL_ICON_IDS := {
+	"tree_laser_ramp": "laser_gun_damage_ramp",
+	"tree_laser_reflect": "laser_gun_reflect",
+	"tree_laser_stun": "laser_gun_stun",
+	"tree_laser_auto_aim": "laser_gun_auto_aim",
+	"tree_laser_kill_duration": "laser_gun_kill_duration",
+}
+
+class SkillTreeCanvas extends Control:
+	func _draw() -> void:
+		for branch in 5:
+			var direction := Vector2.UP.rotated(branch * TAU / 5.0)
+			draw_line(TREE_CENTER + direction * 21.0, TREE_CENTER + direction * float(NODE_RADII[3]), Color("59606e"), 3.0)
+
 @onready var currency_label: Label = %CurrencyLabel
 @onready var weapon_tabs: HBoxContainer = %WeaponTabs
-@onready var tree_container: VBoxContainer = %TreeContainer
+@onready var weapon_scroll: ScrollContainer = %WeaponScroll
+@onready var previous_weapon_button: Button = %PreviousWeaponButton
+@onready var next_weapon_button: Button = %NextWeaponButton
+@onready var tree_container: Control = %TreeContainer
 @onready var back_button: Button = %BackButton
 
 var selected_weapon_id := "sword"
+var weapon_tab_buttons: Dictionary = {}
 
 
 func _ready() -> void:
 	back_button.pressed.connect(on_back_pressed)
+	previous_weapon_button.pressed.connect(scroll_weapon_tabs.bind(-1))
+	next_weapon_button.pressed.connect(scroll_weapon_tabs.bind(1))
+	weapon_scroll.gui_input.connect(on_weapon_scroll_gui_input)
 	build_tabs()
 	refresh_tree()
+	center_selected_tab.call_deferred()
 
 
 func build_tabs() -> void:
 	for weapon_id: String in WEAPON_IDS:
 		var tab := Button.new()
 		tab.text = str(WEAPON_NAMES[weapon_id])
-		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.custom_minimum_size = Vector2(82, 27)
+		tab.toggle_mode = true
+		tab.button_pressed = weapon_id == selected_weapon_id
+		tab.add_theme_font_size_override("font_size", 10)
 		tab.pressed.connect(on_weapon_selected.bind(weapon_id))
 		weapon_tabs.add_child(tab)
+		weapon_tab_buttons[weapon_id] = tab
 
 
 func refresh_tree() -> void:
 	currency_label.text = "瓶子：%d" % int(MetaProgression.save_data["meta_upgrade_currency"])
 	for child: Node in tree_container.get_children():
-		child.queue_free()
-	var hint := Label.new()
-	hint.text = "点亮后，专属技能才会在游戏内升级三选一中出现。增伤、攻速、大小为常驻属性。"
-	tree_container.add_child(hint)
+		child.free()
+	var canvas := SkillTreeCanvas.new()
+	canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tree_container.add_child(canvas)
+	add_center_weapon(canvas)
 	var skills: Array = WEAPON_SKILLS[selected_weapon_id] as Array
-	for skill_value: Variant in skills:
-		var skill: Dictionary = skill_value as Dictionary
-		add_skill_node(skill)
+	for branch in 5:
+		add_branch(canvas, branch, skills)
 
 
-func add_skill_node(skill: Dictionary) -> void:
-	var skill_id := str(skill["id"])
-	var unlocked := MetaProgression.get_weapon_skill_count(skill_id) > 0
-	var skill_cost := MetaProgression.get_next_weapon_skill_cost()
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 58)
-	var content := VBoxContainer.new()
-	card.add_child(content)
-	var title := Label.new()
-	title.text = "● %s%s" % [str(skill["title"]), "（已点亮）" if unlocked else ""]
-	content.add_child(title)
-	var description := Label.new()
-	description.text = str(skill["description"])
-	content.add_child(description)
+func add_center_weapon(canvas: Control) -> void:
+	var center := PanelContainer.new()
+	center.position = TREE_CENTER - Vector2(25, 25)
+	center.size = Vector2(50, 50)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame := StyleBoxFlat.new()
+	frame.bg_color = Color("232633")
+	frame.border_color = Color("f4f0d8")
+	frame.set_border_width_all(3)
+	frame.set_corner_radius_all(25)
+	center.add_theme_stylebox_override("panel", frame)
+	canvas.add_child(center)
+	var icon := TextureRect.new()
+	icon.texture = get_icon(selected_weapon_id, true)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(icon)
+
+
+func add_branch(canvas: Control, branch: int, skills: Array) -> void:
+	var direction := Vector2.UP.rotated(branch * TAU / 5.0)
+	for step in 4:
+		var skill: Dictionary = skills[branch] as Dictionary if branch < skills.size() else {}
+		var node_id := get_node_id(branch, step, skill)
+		var available := !node_id.is_empty()
+		var unlocked := available and MetaProgression.get_weapon_skill_count(node_id) > 0
+		var previous_unlocked := step == 0 or MetaProgression.get_weapon_skill_count(get_node_id(branch, step - 1, skill)) > 0
+		var button := make_node_button(step, skill, available, unlocked)
+		var diameter := 32.0 if step < 3 else 38.0
+		button.position = TREE_CENTER + direction * float(NODE_RADII[step]) - Vector2.ONE * diameter * 0.5
+		button.size = Vector2.ONE * diameter
+		button.disabled = !available or unlocked or !previous_unlocked or int(MetaProgression.save_data["meta_upgrade_currency"]) < int(NODE_COSTS[step])
+		if available and !unlocked:
+			button.pressed.connect(on_node_purchased.bind(node_id, int(NODE_COSTS[step])))
+		canvas.add_child(button)
+
+
+func make_node_button(step: int, skill: Dictionary, available: bool, unlocked: bool) -> Button:
 	var button := Button.new()
-	button.text = "已点亮" if unlocked else "点亮（%d 瓶）" % skill_cost
-	button.disabled = unlocked or !requirements_met(skill) or int(MetaProgression.save_data["meta_upgrade_currency"]) < skill_cost
-	button.pressed.connect(on_skill_purchased.bind(skill_id))
-	content.add_child(button)
-	tree_container.add_child(card)
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 8)
+	var color: Color = NODE_COLORS[step] if available else Color("d8d8d8")
+	var style := StyleBoxFlat.new()
+	style.bg_color = color if unlocked else color.darkened(0.38)
+	style.border_color = Color.WHITE if unlocked else color.lightened(0.22)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(20)
+	button.add_theme_stylebox_override("normal", style)
+	button.add_theme_stylebox_override("disabled", style)
+	if step < 3:
+		button.text = "+5%"
+		button.tooltip_text = "%s · %d 瓶" % [NODE_NAMES[step], NODE_COSTS[step]]
+	elif available:
+		var icon := TextureRect.new()
+		icon.position = Vector2(6, 6)
+		icon.size = Vector2(26, 26)
+		icon.texture = get_icon(str(skill["id"]), false)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(icon)
+		button.tooltip_text = "%s · %d 瓶\n%s" % [str(skill["title"]), NODE_COSTS[step], str(skill["description"])]
+	else:
+		button.tooltip_text = "暂无专属技能"
+	return button
 
 
-func requirements_met(skill: Dictionary) -> bool:
-	var requirements: Array = skill.get("requires", []) as Array
-	for required: Variant in requirements:
-		if MetaProgression.get_weapon_skill_count(str(required)) == 0:
-			return false
-	return true
+func get_node_id(branch: int, step: int, skill: Dictionary) -> String:
+	if step < 3:
+		return "tree_bonus_%s_%d_%s" % [selected_weapon_id, branch, NODE_STATS[step]]
+	return str(skill.get("id", ""))
+
+
+func get_icon(item_id: String, weapon: bool) -> Texture2D:
+	var resource_id := item_id
+	if !weapon:
+		resource_id = str(SPECIAL_ICON_IDS.get(item_id, item_id.trim_prefix("tree_")))
+	var upgrade := load("res://resources/upgrades/%s.tres" % resource_id) as AbilityUpgrade
+	return AbilityUpgradeCard.get_upgrade_icon(upgrade) if upgrade != null else null
 
 
 func on_weapon_selected(weapon_id: String) -> void:
 	selected_weapon_id = weapon_id
+	for tab_id: String in weapon_tab_buttons:
+		(weapon_tab_buttons[tab_id] as Button).button_pressed = tab_id == selected_weapon_id
 	refresh_tree()
+	center_selected_tab.call_deferred()
 
 
-func on_skill_purchased(skill_id: String) -> void:
-	MetaProgression.purchase_weapon_skill(skill_id)
+func scroll_weapon_tabs(direction: int) -> void:
+	weapon_scroll.scroll_horizontal += direction * 258
+
+
+func center_selected_tab() -> void:
+	var tab := weapon_tab_buttons.get(selected_weapon_id) as Button
+	if tab != null:
+		weapon_scroll.scroll_horizontal = maxi(0, int(tab.position.x + tab.size.x * 0.5 - weapon_scroll.size.x * 0.5))
+
+
+func on_weapon_scroll_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			scroll_weapon_tabs(-1)
+			weapon_scroll.accept_event()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			scroll_weapon_tabs(1)
+			weapon_scroll.accept_event()
+
+
+func on_node_purchased(node_id: String, cost: int) -> void:
+	MetaProgression.purchase_weapon_skill(node_id, cost)
 	refresh_tree()
 
 

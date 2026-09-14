@@ -1,10 +1,14 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://bkergdwt0cyqe"]
 
-[ext_resource type="Texture2D" path="res://scenes/ability/laser_gun_ability/laser_gun.png" id="1_laser"]
-[ext_resource type="Script" path="res://scenes/ability/laser_gun_ability/laser_gun_ability.gd" id="2_laser"]
-[ext_resource type="PackedScene" path="res://scenes/component/random_audio_stream_player_2d_component.tscn" id="3_audio"]
-[ext_resource type="AudioStream" path="res://assets/audio/weapons/laser_gun_launch.wav" id="4_shot"]
-[ext_resource type="AudioStream" path="res://assets/audio/weapons/laser_gun_hit.wav" id="5_hit"]
+[ext_resource type="Texture2D" uid="uid://dbwwp5en3cbst" path="res://scenes/ability/laser_gun_ability/laser_gun.png" id="1_laser"]
+[ext_resource type="Script" uid="uid://ctrhbty2b16ih" path="res://scenes/ability/laser_gun_ability/laser_gun_ability.gd" id="2_laser"]
+[ext_resource type="PackedScene" uid="uid://bh478361trp2r" path="res://scenes/component/random_audio_stream_player_2d_component.tscn" id="3_audio"]
+[ext_resource type="AudioStream" uid="uid://bebdljvm2ic75" path="res://assets/audio/weapons/laser_gun_launch.wav" id="4_shot"]
+[ext_resource type="AudioStream" uid="uid://7bbuee5p2wgf" path="res://assets/audio/weapons/laser_gun_hit.wav" id="5_hit"]
+[ext_resource type="Shader" path="res://scenes/ability/laser_gun_ability/laser_beam_flow.gdshader" id="6_flow"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flow"]
+shader = ExtResource("6_flow")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_laser"]
 resource_local_to_scene = true
@@ -14,42 +18,42 @@ size = Vector2(260, 8)
 resource_local_to_scene = true
 size = Vector2(130, 8)
 
-[node name="LaserGunAbility" type="Node2D"]
+[node name="LaserGunAbility" type="Node2D" unique_id=1935371209]
 script = ExtResource("2_laser")
 
-[node name="Beam" type="Line2D" parent="."]
+[node name="Beam" type="Line2D" parent="." unique_id=1563737375]
 z_index = 1
+material = SubResource("ShaderMaterial_flow")
 points = PackedVector2Array(24, 0, 284, 0)
 width = 8.0
 default_color = Color(0.231373, 0.952941, 1, 0.9)
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=995646025]
 position = Vector2(8, 0)
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("1_laser")
 
-[node name="ShotSound" parent="." instance=ExtResource("3_audio")]
-streams = Array[AudioStream]([ExtResource("4_shot")])
+[node name="ShotSound" parent="." unique_id=700918706 instance=ExtResource("3_audio")]
 volume_db = -7.0
+streams = Array[AudioStream]([ExtResource("4_shot")])
 
-[node name="HitSound" parent="." instance=ExtResource("3_audio")]
-streams = Array[AudioStream]([ExtResource("5_hit")])
+[node name="HitSound" parent="." unique_id=2082218333 instance=ExtResource("3_audio")]
 volume_db = -12.0
+streams = Array[AudioStream]([ExtResource("5_hit")])
 
-[node name="LaserArea" type="Area2D" parent="."]
+[node name="LaserArea" type="Area2D" parent="." unique_id=1861448493]
 collision_layer = 0
 collision_mask = 32
-monitoring = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserArea" unique_id=2110194787]
 position = Vector2(154, 0)
 shape = SubResource("RectangleShape2D_laser")
 
-[node name="LaserBounceArea" type="Area2D" parent="."]
+[node name="LaserBounceArea" type="Area2D" parent="." unique_id=897746636]
 collision_layer = 0
 collision_mask = 32
 monitoring = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserBounceArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LaserBounceArea" unique_id=539365356]
 position = Vector2(65, 0)
 shape = SubResource("RectangleShape2D_bounce")

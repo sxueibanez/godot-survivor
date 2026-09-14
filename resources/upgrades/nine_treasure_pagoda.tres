@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="Ability" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="Ability" format=3 uid="uid://ded2i0b0bqt6o"]
 
 [ext_resource type="PackedScene" path="res://scenes/ability/nine_treasure_pagoda_controller/nine_treasure_pagoda_controller.tscn" id="1_controller"]
-[ext_resource type="Script" path="res://resources/upgrades/ability.gd" id="2_script"]
-[ext_resource type="Texture2D" path="res://assets/abilities/nine_treasure_pagoda_frames.png" id="3_frames"]
+[ext_resource type="Script" uid="uid://fvdnyppd0em3" path="res://resources/upgrades/ability.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://f8pvp8axvb3f" path="res://assets/abilities/nine_treasure_pagoda_frames.png" id="3_frames"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
 atlas = ExtResource("3_frames")

@@ -20,9 +20,9 @@ var character_damage_multiplier := 1.0
 
 func _ready():
 	base_wait_time = $Timer.wait_time
-	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01) * character_damage_multiplier
-	permanent_attack_speed_multiplier = 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03
-	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05
+	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("axe", "damage")) * character_damage_multiplier
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("axe", "attack_speed"))
+	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("axe", "size")
 	size_multiplier = permanent_size_multiplier
 	additional_damage_percent = permanent_damage_multiplier
 	attack_count = GameEvents.weapon_attack_count

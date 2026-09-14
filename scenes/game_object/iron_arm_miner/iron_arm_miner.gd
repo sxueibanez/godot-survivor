@@ -187,7 +187,7 @@ func ground_slam() -> void:
 		spawn_shockwave()
 		damage_player_in_radius(global_position, SLAM_RADIUS, 72.0)
 		if index < repetitions - 1:
-			await get_tree().create_timer(0.15).timeout
+			await get_tree().create_timer(0.15, false).timeout
 	finish_action()
 
 
@@ -205,7 +205,7 @@ func throw_rocks() -> void:
 		await play_sheet(THROW_TEXTURE, 0.34, SQUARE_COLUMNS, SQUARE_ROWS, SQUARE_GROUND)
 		spawn_rock()
 		if index < 3:
-			await get_tree().create_timer(0.12).timeout
+			await get_tree().create_timer(0.12, false).timeout
 	finish_action()
 
 
@@ -228,13 +228,13 @@ func dash_attack() -> void:
 	begin_action()
 	var direction := global_position.direction_to(player.global_position)
 	create_dash_warning(direction)
-	await get_tree().create_timer(0.35).timeout
+	await get_tree().create_timer(0.35, false).timeout
 	var previous_mask := collision_mask
 	collision_mask = 1
 	var elapsed := 0.0
 	var hit := false
 	while elapsed < DASH_DURATION:
-		await get_tree().process_frame
+		await GameEvents.wait_for_combat_frame()
 		var delta := get_process_delta_time()
 		elapsed += delta
 		show_sheet(DASH_TEXTURE, mini(int(elapsed / DASH_DURATION * 8.0), 7), WIDE_COLUMNS, DASH_ROWS, DASH_GROUND)
@@ -266,7 +266,7 @@ func finish_action() -> void:
 func play_sheet(texture: Texture2D, duration: float, columns: Array, rows: Array, ground: Array) -> void:
 	var elapsed := 0.0
 	while elapsed < duration:
-		await get_tree().process_frame
+		await GameEvents.wait_for_combat_frame()
 		elapsed += get_process_delta_time()
 		show_sheet(texture, mini(int(elapsed / duration * 8.0), 7), columns, rows, ground)
 

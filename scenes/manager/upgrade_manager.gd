@@ -81,12 +81,18 @@ var upgrade_nine_treasure_attack_speed := preload("res://resources/upgrades/nine
 var upgrade_nine_treasure_health := preload("res://resources/upgrades/nine_treasure_health.tres")
 var upgrade_nine_treasure_move_speed := preload("res://resources/upgrades/nine_treasure_move_speed.tres")
 var upgrade_nine_treasure_extra_attack := preload("res://resources/upgrades/nine_treasure_extra_attack.tres")
+var upgrade_heaven_shaking_hammer := preload("res://resources/upgrades/heaven_shaking_hammer.tres")
+var upgrade_heaven_shaking_hammer_damage := preload("res://resources/upgrades/heaven_shaking_hammer_damage.tres")
+var upgrade_heaven_shaking_hammer_size := preload("res://resources/upgrades/heaven_shaking_hammer_size.tres")
+var upgrade_heaven_shaking_hammer_rate := preload("res://resources/upgrades/heaven_shaking_hammer_rate.tres")
+var upgrade_heaven_shaking_hammer_extra_wave := preload("res://resources/upgrades/heaven_shaking_hammer_extra_wave.tres")
 
 var rng := RandomNumberGenerator.new()
-var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon, upgrade_nine_treasure_pagoda]
+var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon, upgrade_nine_treasure_pagoda, upgrade_heaven_shaking_hammer]
 var initial_choices_remaining := 0
 var pending_upgrade_choices := 0
 var choice_screen_open := false
+var disabled_upgrade_ids: Dictionary = {}
 
 
 func _ready():
@@ -211,17 +217,22 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_nine_treasure_health, "tree_nine_treasure_health", 8)
 		add_unlocked_special(upgrade_nine_treasure_move_speed, "tree_nine_treasure_move_speed", 8)
 		add_unlocked_special(upgrade_nine_treasure_extra_attack, "tree_nine_treasure_extra_attack", 8)
+	elif chosen_upgrade.id == upgrade_heaven_shaking_hammer.id:
+		upgrade_pool.add_item(upgrade_heaven_shaking_hammer_damage, 10)
+		upgrade_pool.add_item(upgrade_heaven_shaking_hammer_size, 10)
+		upgrade_pool.add_item(upgrade_heaven_shaking_hammer_rate, 10)
+		add_unlocked_special(upgrade_heaven_shaking_hammer_extra_wave, "tree_heaven_shaking_hammer_extra_wave", 8)
 	elif chosen_upgrade.id in [upgrade_azure_dragon_vermilion_bird.id, upgrade_azure_dragon_xuanwu.id, upgrade_azure_dragon_white_tiger.id]:
 		try_unlock_four_beasts_upgrade()
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:
-	if MetaProgression.get_weapon_skill_count(tree_skill_id) > 0:
+	if MetaProgression.get_weapon_skill_count(tree_skill_id) > 0 and not disabled_upgrade_ids.has(upgrade.id):
 		upgrade_pool.add_item(upgrade, weight)
 
 
 func try_unlock_four_beasts_upgrade() -> void:
-	if MetaProgression.get_weapon_skill_count("tree_azure_dragon_four_beasts") == 0:
+	if MetaProgression.get_weapon_skill_count("tree_azure_dragon_four_beasts") == 0 or disabled_upgrade_ids.has(upgrade_azure_dragon_four_beasts.id):
 		return
 	for upgrade_id: String in ["azure_dragon_vermilion_bird", "azure_dragon_xuanwu", "azure_dragon_white_tiger"]:
 		if not current_upgrades.has(upgrade_id):
@@ -235,7 +246,7 @@ func update_weapon_pool() -> void:
 			upgrade_pool.remove_item(weapon)
 		return
 	for weapon: Ability in weapon_upgrades:
-		if not current_upgrades.has(weapon.id):
+		if not current_upgrades.has(weapon.id) and not disabled_upgrade_ids.has(weapon.id):
 			upgrade_pool.add_item(weapon, 10)
 
 
@@ -310,6 +321,8 @@ func show_choices(chosen_upgrades: Array[AbilityUpgrade]) -> void:
 	add_child(upgrade_screen_instance)
 	upgrade_screen_instance.set_ability_upgrades(chosen_upgrades)
 	upgrade_screen_instance.upgrade_selected.connect(on_upgrade_selected.bind(upgrade_screen_instance))
+	upgrade_screen_instance.upgrade_disabled.connect(on_upgrade_disabled.bind(upgrade_screen_instance))
+	upgrade_screen_instance.closed_without_selection.connect(on_upgrade_screen_closed.bind(upgrade_screen_instance))
 
 
 func pick_weapon_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
@@ -335,6 +348,30 @@ func on_upgrade_selected(upgrade: AbilityUpgrade, upgrade_screen: Node = null):
 	choice_screen_open = false
 	if continue_initial_choices:
 		show_upgrade_choices(3)
+	elif pending_upgrade_choices > 0:
+		pending_upgrade_choices -= 1
+		show_upgrade_choices(3)
+
+
+func on_upgrade_disabled(upgrade: AbilityUpgrade, _upgrade_screen: Node = null) -> void:
+	disable_upgrade_for_run(upgrade)
+
+
+func disable_upgrade_for_run(upgrade: AbilityUpgrade) -> void:
+	disabled_upgrade_ids[upgrade.id] = true
+	upgrade_pool.remove_item(upgrade)
+	weapon_pool.remove_item(upgrade)
+
+
+func on_upgrade_screen_closed(upgrade_screen: Node) -> void:
+	await upgrade_screen.tree_exited
+	choice_screen_open = false
+	if initial_choices_remaining > 0:
+		if weapon_pool.items.is_empty():
+			initial_choices_remaining = 0
+			initial_choices_completed.emit()
+		else:
+			show_initial_weapon_choices()
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1
 		show_upgrade_choices(3)

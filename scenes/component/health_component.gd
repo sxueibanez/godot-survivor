@@ -9,6 +9,7 @@ signal shield_changed(current_shield: float)
 var current_health: float
 var shield := 0.0
 var invulnerable_time_left := 0.0
+var death_emitted := false
 
 
 func _ready():
@@ -20,7 +21,7 @@ func _process(delta: float) -> void:
 
 
 func damage(damage_amount: float, source: String = "") -> bool:
-	if current_health <= 0 or invulnerable_time_left > 0.0:
+	if get_tree().paused or current_health <= 0 or invulnerable_time_left > 0.0:
 		return false
 	if owner != null and owner.is_in_group("player") and not source.is_empty():
 		var game_events := get_node_or_null("/root/GameEvents")
@@ -61,6 +62,7 @@ func get_health_percent() -> float:
 
 
 func check_death():
-	if current_health == 0:
+	if current_health == 0 and not death_emitted:
+		death_emitted = true
 		died.emit()
 		owner.queue_free()

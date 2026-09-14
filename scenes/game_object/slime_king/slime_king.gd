@@ -234,13 +234,13 @@ func perform_charge() -> void:
 		create_charge_telegraph(global_position, direction, distance, CHARGE_WARNING_DURATION)
 		var windup_tween: Tween = create_tween()
 		windup_tween.tween_property(visuals, "scale", Vector2(0.72, 1.28), 0.18)
-		await get_tree().create_timer(CHARGE_WARNING_DURATION).timeout
+		await get_tree().create_timer(CHARGE_WARNING_DURATION, false).timeout
 		visuals.scale = Vector2(1.4, 0.7)
 		var charge_time := 0.0
 		var charge_duration: float = distance / CHARGE_SPEED
 		var charge_trail_time := 0.0
 		while charge_time < charge_duration:
-			await get_tree().process_frame
+			await GameEvents.wait_for_combat_frame()
 			var frame_delta: float = get_process_delta_time()
 			charge_time += frame_delta
 			velocity = direction * CHARGE_SPEED
@@ -311,7 +311,7 @@ func animate_movement(delta: float) -> void:
 func play_frames(texture: Texture2D, first: int, last: int, duration: float) -> void:
 	var elapsed := 0.0
 	while elapsed < duration:
-		await get_tree().process_frame
+		await GameEvents.wait_for_combat_frame()
 		elapsed += get_process_delta_time()
 		show_frame(texture, mini(first + int(elapsed / duration * (last - first + 1)), last))
 

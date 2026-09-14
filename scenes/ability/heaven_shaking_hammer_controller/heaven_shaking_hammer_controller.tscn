@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/heaven_shaking_hammer_controller/heaven_shaking_hammer_controller.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ability/heaven_shaking_hammer/heaven_shaking_hammer.tscn" id="2_hammer"]
+
+[node name="HeavenShakingHammerController" type="Node"]
+script = ExtResource("1_script")
+hammer_ability_scene = ExtResource("2_hammer")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.9
+autostart = true

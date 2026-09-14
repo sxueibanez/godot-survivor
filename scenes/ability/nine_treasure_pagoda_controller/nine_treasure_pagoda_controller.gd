@@ -16,6 +16,9 @@ var stationary := false
 var common_damage_levels := 0
 var common_size_levels := 0
 var common_rate_levels := 0
+var tree_damage_bonus := 0.0
+var tree_attack_speed_bonus := 0.0
+var tree_size_bonus := 0.0
 var damage_skill := false
 var attack_speed_skill := false
 var health_skill := false
@@ -25,6 +28,9 @@ var extra_attack_skill := false
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody2D
+	tree_damage_bonus = MetaProgression.get_weapon_tree_bonus("nine_treasure_pagoda", "damage")
+	tree_attack_speed_bonus = MetaProgression.get_weapon_tree_bonus("nine_treasure_pagoda", "attack_speed")
+	tree_size_bonus = MetaProgression.get_weapon_tree_bonus("nine_treasure_pagoda", "size")
 	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 	spawn_pagoda()
 	apply_support_buffs()
@@ -60,12 +66,12 @@ func spawn_pagoda() -> void:
 
 func apply_support_buffs() -> void:
 	var standing_multiplier := 2.0 if stationary else 1.0
-	var damage_bonus := (0.15 if damage_skill else 0.0) + common_damage_levels * 0.10
-	var attack_speed_bonus := 0.20 if attack_speed_skill else 0.0
+	var damage_bonus := tree_damage_bonus + (0.15 if damage_skill else 0.0) + common_damage_levels * 0.10
+	var attack_speed_bonus := tree_attack_speed_bonus + (0.20 if attack_speed_skill else 0.0)
 	GameEvents.support_damage_multiplier = get_bonus_multiplier(BASE_DAMAGE_BONUS, damage_bonus, stationary)
 	GameEvents.support_health_multiplier = get_bonus_multiplier(BASE_HEALTH_BONUS, 0.20 if health_skill else 0.0, stationary)
 	GameEvents.support_move_speed_multiplier = get_bonus_multiplier(0.0, 0.20 if move_speed_skill else 0.0, stationary)
-	GameEvents.support_size_multiplier = 1.0 + common_size_levels * 0.10 * standing_multiplier
+	GameEvents.support_size_multiplier = 1.0 + tree_size_bonus + common_size_levels * 0.10 * standing_multiplier
 	GameEvents.support_attack_interval_multiplier = (1.0 / get_bonus_multiplier(BASE_ATTACK_SPEED_BONUS, attack_speed_bonus, stationary)) * maxf(0.1, 1.0 - common_rate_levels * 0.10 * standing_multiplier)
 	GameEvents.support_weapon_attack_count_bonus = 1 if extra_attack_skill else 0
 	refresh_weapon_attack_count()

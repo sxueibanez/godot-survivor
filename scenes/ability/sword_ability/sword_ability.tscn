@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://dini725amwnfl"]
 
-[ext_resource type="Texture2D" uid="uid://hpmgxym8g133" path="res://scenes/ability/sword_ability/sword.png" id="1_65jmi"]
+[ext_resource type="Texture2D" uid="uid://cq682ieyep17x" path="res://assets/abilities/sword_rain_sword.png" id="1_65jmi"]
 [ext_resource type="Script" path="res://scenes/ability/sword_ability/sword_ability.gd" id="1_kdjon"]
 [ext_resource type="PackedScene" uid="uid://b07jrrt845lfp" path="res://scenes/component/hitbox_component.tscn" id="2_xrg4e"]
 [ext_resource type="AudioStream" path="res://assets/audio/weapons/sword_launch.wav" id="3_launch"]
@@ -30,7 +30,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
+"values": [Vector2(0.03, 0.03)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -71,7 +71,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.2, 0.35, 0.5, 0.75),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 5.65685, 1),
 "update": 0,
-"values": [Vector2(2.08165e-12, 2.08165e-12), Vector2(1.25, 1.25), Vector2(1, 1), Vector2(1.5, 1.5), Vector2(1, 1), Vector2(2.08165e-12, 2.08165e-12)]
+"values": [Vector2(0, 0), Vector2(0.0375, 0.0375), Vector2(0.03, 0.03), Vector2(0.045, 0.045), Vector2(0.03, 0.03), Vector2(0, 0)]
 }
 tracks/2/type = "method"
 tracks/2/imported = false

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Ability" format=3 uid="uid://c7f8sdb3og5gn"]
+
+[ext_resource type="PackedScene" path="res://scenes/ability/heaven_shaking_hammer_controller/heaven_shaking_hammer_controller.tscn" id="1_controller"]
+[ext_resource type="Script" uid="uid://fvdnyppd0em3" path="res://resources/upgrades/ability.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://w7hss0mgwvcx" path="res://assets/abilities/heaven_shaking_hammer.png" id="3_icon"]
+
+[resource]
+script = ExtResource("2_script")
+ability_controller_scene = ExtResource("1_controller")
+id = "heaven_shaking_hammer"
+max_quantity = 1
+name = "震天锤"
+description = "每3.9秒向附近敌人砸下重锤，造成12点范围伤害。"
+icon = ExtResource("3_icon")

@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://dwgaw4fptjkms"]
+
+[ext_resource type="Script" uid="uid://b6cb7vjvv0l2a" path="res://scenes/ability/heaven_shaking_hammer/heaven_shaking_hammer.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cmy8gpmjo8mhm" path="res://assets/abilities/heaven_shaking_hammer_swing_frames.png" id="2_frames"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/heaven_shaking_hammer_hit.ogg" id="3_impact"]
+[ext_resource type="AudioStream" path="res://assets/audio/weapons/heaven_shaking_hammer_launch.ogg" id="4_launch"]
+
+[node name="HeavenShakingHammerAbility" type="Node2D" unique_id=610809315]
+z_index = 2
+script = ExtResource("1_script")
+
+[node name="HammerSprite" type="Sprite2D" parent="." unique_id=1475231858]
+position = Vector2(3, 0)
+scale = Vector2(1.0193548, 1)
+texture = ExtResource("2_frames")
+hframes = 6
+frame = 5
+
+[node name="ImpactSound" type="AudioStreamPlayer2D" parent="." unique_id=1532176194]
+stream = ExtResource("3_impact")
+volume_db = -5.0
+bus = &"sfx"
+
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_launch")
+volume_db = -7.0
+bus = &"sfx"
