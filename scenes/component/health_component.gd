@@ -13,6 +13,8 @@ var death_emitted := false
 
 
 func _ready():
+	if get_parent().is_in_group("enemy"):
+		max_health *= MetaProgression.get_enemy_health_multiplier()
 	current_health = max_health
 
 

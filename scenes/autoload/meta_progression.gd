@@ -2,6 +2,7 @@ extends Node
 
 
 const SAVE_FILE_PATH := "user://game.save"
+const ENEMY_HEALTH_PER_SPECIAL_SKILL := 0.02
 
 var save_data: Dictionary = {
 	"meta_upgrade_currency": 0,
@@ -63,6 +64,14 @@ func get_weapon_tree_bonus(weapon_id: String, stat: String) -> float:
 		if skill_id.begins_with(prefix) and skill_id.ends_with(suffix) and get_weapon_skill_count(skill_id) > 0:
 			count += 1
 	return count * 0.05
+
+
+func get_enemy_health_multiplier() -> float:
+	var special_skill_count := 0
+	for skill_id: String in (save_data["weapon_skills"] as Dictionary):
+		if skill_id.begins_with("tree_") and not skill_id.begins_with("tree_bonus_") and get_weapon_skill_count(skill_id) > 0:
+			special_skill_count += 1
+	return 1.0 + special_skill_count * ENEMY_HEALTH_PER_SPECIAL_SKILL
 
 
 func purchase_weapon_skill(skill_id: String, cost: int) -> bool:
