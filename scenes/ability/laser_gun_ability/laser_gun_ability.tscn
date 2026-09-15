@@ -5,10 +5,12 @@
 [ext_resource type="PackedScene" uid="uid://bh478361trp2r" path="res://scenes/component/random_audio_stream_player_2d_component.tscn" id="3_audio"]
 [ext_resource type="AudioStream" uid="uid://bebdljvm2ic75" path="res://assets/audio/weapons/laser_gun_launch.wav" id="4_shot"]
 [ext_resource type="AudioStream" uid="uid://7bbuee5p2wgf" path="res://assets/audio/weapons/laser_gun_hit.wav" id="5_hit"]
-[ext_resource type="Shader" path="res://scenes/ability/laser_gun_ability/laser_beam_flow.gdshader" id="6_flow"]
+[ext_resource type="Shader" uid="uid://ctr7j32d26uy1" path="res://scenes/ability/laser_gun_ability/laser_beam_flow.gdshader" id="6_flow"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_flow"]
 shader = ExtResource("6_flow")
+shader_parameter/flow_speed = 16.0
+shader_parameter/flow_bands = 8.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_laser"]
 resource_local_to_scene = true

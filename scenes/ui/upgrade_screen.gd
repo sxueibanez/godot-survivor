@@ -15,6 +15,19 @@ func _ready():
 	get_tree().paused = true
 
 
+func _unhandled_key_input(event: InputEvent) -> void:
+	if closing or not event.is_pressed() or event.is_echo():
+		return
+	var card_index := (event as InputEventKey).keycode - KEY_1
+	var cards := card_container.get_children()
+	if card_index < 0 or card_index >= mini(3, cards.size()):
+		return
+	if (cards[card_index] as AbilityUpgradeCard).disabled:
+		return
+	get_viewport().set_input_as_handled()
+	(cards[card_index] as AbilityUpgradeCard).select_card()
+
+
 func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
 	available_card_count = upgrades.size()
 	var delay := 0.0

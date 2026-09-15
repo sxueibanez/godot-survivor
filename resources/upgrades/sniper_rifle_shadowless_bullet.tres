@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://85ffvovabnyk"]
+
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://w43eofgw644a" path="res://assets/icons/skills/sniper_rifle_new_skill_icons.png" id="2_icons"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("2_icons")
+region = Rect2(0, 0, 724, 724)
+
+[resource]
+script = ExtResource("1_script")
+id = "sniper_rifle_shadowless_bullet"
+max_quantity = 1
+name = "无影弹"
+description = "子弹在终点分裂为四枚朝四个方向飞出的碎片；每枚造成25%伤害且不能穿透。"
+icon = SubResource("AtlasTexture_icon")

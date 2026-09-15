@@ -4,7 +4,7 @@ extends Node
 const PREVIOUS_BOSS_RESPAWN_TIME := 3.0 * 60.0
 const CURRENT_BOSS_SPAWN_TIME := 5.0 * 60.0
 const ENDLESS_BOSS_INTERVAL := 60.0
-const ENDLESS_INITIAL_SKILL_CHOICES := 10
+const ENDLESS_INITIAL_SKILL_CHOICES := 5
 
 @export var end_screen_scene: PackedScene
 
@@ -40,7 +40,7 @@ func _ready():
 	%Player.health_component.died.connect(on_player_died)
 	$UpgradeManager.initial_choices_completed.connect(on_initial_choices_completed)
 	$CheatUI/LearnSkillButton.pressed.connect(on_learn_skill_button_pressed)
-	$CheatUI/SpawnBossButton.pressed.connect(on_spawn_boss_button_pressed)
+	$CheatUI/SpawnBossButton.pressed.connect(spawn_slime_king)
 	$CheatUI/SpawnLightningKnightButton.pressed.connect(spawn_lightning_knight)
 	$CheatUI/SpawnIronArmMinerButton.pressed.connect(spawn_iron_arm_miner)
 	$CheatUI/SpawnRandomEnemiesButton.pressed.connect($EnemyManager.spawn_test_enemies.bind(20))
@@ -99,10 +99,6 @@ func on_player_died():
 
 func on_learn_skill_button_pressed() -> void:
 	$UpgradeManager.show_upgrade_choices(3)
-
-
-func on_spawn_boss_button_pressed() -> void:
-	spawn_boss_for_level(current_level)
 
 
 func on_test_level_selected(index: int) -> void:

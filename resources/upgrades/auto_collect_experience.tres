@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://scenes/game_object/experience_vial/experience_vial.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = "auto_collect_experience"
+max_quantity = 1
+name = "经验虹吸"
+description = "自动拾取场上所有经验瓶。"
+icon = ExtResource("2_icon")

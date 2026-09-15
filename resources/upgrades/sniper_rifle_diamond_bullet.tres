@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://b8dqtnwuosmdr"]
+
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://85mt5rvb8iv2" path="res://assets/icons/skills/sniper_rifle_skill_icons.png" id="2_icons"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("2_icons")
+region = Rect2(0, 0, 887, 887)
+
+[resource]
+script = ExtResource("1_script")
+id = "sniper_rifle_diamond_bullet"
+max_quantity = 1
+name = "金刚弹"
+description = "狙击子弹穿透敌人后不再衰减伤害。"
+icon = SubResource("AtlasTexture_icon")

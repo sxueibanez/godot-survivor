@@ -8,6 +8,6 @@ script = ExtResource("1")
 id = "elf_ranger"
 display_name = "魔导师"
 move_speed = 100
-ranged_damage_bonus = 0.15
+ranged_damage_bonus = 0.3
 sprite = ExtResource("2")
 sprite_offset = Vector2(0, -8)

@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 
-const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer"]
+const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer", "sniper_rifle"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
 	"axe": "飞斧",
@@ -12,6 +12,7 @@ const WEAPON_NAMES: Dictionary = {
 	"azure_dragon": "四圣兽",
 	"nine_treasure_pagoda": "九宝琉璃塔",
 	"heaven_shaking_hammer": "震天锤",
+	"sniper_rifle": "狙击枪",
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
@@ -19,6 +20,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_sword_rain", "title": "剑阵", "description": "场上同时有超过 5 柄剑时，在怪物最密集处释放持续剑阵。", "requires": ["tree_sword_chain"]},
 		{"id": "tree_sword_rain_giant", "title": "巨型剑阵", "description": "同时存在 3 个剑阵时，在主角位置释放双倍剑阵。", "requires": ["tree_sword_rain"]},
 		{"id": "tree_sword_barrage", "title": "剑雨", "description": "同一敌人受到 10 次剑伤害后，从主角当前位置连续发射 10 把剑。", "requires": ["tree_sword_rain"]},
+		{"id": "tree_sword_greatsword_sweep", "title": "横贯天锋", "description": "解锁局内大剑升级；每10秒从地图右侧冲向左侧，造成一次350%武器伤害。", "requires": []},
 	],
 	"axe": [
 		{"id": "tree_axe_return", "title": "归手回旋", "description": "飞斧到达最远处后回到主角。", "requires": []},
@@ -66,6 +68,13 @@ const WEAPON_SKILLS: Dictionary = {
 	],
 	"heaven_shaking_hammer": [
 		{"id": "tree_heaven_shaking_hammer_extra_wave", "title": "连环震波", "description": "解锁局内冲击波升级；每级额外向锤击方向释放一道冲击波，最多4级。", "requires": []},
+	],
+	"sniper_rifle": [
+		{"id": "tree_sniper_rifle_diamond_bullet", "title": "金刚弹", "description": "解锁局内金刚弹升级；子弹穿透敌人后不再衰减伤害。", "requires": []},
+		{"id": "tree_sniper_rifle_scope", "title": "狙击镜", "description": "解锁局内狙击镜升级；视野扩大30%，狙击枪伤害提升10%。", "requires": []},
+		{"id": "tree_sniper_rifle_shadowless_bullet", "title": "无影弹", "description": "解锁局内无影弹升级；主弹在终点分裂成四枚25%伤害、不可穿透的碎片。", "requires": []},
+		{"id": "tree_sniper_rifle_ricochet", "title": "折射弹", "description": "解锁局内折射弹升级；伤害提升10%，子弹碰墙后可以反弹。", "requires": []},
+		{"id": "tree_sniper_rifle_explosive_bullet", "title": "爆裂弹", "description": "解锁局内爆裂弹升级；命中产生小范围爆炸，造成50%伤害。", "requires": []},
 	],
 }
 const NODE_COSTS := [50, 100, 150, 200]

@@ -8,6 +8,7 @@ const GIANT_RAIN_TRIGGER_COUNT := 3
 @export var sword_ability: PackedScene
 @export var sword_rain_ability: PackedScene
 @export var sword_barrage_ability: PackedScene
+@export var sword_greatsword_ability: PackedScene
 
 var base_damage = 5
 var additional_damage_percent: float = 1.0
@@ -23,6 +24,7 @@ var sword_rain_threshold_met := false
 var giant_sword_rain_enabled := false
 var giant_rain_threshold_met := false
 var sword_barrage_enabled := false
+var sword_greatsword_enabled := false
 var sword_hit_counts: Dictionary = {}
 var character_damage_multiplier := 1.0
 
@@ -40,6 +42,8 @@ func _ready():
 	$Timer.timeout.connect(on_timer_timeout)
 	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 	GameEvents.sword_hit_target.connect(on_sword_hit_target)
+	$GreatswordTimer.wait_time = 10.0 * permanent_attack_speed_multiplier
+	$GreatswordTimer.timeout.connect(on_greatsword_timer_timeout)
 
 
 func _process(_delta: float) -> void:
@@ -152,6 +156,22 @@ func on_sword_hit_target(target: Node2D) -> void:
 	barrage.global_position = barrage.origin_position
 
 
+func on_greatsword_timer_timeout() -> void:
+	if not sword_greatsword_enabled:
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	if player == null or foreground == null:
+		return
+	var camera := get_viewport().get_camera_2d()
+	var center := camera.get_screen_center_position() if camera != null else player.global_position
+	var half_width := get_viewport().get_visible_rect().size.x * 0.5
+	var margin := 80.0 * size_multiplier
+	var greatsword := sword_greatsword_ability.instantiate() as SwordGreatswordSweep
+	greatsword.configure(Vector2(center.x + half_width + margin, player.global_position.y), center.x - half_width - margin, base_damage * additional_damage_percent, size_multiplier)
+	foreground.add_child(greatsword)
+
+
 func find_densest_enemy(enemies: Array) -> Node2D:
 	var densest_enemy: Node2D
 	var highest_count := 0
@@ -176,6 +196,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 		"sword_rate":
 			var percent_reduction = current_upgrades["sword_rate"]["quantity"] * 0.05
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1 - percent_reduction)
+			$GreatswordTimer.wait_time = 10.0 * permanent_attack_speed_multiplier * (1 - percent_reduction)
 			$Timer.start()
 		"sword_damage":
 			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["sword_damage"]["quantity"] * 0.05)
@@ -191,3 +212,6 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			giant_sword_rain_enabled = true
 		"sword_barrage":
 			sword_barrage_enabled = true
+		"sword_greatsword_sweep":
+			sword_greatsword_enabled = true
+			$GreatswordTimer.start()

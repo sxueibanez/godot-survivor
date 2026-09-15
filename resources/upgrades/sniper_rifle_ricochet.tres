@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://cs5sgbo2l1wkn"]
+
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://w43eofgw644a" path="res://assets/icons/skills/sniper_rifle_new_skill_icons.png" id="2_icons"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_icon"]
+atlas = ExtResource("2_icons")
+region = Rect2(724, 0, 724, 724)
+
+[resource]
+script = ExtResource("1_script")
+id = "sniper_rifle_ricochet"
+max_quantity = 1
+name = "折射弹"
+description = "狙击枪伤害提升10%；子弹碰到墙壁时可以反弹。"
+icon = SubResource("AtlasTexture_icon")

@@ -82,6 +82,8 @@ func get_skill_weapon_id(upgrade_id: String) -> String:
 		return "nine_treasure_pagoda"
 	if upgrade_id.begins_with("heaven_shaking_hammer_"):
 		return "heaven_shaking_hammer"
+	if upgrade_id.begins_with("sniper_rifle_"):
+		return "sniper_rifle"
 	return ""
 
 

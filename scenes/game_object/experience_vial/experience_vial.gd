@@ -9,6 +9,8 @@ var collecting := false
 
 func _ready():
 	$Area2D.area_entered.connect(on_area_entered)
+	if GameEvents.auto_collect_experience:
+		collect_to_player.call_deferred()
 
 
 func tween_collect(percent: float, start_position: Vector2):

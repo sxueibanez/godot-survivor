@@ -26,11 +26,13 @@ var upgrade_sword_chain := preload("res://resources/upgrades/sword_chain.tres")
 var upgrade_sword_rain := preload("res://resources/upgrades/sword_rain.tres")
 var upgrade_sword_rain_giant := preload("res://resources/upgrades/sword_rain_giant.tres")
 var upgrade_sword_barrage := preload("res://resources/upgrades/sword_barrage.tres")
+var upgrade_sword_greatsword_sweep := preload("res://resources/upgrades/sword_greatsword_sweep.tres")
 var upgrade_player_speed := preload("res://resources/upgrades/player_speed.tres")
 var upgrade_player_health := preload("res://resources/upgrades/player_health.tres")
 var upgrade_critical_hit := preload("res://resources/upgrades/critical_hit.tres")
 var upgrade_critical_damage := preload("res://resources/upgrades/critical_damage.tres")
 var upgrade_speed_damage_no_crit := preload("res://resources/upgrades/speed_damage_no_crit.tres")
+var upgrade_auto_collect_experience := preload("res://resources/upgrades/auto_collect_experience.tres")
 var upgrade_laser_gun := preload("res://resources/upgrades/laser_gun.tres")
 var upgrade_laser_gun_damage := preload("res://resources/upgrades/laser_gun_damage.tres")
 var upgrade_laser_gun_size := preload("res://resources/upgrades/laser_gun_size.tres")
@@ -86,9 +88,18 @@ var upgrade_heaven_shaking_hammer_damage := preload("res://resources/upgrades/he
 var upgrade_heaven_shaking_hammer_size := preload("res://resources/upgrades/heaven_shaking_hammer_size.tres")
 var upgrade_heaven_shaking_hammer_rate := preload("res://resources/upgrades/heaven_shaking_hammer_rate.tres")
 var upgrade_heaven_shaking_hammer_extra_wave := preload("res://resources/upgrades/heaven_shaking_hammer_extra_wave.tres")
+var upgrade_sniper_rifle := preload("res://resources/upgrades/sniper_rifle.tres")
+var upgrade_sniper_rifle_damage := preload("res://resources/upgrades/sniper_rifle_damage.tres")
+var upgrade_sniper_rifle_size := preload("res://resources/upgrades/sniper_rifle_size.tres")
+var upgrade_sniper_rifle_rate := preload("res://resources/upgrades/sniper_rifle_rate.tres")
+var upgrade_sniper_rifle_diamond_bullet := preload("res://resources/upgrades/sniper_rifle_diamond_bullet.tres")
+var upgrade_sniper_rifle_scope := preload("res://resources/upgrades/sniper_rifle_scope.tres")
+var upgrade_sniper_rifle_shadowless_bullet := preload("res://resources/upgrades/sniper_rifle_shadowless_bullet.tres")
+var upgrade_sniper_rifle_ricochet := preload("res://resources/upgrades/sniper_rifle_ricochet.tres")
+var upgrade_sniper_rifle_explosive_bullet := preload("res://resources/upgrades/sniper_rifle_explosive_bullet.tres")
 
 var rng := RandomNumberGenerator.new()
-var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon, upgrade_nine_treasure_pagoda, upgrade_heaven_shaking_hammer]
+var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser_gun, upgrade_lightning_whip, upgrade_bomb, upgrade_thunder_orb_book, upgrade_azure_dragon, upgrade_nine_treasure_pagoda, upgrade_heaven_shaking_hammer, upgrade_sniper_rifle]
 var initial_choices_remaining := 0
 var pending_upgrade_choices := 0
 var choice_screen_open := false
@@ -110,6 +121,7 @@ func _ready():
 	upgrade_pool.add_item(upgrade_critical_hit, 8)
 	upgrade_pool.add_item(upgrade_critical_damage, 5)
 	upgrade_pool.add_item(upgrade_speed_damage_no_crit, 5)
+	upgrade_pool.add_item(upgrade_auto_collect_experience, 5)
 	upgrade_pool.add_item(upgrade_attack_count, 5)
 	for weapon: Ability in weapon_upgrades:
 		weapon_pool.add_item(weapon, 10)
@@ -160,6 +172,7 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_sword_rain, "tree_sword_rain", 5)
 		add_unlocked_special(upgrade_sword_rain_giant, "tree_sword_rain_giant", 5)
 		add_unlocked_special(upgrade_sword_barrage, "tree_sword_barrage", 5)
+		add_unlocked_special(upgrade_sword_greatsword_sweep, "tree_sword_greatsword_sweep", 5)
 	elif chosen_upgrade.id == upgrade_axe.id:
 		upgrade_pool.add_item(upgrade_axe_damage, 10)
 		upgrade_pool.add_item(upgrade_axe_size, 10)
@@ -222,6 +235,15 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		upgrade_pool.add_item(upgrade_heaven_shaking_hammer_size, 10)
 		upgrade_pool.add_item(upgrade_heaven_shaking_hammer_rate, 10)
 		add_unlocked_special(upgrade_heaven_shaking_hammer_extra_wave, "tree_heaven_shaking_hammer_extra_wave", 8)
+	elif chosen_upgrade.id == upgrade_sniper_rifle.id:
+		upgrade_pool.add_item(upgrade_sniper_rifle_damage, 10)
+		upgrade_pool.add_item(upgrade_sniper_rifle_size, 10)
+		upgrade_pool.add_item(upgrade_sniper_rifle_rate, 10)
+		add_unlocked_special(upgrade_sniper_rifle_diamond_bullet, "tree_sniper_rifle_diamond_bullet", 8)
+		add_unlocked_special(upgrade_sniper_rifle_scope, "tree_sniper_rifle_scope", 8)
+		add_unlocked_special(upgrade_sniper_rifle_shadowless_bullet, "tree_sniper_rifle_shadowless_bullet", 8)
+		add_unlocked_special(upgrade_sniper_rifle_ricochet, "tree_sniper_rifle_ricochet", 8)
+		add_unlocked_special(upgrade_sniper_rifle_explosive_bullet, "tree_sniper_rifle_explosive_bullet", 8)
 	elif chosen_upgrade.id in [upgrade_azure_dragon_vermilion_bird.id, upgrade_azure_dragon_xuanwu.id, upgrade_azure_dragon_white_tiger.id]:
 		try_unlock_four_beasts_upgrade()
 

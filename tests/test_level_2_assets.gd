@@ -26,8 +26,10 @@ func _init() -> void:
 	assert(load("res://resources/upgrades/critical_hit.tres") is AbilityUpgrade)
 	var critical_damage_upgrade := load("res://resources/upgrades/critical_damage.tres") as AbilityUpgrade
 	var speed_damage_no_crit_upgrade := load("res://resources/upgrades/speed_damage_no_crit.tres") as AbilityUpgrade
+	var auto_collect_experience := load("res://resources/upgrades/auto_collect_experience.tres") as AbilityUpgrade
 	assert(critical_damage_upgrade != null and critical_damage_upgrade.max_quantity == 0)
 	assert(speed_damage_no_crit_upgrade != null and speed_damage_no_crit_upgrade.max_quantity == 1)
+	assert(auto_collect_experience != null and auto_collect_experience.max_quantity == 1)
 	assert(load("res://resources/upgrades/axe_reflect.tres") is AbilityUpgrade)
 	assert(load("res://resources/upgrades/axe_distance_power.tres") is AbilityUpgrade)
 	assert(is_equal_approx(AxeAbility.get_distance_multiplier(0.0), 1.0))
@@ -48,4 +50,6 @@ func _init() -> void:
 	GameEvents.emit_ability_upgrade_added(speed_damage_no_crit_upgrade, {"speed_damage_no_crit": {"quantity": 1}})
 	var non_critical_hit: Dictionary = GameEvents.get_critical_damage(10.0)
 	assert(!non_critical_hit["critical"] and is_equal_approx(non_critical_hit["damage"], 10.0))
+	GameEvents.emit_ability_upgrade_added(auto_collect_experience, {"auto_collect_experience": {"quantity": 1}})
+	assert(GameEvents.auto_collect_experience)
 	quit()

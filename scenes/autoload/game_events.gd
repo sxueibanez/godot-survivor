@@ -16,6 +16,7 @@ var critical_damage_multiplier := 2.0
 var critical_disabled := false
 var speed_damage_no_crit := false
 var life_steal_percent := 0.0
+var auto_collect_experience := false
 var player_damage_multiplier := 1.0
 var support_damage_multiplier := 1.0
 var support_health_multiplier := 1.0
@@ -51,6 +52,7 @@ func reset_run_stats() -> void:
 	support_size_multiplier = 1.0
 	support_attack_interval_multiplier = 1.0
 	support_weapon_attack_count_bonus = 0
+	auto_collect_experience = false
 	weapon_damage.clear()
 	last_damage_source = "未知伤害"
 
@@ -74,6 +76,10 @@ func emit_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dicti
 		speed_damage_no_crit = true
 		critical_disabled = true
 		refresh_critical_chance()
+	elif upgrade.id == "auto_collect_experience":
+		auto_collect_experience = true
+		for vial: Node in get_tree().get_nodes_in_group("experience_vial"):
+			vial.call("collect_to_player")
 	ability_upgrade_added.emit(upgrade, current_upgrades)
 
 
