@@ -11,6 +11,9 @@ const ENDLESS_ENEMY_HEALTH_MULTIPLIER := 0.5
 @export var cyclops_bat_scene: PackedScene
 @export var iron_golem_scene: PackedScene
 @export var stone_slime_scene: PackedScene
+@export var frost_wisp_scene: PackedScene
+@export var frost_boar_scene: PackedScene
+@export var snowball_monster_scene: PackedScene
 @export var arena_time_manager: ArenaTimeManager
 
 @onready var timer = $Timer
@@ -85,7 +88,7 @@ func spawn_test_enemies(count: int = 20) -> void:
 	var entities_layer := get_tree().get_first_node_in_group("entities_layer") as Node2D
 	if entities_layer == null:
 		return
-	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene]
+	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene, frost_wisp_scene, frost_boar_scene, snowball_monster_scene]
 	for _index in count:
 		var enemy := enemy_scenes.pick_random().instantiate() as Node2D
 		apply_difficulty(enemy)
@@ -135,7 +138,7 @@ func resume_spawning() -> void:
 func start_endless() -> void:
 	spawning = true
 	enemy_table = WeightedTable.new()
-	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene]
+	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene, frost_wisp_scene, frost_boar_scene, snowball_monster_scene]
 	for enemy_scene: PackedScene in enemy_scenes:
 		enemy_table.add_item(enemy_scene, 10)
 	base_spawn_time = 0.7
@@ -177,5 +180,20 @@ func start_level_3() -> void:
 	enemy_table.add_item(iron_golem_scene, 4)
 	enemy_table.add_item(stone_slime_scene, 6)
 	base_spawn_time = 0.65
+	timer.wait_time = base_spawn_time
+	timer.start()
+
+
+func start_level_4() -> void:
+	level = 4
+	spawning = true
+	enemy_table = WeightedTable.new()
+	enemy_table.add_item(cyclops_bat_scene, 3)
+	enemy_table.add_item(iron_golem_scene, 3)
+	enemy_table.add_item(stone_slime_scene, 3)
+	enemy_table.add_item(frost_wisp_scene, 9)
+	enemy_table.add_item(frost_boar_scene, 6)
+	enemy_table.add_item(snowball_monster_scene, 7)
+	base_spawn_time = 0.58
 	timer.wait_time = base_spawn_time
 	timer.start()

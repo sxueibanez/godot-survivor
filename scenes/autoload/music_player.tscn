@@ -12,4 +12,4 @@ volume_db = -8.0
 autoplay = true
 bus = &"music"
 script = ExtResource("2_script")
-level_tracks = Array[AudioStream]([ExtResource("1_ggdwu"), ExtResource("3_level_2"), ExtResource("4_level_3")])
+level_tracks = Array[AudioStream]([ExtResource("1_ggdwu"), ExtResource("3_level_2"), ExtResource("4_level_3"), ExtResource("3_level_2")])

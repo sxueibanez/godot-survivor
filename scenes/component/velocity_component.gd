@@ -34,6 +34,7 @@ var slow_time_left := 0.0
 var stun_time_left := 0.0
 var knockback_time_left := 0.0
 var knockback_velocity := Vector2.ZERO
+var slippery_time_left := 0.0
 var stun_indicator: StunIndicator
 
 
@@ -49,6 +50,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	slippery_time_left = maxf(slippery_time_left - delta, 0.0)
 	if stun_time_left > 0.0:
 		stun_time_left -= delta
 		velocity = Vector2.ZERO
@@ -90,6 +92,10 @@ func apply_knockback(direction: Vector2, speed: float, duration: float) -> void:
 	knockback_time_left = maxf(knockback_time_left, duration)
 
 
+func apply_slippery(duration: float) -> void:
+	slippery_time_left = maxf(slippery_time_left, duration)
+
+
 func accelerate_to_player():
 	var owner_node2d = owner as Node2D
 	if owner_node2d == null:
@@ -108,7 +114,8 @@ func accelerate_in_direction(direction: Vector2):
 		velocity = Vector2.ZERO
 		return
 	var desired_velocity = direction * max_speed * slow_multiplier
-	velocity = velocity.lerp(desired_velocity, 1 - exp(-acceleration * get_process_delta_time()))
+	var traction := 0.18 if slippery_time_left > 0.0 else 1.0
+	velocity = velocity.lerp(desired_velocity, 1 - exp(-acceleration * traction * get_process_delta_time()))
 
 
 func move(character_body: CharacterBody2D):

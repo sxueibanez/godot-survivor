@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://eadorq7tpodo"]
+[gd_scene load_steps=12 format=3 uid="uid://eadorq7tpodo"]
 
 [ext_resource type="Script" path="res://scenes/manager/enemy_manager.gd" id="1_46876"]
 [ext_resource type="PackedScene" uid="uid://bses7vk27cfvt" path="res://scenes/game_object/basic_enemy/basic_enemy.tscn" id="2_ytlsn"]
@@ -8,6 +8,9 @@
 [ext_resource type="PackedScene" path="res://scenes/game_object/cyclops_bat/cyclops_bat.tscn" id="6_bat"]
 [ext_resource type="PackedScene" path="res://scenes/game_object/iron_golem/iron_golem.tscn" id="7_golem"]
 [ext_resource type="PackedScene" path="res://scenes/game_object/stone_slime/stone_slime.tscn" id="8_stone"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/frost_wisp/frost_wisp.tscn" id="9_wisp"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/frost_boar/frost_boar.tscn" id="10_boar"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/snowball_monster/snowball_monster.tscn" id="11_snow"]
 
 [node name="EnemyManager" type="Node"]
 script = ExtResource("1_46876")
@@ -18,6 +21,9 @@ ranged_enemy_scene = ExtResource("5_ranged")
 cyclops_bat_scene = ExtResource("6_bat")
 iron_golem_scene = ExtResource("7_golem")
 stone_slime_scene = ExtResource("8_stone")
+frost_wisp_scene = ExtResource("9_wisp")
+frost_boar_scene = ExtResource("10_boar")
+snowball_monster_scene = ExtResource("11_snow")
 
 [node name="Timer" type="Timer" parent="."]
 one_shot = true

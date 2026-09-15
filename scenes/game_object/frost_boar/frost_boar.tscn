@@ -1,0 +1,67 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/game_object/frost_boar/frost_boar.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/enemies/frost_boar.png" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/component/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/component/velocity_component.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/component/hurtbox_component.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/component/vial_drop_component.tscn" id="6"]
+
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 23.0
+
+[sub_resource type="CircleShape2D" id="body_shape"]
+radius = 18.0
+
+[sub_resource type="StyleBoxFlat" id="health_background"]
+bg_color = Color(0.08, 0.15, 0.25, 1)
+
+[sub_resource type="StyleBoxFlat" id="health_fill"]
+bg_color = Color(0.3, 0.85, 1, 1)
+
+[node name="FrostBoar" type="CharacterBody2D" groups=["enemy"]]
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("1")
+metadata/display_name = "霜甲野猪"
+
+[node name="HealthComponent" parent="." instance=ExtResource("3")]
+max_health = 145.0
+
+[node name="VelocityComponent" parent="." instance=ExtResource("4")]
+max_speed = 42
+acceleration = 3.0
+
+[node name="VialDropComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("6")]
+drop_rate = 0.8
+health_component = NodePath("../HealthComponent")
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -16.0
+offset_top = -31.0
+offset_right = 16.0
+offset_bottom = -27.0
+theme_override_styles/background = SubResource("health_background")
+theme_override_styles/fill = SubResource("health_fill")
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="HurtboxComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+shape = SubResource("hurt_shape")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+texture_filter = 1
+position = Vector2(0, -5)
+scale = Vector2(0.14, 0.14)
+texture = ExtResource("2")
+region_enabled = true
+region_rect = Rect2(0, 0, 444, 444)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body_shape")
