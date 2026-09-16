@@ -1,7 +1,6 @@
 extends Node
 
 
-const PREVIOUS_BOSS_RESPAWN_TIME := 3.0 * 60.0
 const CURRENT_BOSS_SPAWN_TIME := 5.0 * 60.0
 const ENDLESS_BOSS_INTERVAL := 60.0
 const ENDLESS_INITIAL_SKILL_CHOICES := 5
@@ -21,7 +20,7 @@ var current_level := 1
 var completed_maps := 0
 var current_map_id := 0
 var previous_map_id := 0
-var previous_boss_respawned := false
+var challenges: Node
 var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
 var map_order := [1, 2, 3, 4]
@@ -52,6 +51,8 @@ func _ready():
 	$CheatUI/SpawnFrostQueenButton.pressed.connect(spawn_frost_queen)
 	$CheatUI/SpawnRandomEnemiesButton.pressed.connect($EnemyManager.spawn_test_enemies.bind(20))
 	$CheatUI/LevelSelect.item_selected.connect(on_test_level_selected)
+	challenges = preload("res://scenes/manager/challenge_manager.gd").new()
+	add_child(challenges)
 	if GameEvents.is_endless_mode():
 		$EnemyManager.stop_spawning()
 	else:
@@ -104,6 +105,10 @@ func _unhandled_input(event):
 
 
 func on_player_died():
+	set_process(false)
+	$EnemyManager.stop_spawning()
+	$ArenaTimeManager.set_process(false)
+	challenges.stop_challenges()
 	var end_screen_instance = end_screen_scene.instantiate() as EndScreen
 	add_child(end_screen_instance)
 	end_screen_instance.set_defeat()
@@ -133,9 +138,6 @@ func _process(_delta: float) -> void:
 			spawn_boss_for_map(randi_range(1, 4))
 			next_endless_boss_time += ENDLESS_BOSS_INTERVAL
 		return
-	if previous_map_id > 0 and not previous_boss_respawned and time_elapsed >= PREVIOUS_BOSS_RESPAWN_TIME:
-		previous_boss_respawned = true
-		spawn_boss_for_map(previous_map_id)
 	if not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
 		current_level_boss_started = true
 		waiting_for_entrance = true
@@ -192,20 +194,27 @@ func on_endless_boss_died() -> void:
 
 
 func spawn_level_entrance() -> void:
-	if entrance_spawned:
+	var player := get_node_or_null("Entities/Player") as Node2D
+	if entrance_spawned or player == null:
 		return
 	waiting_for_entrance = false
 	entrance_spawned = true
 	completed_maps += 1
 	var entrance := LevelEntrance.new()
 	$Entities.add_child(entrance)
-	entrance.global_position = %Player.global_position + Vector2(72, 0)
+	entrance.global_position = player.global_position + Vector2(72, 0)
 	var label := Label.new()
 	label.text = "第%d关入口" % (completed_maps + 1)
 	label.position = Vector2(-32, -36)
 	entrance.add_child(label)
-	while is_instance_valid(entrance) and %Player.global_position.distance_to(entrance.global_position) > 24.0:
+	while is_instance_valid(entrance) and is_instance_valid(player) and player.global_position.distance_to(entrance.global_position) > 24.0:
 		await get_tree().process_frame
+	if not is_instance_valid(player) or not is_instance_valid(entrance):
+		return
+	var health := player.get_node_or_null("HealthComponent") as HealthComponent
+	if player.is_queued_for_deletion() or health == null or health.current_health <= 0:
+		entrance.queue_free()
+		return
 	begin_level(completed_maps + 1)
 	entrance.queue_free()
 
@@ -237,15 +246,13 @@ func begin_level(level: int) -> void:
 	current_map_id = map_order[level - 1] if level <= map_order.size() else randi_range(1, 4)
 	show_map(current_map_id)
 	MusicPlayer.play_level(current_map_id)
-	previous_boss_respawned = false
 	current_level_boss_started = false
 	$ArenaTimeManager.time_elapsed = 0.0
 	$ArenaTimeManager.arena_difficulty = 0
 	GameEvents.arena_difficulty = 0
 	if not GameEvents.is_endless_mode():
 		start_enemy_wave_for_map(current_map_id)
-		if previous_map_id > 0:
-			spawn_boss_for_map(previous_map_id)
+	challenges.reset_challenges()
 
 
 func start_enemy_wave_for_map(map_id: int) -> void:
@@ -261,6 +268,7 @@ func start_enemy_wave_for_map(map_id: int) -> void:
 
 
 func show_map(map_id: int) -> void:
+	$ArenaTimeUI.set_map(map_id)
 	$TileMap.show()
 	$MineMap.visible = map_id == 3
 	$IceMap.visible = map_id == 4

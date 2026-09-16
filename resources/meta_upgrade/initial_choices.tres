@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/meta_upgrade/meta_upgrade.gd" id="1_meta"]
+
+[resource]
+script = ExtResource("1_meta")
+id = "meta_initial_choices"
+max_quantity = 1
+experience_cost = 1000
+title = "开局额外选择"
+description = "每局开局可选择技能的次数+1。上限1级，消费1000瓶。"

@@ -125,6 +125,7 @@ func on_timer_timeout() -> void:
 		return
 	var target := find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
 	if target != null:
+		dragon.damage = base_damage * damage_multiplier
 		dragon.start_attack(target.global_position)
 		spawn_extra_attack_dragons(target.global_position)
 

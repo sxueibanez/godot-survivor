@@ -85,7 +85,7 @@ func damage_enemies() -> void:
 		var hurtbox := enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 		if hurtbox == null or hurtbox.health_component == null:
 			continue
-		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
+		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage, "bomb")
 		var damage_amount := float(critical_hit["damage"])
 		hurtbox.health_component.damage(damage_amount)
 		GameEvents.record_weapon_damage("bomb", damage_amount)

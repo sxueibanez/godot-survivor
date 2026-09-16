@@ -5,11 +5,14 @@ const CONTROLLER = preload("res://scenes/ability/nine_treasure_pagoda_controller
 
 func _ready() -> void:
 	GameEvents.reset_run_stats()
+	var original_skills: Dictionary = MetaProgression.save_data["weapon_skills"]
+	MetaProgression.save_data["weapon_skills"] = {}
 	var weapon := load("res://resources/upgrades/nine_treasure_pagoda.tres") as Ability
 	assert(weapon != null and weapon.weapon_type == Ability.WeaponType.SUPPORT and weapon.icon != null)
 	assert(is_equal_approx(CONTROLLER.get_bonus_multiplier(0.15, 0.0, false), 1.15))
 	assert(is_equal_approx(CONTROLLER.get_bonus_multiplier(0.15, 0.15, false), 1.30))
-	assert(is_equal_approx(CONTROLLER.get_bonus_multiplier(0.15, 0.15, true), 1.60))
+	assert(is_equal_approx(CONTROLLER.get_bonus_multiplier(0.15, 0.15, true), 1.45))
+	assert(is_equal_approx(CONTROLLER.get_bonus_multiplier(0.0, 0.20, true), 1.20))
 	for upgrade_id: String in ["damage", "attack_speed", "health", "move_speed", "extra_attack"]:
 		assert(load("res://resources/upgrades/nine_treasure_%s.tres" % upgrade_id) is AbilityUpgrade)
 	var foreground := Node2D.new()
@@ -36,19 +39,20 @@ func _ready() -> void:
 	assert(is_equal_approx(GameEvents.support_size_multiplier, 1.10))
 	assert(is_equal_approx(timer.wait_time, 0.90 / 1.20))
 	controller._process(CONTROLLER.STANDING_DELAY)
-	assert(controller.stationary and is_equal_approx(GameEvents.support_damage_multiplier, 1.50))
+	assert(controller.stationary and is_equal_approx(GameEvents.support_damage_multiplier, 1.40))
 	assert(is_equal_approx(GameEvents.support_health_multiplier, 1.40))
-	assert(is_equal_approx(GameEvents.support_size_multiplier, 1.20))
-	assert(is_equal_approx(timer.wait_time, 0.80 / 1.40))
+	assert(is_equal_approx(GameEvents.support_size_multiplier, 1.10))
+	assert(is_equal_approx(timer.wait_time, 0.90 / 1.40))
 	assert(is_equal_approx(player.get_node("HealthComponent").get_health_percent(), 1.0))
 	for upgrade_id: String in ["damage", "attack_speed", "health", "move_speed"]:
 		var id := "nine_treasure_%s" % upgrade_id
 		controller.on_ability_upgrade_added(load("res://resources/upgrades/%s.tres" % id), {id: {"quantity": 1}})
 	controller._process(0.0)
-	assert(is_equal_approx(GameEvents.support_damage_multiplier, 1.80))
-	assert(is_equal_approx(GameEvents.support_health_multiplier, 1.80))
-	assert(is_equal_approx(GameEvents.support_move_speed_multiplier, 1.40))
-	assert(is_equal_approx(timer.wait_time, 0.80 / 1.80))
+	assert(is_equal_approx(GameEvents.support_damage_multiplier, 1.55))
+	assert(is_equal_approx(GameEvents.support_health_multiplier, 1.60))
+	assert(is_equal_approx(GameEvents.support_move_speed_multiplier, 1.20))
+	assert(is_equal_approx(GameEvents.support_size_multiplier, 1.10))
+	assert(is_equal_approx(timer.wait_time, 0.90 / 1.60))
 	controller.on_ability_upgrade_added(load("res://resources/upgrades/nine_treasure_extra_attack.tres"), {"nine_treasure_extra_attack": {"quantity": 1}})
 	assert(GameEvents.weapon_attack_count == 2)
 	GameEvents.emit_ability_upgrade_added(load("res://resources/upgrades/attack_count.tres"), {"attack_count": {"quantity": 1}})
@@ -66,4 +70,5 @@ func _ready() -> void:
 	pagoda.emit_white_light()
 	assert(is_equal_approx(enemy_velocity.stun_time_left, NineTreasurePagodaAbility.STUN_DURATION))
 	print("NINE_TREASURE_PAGODA_TEST_PASSED")
+	MetaProgression.save_data["weapon_skills"] = original_skills
 	get_tree().quit()

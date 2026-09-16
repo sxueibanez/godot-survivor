@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c7iqvnumxpm2g"]
+[gd_scene load_steps=15 format=3 uid="uid://c7iqvnumxpm2g"]
 
 [ext_resource type="Script" path="res://scenes/ui/meta_menu.gd" id="1_8duuh"]
 [ext_resource type="TileSet" uid="uid://b6us1ivpw5jq2" path="res://resources/tileset.tres" id="2_bgia4"]
@@ -12,12 +12,13 @@
 [ext_resource type="Resource" path="res://resources/meta_upgrade/life_steal.tres" id="8_steal"]
 [ext_resource type="Resource" path="res://resources/meta_upgrade/attack_speed.tres" id="9_attack_speed"]
 [ext_resource type="Resource" path="res://resources/meta_upgrade/weapon_size.tres" id="10_weapon_size"]
+[ext_resource type="Resource" path="res://resources/meta_upgrade/initial_choices.tres" id="11_initial_choices"]
 [ext_resource type="PackedScene" uid="uid://gisddfn8bqx" path="res://scenes/ui/vignette.tscn" id="4_15gtb"]
 
 [node name="MetaMenu" type="CanvasLayer"]
 layer = 2
 script = ExtResource("1_8duuh")
-upgrades = Array[Resource("res://resources/meta_upgrade/meta_upgrade.gd")]([ExtResource("2_uklom"), ExtResource("3_health"), ExtResource("4_damage"), ExtResource("5_speed"), ExtResource("6_vial"), ExtResource("7_crit"), ExtResource("8_steal"), ExtResource("9_attack_speed"), ExtResource("10_weapon_size")])
+upgrades = Array[Resource("res://resources/meta_upgrade/meta_upgrade.gd")]([ExtResource("2_uklom"), ExtResource("3_health"), ExtResource("4_damage"), ExtResource("5_speed"), ExtResource("6_vial"), ExtResource("7_crit"), ExtResource("8_steal"), ExtResource("9_attack_speed"), ExtResource("10_weapon_size"), ExtResource("11_initial_choices")])
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("2_bgia4")

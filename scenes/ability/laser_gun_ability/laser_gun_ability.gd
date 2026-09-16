@@ -196,7 +196,7 @@ func apply_damage(area: Area2D, delta: float, damage_scale: float = 1.0) -> void
 	if damage_ramp_enabled:
 		damage_multiplier += (DURATION - time_left) / DURATION
 	var damage: float = damage_per_second * damage_multiplier * damage_scale * delta
-	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
+	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage, "laser_gun")
 	var killed: bool = area.health_component.damage(critical_hit["damage"])
 	if hit_sound_time_left <= 0:
 		hit_sound.play_random()

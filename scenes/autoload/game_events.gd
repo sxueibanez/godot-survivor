@@ -5,6 +5,7 @@ signal ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictiona
 signal sword_hit_target(target: Node2D)
 signal player_damaged
 signal player_healed
+signal enemy_defeated(enemy: Node2D)
 
 var weapon_attack_count := 1
 var base_weapon_attack_count := 1
@@ -25,9 +26,12 @@ var support_size_multiplier := 1.0
 var support_attack_interval_multiplier := 1.0
 var support_weapon_attack_count_bonus := 0
 var weapon_damage := {}
+var weapon_types: Dictionary = {}
 var last_damage_source := "未知伤害"
 var game_mode := "campaign"
 var campaign_completed_maps := 0
+var challenge_attack_interval_multiplier := 1.0
+var challenge_experience_multiplier := 1.0
 
 
 func get_campaign_enemy_health(base_health: float, is_boss: bool = false) -> float:
@@ -61,6 +65,8 @@ func emit_experience_vial_collected(number: float):
 
 
 func reset_run_stats() -> void:
+	challenge_attack_interval_multiplier = 1.0
+	challenge_experience_multiplier = 1.0
 	campaign_completed_maps = 0
 	weapon_attack_count = 1
 	base_weapon_attack_count = 1
@@ -72,6 +78,7 @@ func reset_run_stats() -> void:
 	support_weapon_attack_count_bonus = 0
 	auto_collect_experience = false
 	weapon_damage.clear()
+	weapon_types.clear()
 	last_damage_source = "未知伤害"
 
 
@@ -105,9 +112,25 @@ func refresh_critical_chance() -> void:
 	critical_chance = 0.0 if critical_disabled else ability_critical_chance + meta_critical_chance
 
 
-func get_critical_damage(damage: float) -> Dictionary:
+func get_critical_damage(damage: float, weapon_id: String = "") -> Dictionary:
 	var critical := not critical_disabled and randf() < critical_chance
-	return {"damage": damage * player_damage_multiplier * support_damage_multiplier * (critical_damage_multiplier if critical else 1.0), "critical": critical}
+	var character_multiplier := get_character_damage_multiplier(weapon_id)
+	return {"damage": damage * player_damage_multiplier * support_damage_multiplier * character_multiplier * (critical_damage_multiplier if critical else 1.0) + get_character_damage_bonus(), "critical": critical}
+
+
+func get_character_passives() -> CharacterPassives:
+	var player := get_tree().get_first_node_in_group("player")
+	return player.get_node_or_null("CharacterPassives") as CharacterPassives if player != null else null
+
+
+func get_character_damage_multiplier(weapon_id: String) -> float:
+	var passives := get_character_passives()
+	return passives.get_damage_multiplier(weapon_id) if passives != null else 1.0
+
+
+func get_character_damage_bonus() -> float:
+	var passives := get_character_passives()
+	return passives.get_damage_bonus() if passives != null else 0.0
 
 
 func heal_from_damage(damage: float) -> void:

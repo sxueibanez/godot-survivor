@@ -40,7 +40,7 @@ func update_character_panel() -> void:
 	var portrait_texture := character.get("sprite") as Texture2D
 	if portrait_texture != null:
 		character_portrait.texture = portrait_texture
-	attributes_label.text = "属性\n生命  %.0f / %.0f\n移速  %d\n暴击  %.0f%%\n吸血  %.0f%%\n攻击数量  %d" % [health.current_health, health.max_health, roundi(velocity.max_speed), GameEvents.critical_chance * 100.0, GameEvents.life_steal_percent * 100.0, GameEvents.weapon_attack_count]
+	attributes_label.text = "属性\n生命  %.0f / %.0f\n移速  %.1f\n暴击  %.0f%%\n暴击伤害  %.0f%%\n吸血  %.0f%%\n攻击数量  %d" % [health.current_health, health.max_health, velocity.max_speed, GameEvents.critical_chance * 100.0, GameEvents.critical_damage_multiplier * 100.0, GameEvents.life_steal_percent * 100.0, GameEvents.weapon_attack_count]
 	var upgrade_manager: Node = get_parent().get_node_or_null("UpgradeManager")
 	if upgrade_manager == null:
 		return
@@ -57,9 +57,21 @@ func update_character_panel() -> void:
 			skill_text += "\n【武器 %d】未装备\n" % (index + 1)
 			continue
 		var weapon: AbilityUpgrade = weapons[index]
-		skill_text += "\n【武器 %d · %s】\n%s" % [index + 1, weapon.name, get_skill_lines(weapon.id, upgrades)]
+		skill_text += "\n【武器 %d · %s】 %s\n%s" % [index + 1, weapon.name, get_weapon_timing(weapon as Ability, player.get_node("Abilities")), get_skill_lines(weapon.id, upgrades)]
 	skill_text += "\n【其他技能】\n%s" % get_skill_lines("", upgrades)
 	skills_label.text = skill_text
+
+
+func get_weapon_timing(weapon: Ability, abilities: Node) -> String:
+	for controller in abilities.get_children():
+		if controller.scene_file_path != weapon.ability_controller_scene.resource_path:
+			continue
+		var timer := controller.get_node_or_null("Timer") as Timer
+		if timer == null:
+			return "被动 · 无CD"
+		var interval := timer.wait_time
+		return "CD %.2fs · %.2f次/秒" % [interval, 1.0 / interval]
+	return "CD — · 频率 —"
 
 
 func get_skill_lines(weapon_id: String, upgrades: Dictionary) -> String:

@@ -106,6 +106,7 @@ var weapon_upgrades: Array[Ability] = [upgrade_sword, upgrade_axe, upgrade_laser
 var initial_choices_remaining := 0
 var pending_upgrade_choices := 0
 var choice_screen_open := false
+var pending_challenge_rewards: Array[int] = []
 var disabled_upgrade_ids: Dictionary = {}
 
 
@@ -133,7 +134,7 @@ func _ready():
 
 
 func start_initial_choices(choice_rounds: int = 1) -> void:
-	initial_choices_remaining = maxi(choice_rounds, 0)
+	initial_choices_remaining = maxi(choice_rounds, 0) + clampi(MetaProgression.get_upgrade_count("meta_initial_choices"), 0, 1)
 	if initial_choices_remaining == 0:
 		initial_choices_completed.emit()
 		return
@@ -338,10 +339,43 @@ func show_upgrade_choices(choice_count: int = 3) -> void:
 	if choice_screen_open:
 		pending_upgrade_choices += 1
 		return
-	show_choices(pick_upgrades(choice_count))
+	show_choices(pick_upgrades(choice_count), initial_choices_remaining == 0)
 
 
-func show_choices(chosen_upgrades: Array[AbilityUpgrade]) -> void:
+func pick_challenge_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
+	var special: Array[AbilityUpgrade] = []
+	var common: Array[AbilityUpgrade] = []
+	for entry: Dictionary in upgrade_pool.items:
+		var upgrade := entry["item"] as AbilityUpgrade
+		if special.has(upgrade) or common.has(upgrade):
+			continue
+		if upgrade is Ability or disabled_upgrade_ids.has(upgrade.id):
+			continue
+		for weapon: Ability in weapon_upgrades:
+			var prefix := "thunder_orb" if weapon.id == "thunder_orb_book" else weapon.id
+			if current_upgrades.has(weapon.id) and upgrade.id.begins_with(prefix + "_"):
+				if upgrade.max_quantity == 1:
+					special.append(upgrade)
+				else:
+					common.append(upgrade)
+				break
+	special.shuffle()
+	common.shuffle()
+	special.append_array(common)
+	if special.is_empty():
+		return pick_upgrades(choice_count)
+	special.resize(mini(special.size(), choice_count))
+	return special
+
+
+func show_challenge_reward(choice_count: int = 3) -> void:
+	if choice_screen_open:
+		pending_challenge_rewards.append(choice_count)
+	else:
+		show_choices(pick_challenge_upgrades(choice_count))
+
+
+func show_choices(chosen_upgrades: Array[AbilityUpgrade], allow_health_reroll: bool = false) -> void:
 	if chosen_upgrades.is_empty():
 		return
 	choice_screen_open = true
@@ -351,6 +385,23 @@ func show_choices(chosen_upgrades: Array[AbilityUpgrade]) -> void:
 	upgrade_screen_instance.upgrade_selected.connect(on_upgrade_selected.bind(upgrade_screen_instance))
 	upgrade_screen_instance.upgrade_disabled.connect(on_upgrade_disabled.bind(upgrade_screen_instance))
 	upgrade_screen_instance.closed_without_selection.connect(on_upgrade_screen_closed.bind(upgrade_screen_instance))
+	var passives := GameEvents.get_character_passives()
+	if allow_health_reroll and passives != null and passives.character.id == "gambling_scholar":
+		upgrade_screen_instance.enable_health_reroll(passives.character.health_reroll_fraction)
+		upgrade_screen_instance.health_reroll_requested.connect(on_health_reroll.bind(upgrade_screen_instance, chosen_upgrades.size()))
+
+
+func on_health_reroll(screen: Node, choice_count: int) -> void:
+	if screen.closing or screen.health_reroll_used:
+		return
+	var choices := pick_upgrades(choice_count)
+	var passives := GameEvents.get_character_passives()
+	if choices.is_empty() or passives == null or not passives.spend_reroll_health():
+		return
+	screen.health_reroll_used = true
+	screen.health_reroll_button.disabled = true
+	screen.health_reroll_button.text = "本次升级已刷新"
+	screen.set_ability_upgrades(choices)
 
 
 func pick_weapon_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
@@ -376,6 +427,8 @@ func on_upgrade_selected(upgrade: AbilityUpgrade, upgrade_screen: Node = null):
 	choice_screen_open = false
 	if continue_initial_choices:
 		show_upgrade_choices(3)
+	elif not pending_challenge_rewards.is_empty():
+		show_challenge_reward(pending_challenge_rewards.pop_front())
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1
 		show_upgrade_choices(3)
@@ -400,6 +453,8 @@ func on_upgrade_screen_closed(upgrade_screen: Node) -> void:
 			initial_choices_completed.emit()
 		else:
 			show_initial_weapon_choices()
+	elif not pending_challenge_rewards.is_empty():
+		show_challenge_reward(pending_challenge_rewards.pop_front())
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1
 		show_upgrade_choices(3)

@@ -45,6 +45,8 @@ func on_timer_timeout() -> void:
 		return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
 	)
 	var foreground = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	if foreground == null:
+		return
 	for index in attack_count:
 		var whip := lightning_whip_ability_scene.instantiate() as LightningWhipAbility
 		whip.global_position = player.global_position

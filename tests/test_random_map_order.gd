@@ -15,7 +15,7 @@ func run() -> void:
 	main.call("begin_level_2")
 	assert(main.get_node("MineMap").visible)
 	assert(not main.get_node("IceMap").visible)
-	assert(get_tree().get_nodes_in_group("boss").any(func(boss: Node): return boss.get_meta("display_name", "") == "冰霜女王"))
+	assert(main.get("previous_map_id") == 4)
 	main.get_node("ArenaTimeManager").set("time_elapsed", 5.0 * 60.0)
 	main.call("_process", 0.0)
 	assert(get_tree().get_nodes_in_group("boss").any(func(boss: Node): return boss.get_meta("display_name", "") == "铁臂矿工"))

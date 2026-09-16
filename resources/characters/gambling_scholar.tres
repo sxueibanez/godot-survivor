@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/characters/character_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/characters/gambling_scholar.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "gambling_scholar"
+display_name = "赌命书生"
+max_health = 100.0
+move_speed = 90
+passive_description = "升级时可消耗当前生命的 15%，刷新一次选项。\n击杀精英恢复最大生命的 15%。"
+sprite = ExtResource("2")
+sprite_offset = Vector2(0, -8)
+

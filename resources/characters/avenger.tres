@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/characters/character_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/characters/avenger.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "avenger"
+display_name = "复仇者"
+max_health = 100.0
+move_speed = 90
+passive_description = "累计损失 40 生命后狂怒 5 秒：伤害 +40%，\n获得最大生命 20% 的临时护盾；狂怒期间不积攒怒气。"
+sprite = ExtResource("2")
+sprite_offset = Vector2(0, -8)
+

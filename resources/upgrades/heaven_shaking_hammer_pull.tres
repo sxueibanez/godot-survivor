@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="AbilityUpgrade" format=3 uid="uid://c7ebf6n04gjnb"]
 
-[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/abilities/heaven_shaking_hammer_shockwave_frames.png" id="2"]
+[ext_resource type="Script" uid="uid://bogr6ce0pg28t" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://oj6t4senju3f" path="res://assets/abilities/heaven_shaking_hammer_shockwave_frames.png" id="2"]
 
 [sub_resource type="AtlasTexture" id="Icon"]
 atlas = ExtResource("2")

@@ -1,10 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene format=3 uid="uid://gy37sljj8nku"]
 
-[ext_resource type="Script" path="res://scenes/game_object/frost_queen/frost_queen.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/enemies/frost_queen.png" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/component/health_component.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://scenes/component/velocity_component.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/component/hurtbox_component.tscn" id="5"]
+[ext_resource type="Script" uid="uid://s7noo4t2erpq" path="res://scenes/game_object/frost_queen/frost_queen.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cp8rgqjl7h01t" path="res://assets/enemies/frost_queen.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://d32bhk07dm6w8" path="res://scenes/component/health_component.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cn4jjvvblm8lp" path="res://scenes/component/velocity_component.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://gsyk0iqo1m50" path="res://scenes/component/hurtbox_component.tscn" id="5"]
 
 [sub_resource type="CircleShape2D" id="hurt_shape"]
 radius = 35.0
@@ -12,28 +12,27 @@ radius = 35.0
 [sub_resource type="CircleShape2D" id="body_shape"]
 radius = 25.0
 
-[node name="FrostQueen" type="CharacterBody2D" groups=["boss", "enemy"]]
+[node name="FrostQueen" type="CharacterBody2D" unique_id=1957800933 groups=["boss", "enemy"]]
 collision_layer = 8
 collision_mask = 9
 script = ExtResource("1")
 metadata/display_name = "冰霜女王"
 
-[node name="HealthComponent" parent="." instance=ExtResource("3")]
+[node name="HealthComponent" parent="." unique_id=30221888 instance=ExtResource("3")]
 max_health = 7600.0
 
-[node name="VelocityComponent" parent="." instance=ExtResource("4")]
-max_speed = 46
+[node name="VelocityComponent" parent="." unique_id=1994215494 instance=ExtResource("4")]
 acceleration = 2.8
 
-[node name="HurtboxComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
+[node name="HurtboxComponent" parent="." unique_id=1943074909 node_paths=PackedStringArray("health_component") instance=ExtResource("5")]
 health_component = NodePath("../HealthComponent")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=1863717497]
 shape = SubResource("hurt_shape")
 
-[node name="Visuals" type="Node2D" parent="."]
+[node name="Visuals" type="Node2D" parent="." unique_id=950724089]
 
-[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+[node name="Sprite2D" type="Sprite2D" parent="Visuals" unique_id=31420693]
 texture_filter = 1
 position = Vector2(0, -18)
 scale = Vector2(0.15, 0.15)
@@ -41,5 +40,5 @@ texture = ExtResource("2")
 region_enabled = true
 region_rect = Rect2(0, 0, 384, 512)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=687373972]
 shape = SubResource("body_shape")

@@ -53,7 +53,7 @@ func _process(delta: float) -> void:
 
 
 static func get_bonus_multiplier(base_bonus: float, extra_bonus: float, is_stationary: bool) -> float:
-	return 1.0 + (base_bonus + extra_bonus) * (2.0 if is_stationary else 1.0)
+	return 1.0 + base_bonus * (2.0 if is_stationary else 1.0) + extra_bonus
 
 
 func spawn_pagoda() -> void:
@@ -65,14 +65,13 @@ func spawn_pagoda() -> void:
 
 
 func apply_support_buffs() -> void:
-	var standing_multiplier := 2.0 if stationary else 1.0
 	var damage_bonus := tree_damage_bonus + (0.15 if damage_skill else 0.0) + common_damage_levels * 0.10
 	var attack_speed_bonus := tree_attack_speed_bonus + (0.20 if attack_speed_skill else 0.0)
 	GameEvents.support_damage_multiplier = get_bonus_multiplier(BASE_DAMAGE_BONUS, damage_bonus, stationary)
 	GameEvents.support_health_multiplier = get_bonus_multiplier(BASE_HEALTH_BONUS, 0.20 if health_skill else 0.0, stationary)
 	GameEvents.support_move_speed_multiplier = get_bonus_multiplier(0.0, 0.20 if move_speed_skill else 0.0, stationary)
-	GameEvents.support_size_multiplier = 1.0 + tree_size_bonus + common_size_levels * 0.10 * standing_multiplier
-	GameEvents.support_attack_interval_multiplier = (1.0 / get_bonus_multiplier(BASE_ATTACK_SPEED_BONUS, attack_speed_bonus, stationary)) * maxf(0.1, 1.0 - common_rate_levels * 0.10 * standing_multiplier)
+	GameEvents.support_size_multiplier = 1.0 + tree_size_bonus + common_size_levels * 0.10
+	GameEvents.support_attack_interval_multiplier = (1.0 / get_bonus_multiplier(BASE_ATTACK_SPEED_BONUS, attack_speed_bonus, stationary)) * maxf(0.1, 1.0 - common_rate_levels * 0.10)
 	GameEvents.support_weapon_attack_count_bonus = 1 if extra_attack_skill else 0
 	refresh_weapon_attack_count()
 	if player != null and player.has_method("refresh_support_stats"):
@@ -87,11 +86,15 @@ func refresh_weapon_attack_count() -> void:
 
 func apply_attack_speed_to_weapon_timers() -> void:
 	for timer: Timer in get_weapon_attack_timers():
+		if timer.has_meta("challenge_base_wait"):
+			timer.wait_time = float(timer.get_meta("challenge_base_wait"))
+			timer.remove_meta("challenge_base_wait")
+			timer.remove_meta("challenge_applied_wait")
 		var last_applied := float(timer.get_meta("pagoda_applied_wait", -1.0))
 		var base_wait := float(timer.get_meta("pagoda_base_wait", timer.wait_time))
 		if last_applied >= 0.0 and not is_equal_approx(timer.wait_time, last_applied):
 			base_wait = timer.wait_time
-		var target_wait := maxf(0.05, base_wait * GameEvents.support_attack_interval_multiplier)
+		var target_wait := maxf(0.05, base_wait * GameEvents.support_attack_interval_multiplier * GameEvents.challenge_attack_interval_multiplier)
 		timer.set_meta("pagoda_base_wait", base_wait)
 		timer.set_meta("pagoda_applied_wait", target_wait)
 		timer.wait_time = target_wait

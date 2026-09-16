@@ -30,6 +30,7 @@ end_screen_scene = ExtResource("2_8tx6c")
 layer = 0
 
 [node name="LearnSkillButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 424.0
 offset_top = 266.0
 offset_right = 492.0
@@ -40,6 +41,7 @@ theme_override_font_sizes/font_size = 9
 text = "选技能"
 
 [node name="SpawnBossButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 494.0
 offset_top = 266.0
 offset_right = 562.0
@@ -50,6 +52,7 @@ theme_override_font_sizes/font_size = 9
 text = "史莱姆王"
 
 [node name="SpawnLightningKnightButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 564.0
 offset_top = 266.0
 offset_right = 632.0
@@ -60,6 +63,7 @@ theme_override_font_sizes/font_size = 9
 text = "闪电骑士"
 
 [node name="SpawnIronArmMinerButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 424.0
 offset_top = 286.0
 offset_right = 492.0
@@ -70,6 +74,7 @@ theme_override_font_sizes/font_size = 9
 text = "铁臂矿工"
 
 [node name="SpawnFrostQueenButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 424.0
 offset_top = 306.0
 offset_right = 492.0
@@ -80,6 +85,7 @@ theme_override_font_sizes/font_size = 9
 text = "冰霜女王"
 
 [node name="SpawnRandomEnemiesButton" type="Button" parent="CheatUI"]
+focus_mode = 0
 offset_left = 494.0
 offset_top = 286.0
 offset_right = 562.0
@@ -90,6 +96,7 @@ theme_override_font_sizes/font_size = 9
 text = "随机小怪"
 
 [node name="LevelSelect" type="OptionButton" parent="CheatUI"]
+focus_mode = 0
 offset_left = 564.0
 offset_top = 286.0
 offset_right = 632.0

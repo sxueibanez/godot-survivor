@@ -25,9 +25,14 @@ var player_speed_upgrade_quantity := 0
 var player_health_upgrade_quantity := 0
 var character_visual_scale := 1.0
 var walk_animation_time := 0.0
+var character_passives: CharacterPassives
 
 
 func _ready():
+	character_passives = CharacterPassives.new()
+	character_passives.name = "CharacterPassives"
+	add_child(character_passives)
+	character_passives.setup(character as CharacterData)
 	apply_character_visual()
 	apply_character_base_stats()
 	
@@ -38,7 +43,7 @@ func _ready():
 	health_component.shield_changed.connect(update_shield_display)
 	GameEvents.ability_upgrade_added.connect(on_ability_upgrade_added)
 	update_health_display()
-	update_shield_display(health_component.shield)
+	update_shield_display(health_component.get_total_shield())
 
 
 func apply_character_visual() -> void:
@@ -59,6 +64,8 @@ func apply_character_visual() -> void:
 
 func set_character(new_character: Resource) -> void:
 	character = new_character
+	if character_passives != null:
+		character_passives.setup(character as CharacterData)
 	apply_character_visual()
 	if is_node_ready():
 		apply_character_base_stats()
@@ -78,14 +85,16 @@ static func get_missing_health_stacks(max_health: float, current_health: float) 
 	return floori(maxf(max_health - current_health, 0.0) / 10.0)
 
 
-static func get_speed_damage_multiplier(move_speed: int) -> float:
+static func get_speed_damage_multiplier(move_speed: float) -> float:
 	return 1.0 + floori(move_speed / 20.0) * 0.1
 
 
 func refresh_missing_health_passive() -> void:
 	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
-	var move_speed := roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1)) + stacks * int(character.get("missing_health_speed_bonus_per_10"))
-	move_speed = roundi(move_speed * GameEvents.support_move_speed_multiplier)
+	var move_speed := float(roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1))) + stacks * float(character.get("missing_health_speed_bonus_per_10"))
+	move_speed *= GameEvents.support_move_speed_multiplier
+	if character_passives != null:
+		move_speed *= character_passives.speed_multiplier
 	velocity_component.max_speed = move_speed
 	GameEvents.player_damage_multiplier = 1.0 + stacks * float(character.get("missing_health_damage_bonus_per_10"))
 	if GameEvents.speed_damage_no_crit:
@@ -102,14 +111,18 @@ func refresh_support_stats() -> void:
 	health_component.current_health = health_component.max_health * health_ratio
 	previous_health = health_component.current_health
 	health_component.health_changed.emit()
-	update_shield_display(health_component.shield)
+	update_shield_display(health_component.get_total_shield())
 
 
 func _process(delta):
 	var movement_vector = get_movement_vector()
 	var direction = movement_vector.normalized()
-	velocity_component.accelerate_in_direction(direction)
-	velocity_component.move(self)
+	if character_passives != null and character_passives.dash_left > 0.0:
+		movement_vector = character_passives.dash_direction
+		character_passives.move_dash(delta)
+	else:
+		velocity_component.accelerate_in_direction(direction)
+		velocity_component.move(self)
 	
 	if bool(character.get("custom_walk_animation")):
 		update_custom_walk_animation(movement_vector, delta)
@@ -198,6 +211,7 @@ func on_health_changed():
 func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades: Dictionary):
 	if ability_upgrade is Ability:
 		var ability = ability_upgrade as Ability
+		GameEvents.weapon_types[ability.id] = ability.weapon_type
 		var controller: Node = ability.ability_controller_scene.instantiate()
 		controller.set("character_damage_multiplier", character.call("get_weapon_damage_multiplier", ability))
 		abilities.add_child(controller)

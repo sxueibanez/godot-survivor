@@ -25,7 +25,7 @@ class StunIndicator extends Node2D:
 			draw_circle(Vector2(cos(angle) * 6.0, sin(angle) * 2.0), 2.0, Color(1.0, 0.9, 0.2))
 
 
-@export var max_speed: int = 40
+@export var max_speed: float = 40.0
 @export var acceleration: float = 5
  
 var velocity := Vector2.ZERO

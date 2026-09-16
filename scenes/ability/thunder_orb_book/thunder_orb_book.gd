@@ -143,7 +143,7 @@ func damage_enemy(enemy: Node2D, amount: float) -> bool:
 	var hurtbox := enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 	if hurtbox == null or hurtbox.health_component == null or hurtbox.health_component.current_health <= 0.0:
 		return false
-	var critical_hit: Dictionary = GameEvents.get_critical_damage(amount)
+	var critical_hit: Dictionary = GameEvents.get_critical_damage(amount, "thunder_orb_book")
 	hurtbox.health_component.damage(critical_hit["damage"])
 	GameEvents.record_weapon_damage("thunder_orb_book", critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])

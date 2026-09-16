@@ -20,7 +20,7 @@ func on_area_entered(other_area: Area2D):
 		return
 
 	var hitbox_component = other_area as HitboxComponent
-	var critical_hit: Dictionary = GameEvents.get_critical_damage(hitbox_component.damage)
+	var critical_hit: Dictionary = GameEvents.get_critical_damage(hitbox_component.damage, hitbox_component.weapon_id)
 	health_component.damage(critical_hit["damage"])
 	GameEvents.record_weapon_damage(hitbox_component.weapon_id, critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])

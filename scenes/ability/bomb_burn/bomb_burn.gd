@@ -34,7 +34,7 @@ func tick() -> void:
 	if hurtbox == null or hurtbox.health_component == null or hurtbox.health_component.current_health <= 0.0:
 		queue_free()
 		return
-	var damage_amount: float = damage * GameEvents.player_damage_multiplier
+	var damage_amount: float = damage * GameEvents.player_damage_multiplier * GameEvents.get_character_damage_multiplier(weapon_id) + GameEvents.get_character_damage_bonus()
 	hurtbox.health_component.damage(damage_amount)
 	GameEvents.record_weapon_damage(weapon_id, damage_amount)
 	GameEvents.heal_from_damage(damage_amount)

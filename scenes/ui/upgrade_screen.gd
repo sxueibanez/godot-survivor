@@ -3,12 +3,15 @@ extends CanvasLayer
 signal upgrade_selected(upgrade: AbilityUpgrade)
 signal upgrade_disabled(upgrade: AbilityUpgrade)
 signal closed_without_selection
+signal health_reroll_requested
 
 @export var upgrade_card_scene: PackedScene
 @onready var card_container: HBoxContainer = %CardContainer
 
 var available_card_count := 0
 var closing := false
+var health_reroll_button: Button
+var health_reroll_used := false
 
 
 func _ready():
@@ -29,6 +32,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
+	for card: Node in card_container.get_children():
+		card_container.remove_child(card)
+		card.queue_free()
 	available_card_count = upgrades.size()
 	var delay := 0.0
 	for upgrade in upgrades:
@@ -39,6 +45,24 @@ func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
 		card_instance.selected.connect(on_upgrade_selected.bind(upgrade))
 		card_instance.disabled_for_run.connect(on_upgrade_disabled.bind(upgrade, card_instance))
 		delay += 0.06
+
+
+func enable_health_reroll(fraction: float) -> void:
+	health_reroll_button = Button.new()
+	health_reroll_button.text = "赌命刷新：消耗当前生命 %.0f%%（本次升级限一次）" % (fraction * 100.0)
+	add_child(health_reroll_button)
+	health_reroll_button.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	health_reroll_button.offset_left = -240.0
+	health_reroll_button.offset_right = 240.0
+	health_reroll_button.offset_top = -50.0
+	health_reroll_button.offset_bottom = -10.0
+	health_reroll_button.pressed.connect(on_health_reroll_pressed)
+
+
+func on_health_reroll_pressed() -> void:
+	if closing or health_reroll_used:
+		return
+	health_reroll_requested.emit()
 
 
 func on_upgrade_selected(upgrade: AbilityUpgrade):

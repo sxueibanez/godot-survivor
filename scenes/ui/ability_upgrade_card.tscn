@@ -262,10 +262,23 @@ theme_type_variation = &"BlueOutlineLabel"
 text = "升级说明"
 autowrap_mode = 2
 
-[node name="DisableButton" type="Button" parent="MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+[node name="DisableOverlay" type="Control" parent="."]
 layout_mode = 2
+mouse_filter = 2
+
+[node name="DisableButton" type="Button" parent="DisableOverlay"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -28.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 28.0
+grow_horizontal = 0
 mouse_filter = 0
+focus_mode = 0
+tooltip_text = "本局禁用此技能"
 theme_override_font_sizes/font_size = 12
-text = "本局禁用"
+theme_override_constants/outline_size = 0
+text = "X"
