@@ -117,7 +117,7 @@ func _ready():
 func play_in(delay: float = 0):
 	modulate = Color.TRANSPARENT
 	await get_tree().create_timer(delay).timeout
-	$AnimationPlayer.play("in")
+	$AnimationPlayer.play("in", -1, 2.0)
 
 
 func play_discard():

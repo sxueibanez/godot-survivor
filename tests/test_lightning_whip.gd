@@ -6,6 +6,7 @@ func _init() -> void:
 
 
 func run_test() -> void:
+	GameEvents.game_mode = "endless" # Keep the fixed-health damage fixture independent of campaign scaling.
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
 	root.add_child(foreground)

@@ -27,6 +27,9 @@ func run() -> void:
 	var queen := scenes[-1].instantiate()
 	root.add_child(queen)
 	assert(queen.is_in_group("boss"))
+	queen.call("begin_action", load("res://assets/enemies/frost_queen_blizzard.png"))
+	assert((queen.get_node("Visuals/Sprite2D") as Sprite2D).texture == load("res://assets/enemies/frost_queen_blizzard.png"))
+	queen.call("finish_action")
 	assert(queen.call("get_phase") == 1)
 	var health := queen.get_node("HealthComponent") as HealthComponent
 	health.current_health = health.max_health * 0.5

@@ -18,6 +18,9 @@ var waiting_for_entrance := false
 var level_2_started := false
 var entrance_spawned := false
 var current_level := 1
+var completed_maps := 0
+var current_map_id := 0
+var previous_map_id := 0
 var previous_boss_respawned := false
 var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
@@ -39,6 +42,7 @@ class LevelEntrance extends Node2D:
 
 
 func _ready():
+	GameEvents.campaign_completed_maps = 0
 	%Player.health_component.died.connect(on_player_died)
 	$UpgradeManager.initial_choices_completed.connect(on_initial_choices_completed)
 	$CheatUI/LearnSkillButton.pressed.connect(on_learn_skill_button_pressed)
@@ -67,6 +71,7 @@ func on_character_selected(character: Resource) -> void:
 		begin_endless_mode()
 		$UpgradeManager.start_initial_choices(ENDLESS_INITIAL_SKILL_CHOICES)
 	else:
+		completed_maps = 0
 		begin_level_1()
 		$UpgradeManager.start_initial_choices()
 
@@ -125,17 +130,17 @@ func _process(_delta: float) -> void:
 	var time_elapsed: float = $ArenaTimeManager.get_time_elapsed()
 	if GameEvents.is_endless_mode():
 		while time_elapsed >= next_endless_boss_time:
-			spawn_boss_for_level(randi_range(1, 4))
+			spawn_boss_for_map(randi_range(1, 4))
 			next_endless_boss_time += ENDLESS_BOSS_INTERVAL
 		return
-	if current_level >= 2 and not previous_boss_respawned and time_elapsed >= PREVIOUS_BOSS_RESPAWN_TIME:
+	if previous_map_id > 0 and not previous_boss_respawned and time_elapsed >= PREVIOUS_BOSS_RESPAWN_TIME:
 		previous_boss_respawned = true
-		spawn_boss_for_level(current_level - 1)
+		spawn_boss_for_map(previous_map_id)
 	if not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
 		current_level_boss_started = true
-		waiting_for_entrance = current_level < 4
+		waiting_for_entrance = true
 		$EnemyManager.stop_spawning()
-		spawn_boss_for_level(current_level)
+		spawn_boss_for_map(current_map_id)
 
 	if waiting_for_entrance and not entrance_spawned and get_tree().get_nodes_in_group("enemy").is_empty():
 		spawn_level_entrance()
@@ -169,8 +174,8 @@ func spawn_boss(boss_scene: PackedScene) -> Node2D:
 	return boss
 
 
-func spawn_boss_for_level(level: int) -> Node2D:
-	match level:
+func spawn_boss_for_map(map_id: int) -> Node2D:
+	match map_id:
 		1:
 			return spawn_slime_king()
 		2:
@@ -187,63 +192,72 @@ func on_endless_boss_died() -> void:
 
 
 func spawn_level_entrance() -> void:
+	if entrance_spawned:
+		return
 	waiting_for_entrance = false
 	entrance_spawned = true
+	completed_maps += 1
 	var entrance := LevelEntrance.new()
 	$Entities.add_child(entrance)
 	entrance.global_position = %Player.global_position + Vector2(72, 0)
 	var label := Label.new()
-	label.text = "第%d关入口" % (current_level + 1)
+	label.text = "第%d关入口" % (completed_maps + 1)
 	label.position = Vector2(-32, -36)
 	entrance.add_child(label)
 	while is_instance_valid(entrance) and %Player.global_position.distance_to(entrance.global_position) > 24.0:
 		await get_tree().process_frame
-	match current_level:
-		1:
-			begin_level_2()
-		2:
-			begin_level_3()
-		3:
-			begin_level_4()
+	begin_level(completed_maps + 1)
 	entrance.queue_free()
 
 
 func begin_level_2() -> void:
 	level_2_started = true
 	begin_level(2)
-	$EnemyManager.start_level_2()
 
 
 func begin_level_1() -> void:
 	level_2_started = false
 	begin_level(1)
-	$EnemyManager.start_level_1()
 
 
 func begin_level_3() -> void:
 	begin_level(3)
-	$EnemyManager.start_level_3()
 
 
 func begin_level_4() -> void:
 	begin_level(4)
-	$EnemyManager.start_level_4()
 
 
 func begin_level(level: int) -> void:
+	GameEvents.campaign_completed_maps = completed_maps
+	previous_map_id = current_map_id
 	current_level = level
 	waiting_for_entrance = false
 	entrance_spawned = false
-	var map_id: int = map_order[level - 1]
-	show_map(map_id)
-	MusicPlayer.play_level(map_id)
+	current_map_id = map_order[level - 1] if level <= map_order.size() else randi_range(1, 4)
+	show_map(current_map_id)
+	MusicPlayer.play_level(current_map_id)
 	previous_boss_respawned = false
 	current_level_boss_started = false
 	$ArenaTimeManager.time_elapsed = 0.0
 	$ArenaTimeManager.arena_difficulty = 0
 	GameEvents.arena_difficulty = 0
-	if current_level >= 2 and not GameEvents.is_endless_mode():
-		spawn_boss_for_level(current_level - 1)
+	if not GameEvents.is_endless_mode():
+		start_enemy_wave_for_map(current_map_id)
+		if previous_map_id > 0:
+			spawn_boss_for_map(previous_map_id)
+
+
+func start_enemy_wave_for_map(map_id: int) -> void:
+	match map_id:
+		1:
+			$EnemyManager.start_level_1()
+		2:
+			$EnemyManager.start_level_2()
+		3:
+			$EnemyManager.start_level_3()
+		4:
+			$EnemyManager.start_level_4()
 
 
 func show_map(map_id: int) -> void:

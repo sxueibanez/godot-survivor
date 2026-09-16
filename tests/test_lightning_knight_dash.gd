@@ -6,6 +6,7 @@ func _init() -> void:
 
 
 func run() -> void:
+	GameEvents.game_mode = "endless" # Check raw skill damage independently of campaign scaling.
 	var player := Node2D.new()
 	player.add_to_group("player")
 	var health := HealthComponent.new()

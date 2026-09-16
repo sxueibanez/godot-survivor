@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ability/thunder_plasma/thunder_plasma.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/abilities/hammer_lava_frames.png" id="2_frames"]
+
+[node name="HammerLava" type="Node2D"]
+z_index = -1
+script = ExtResource("1_script")
+tick_count = 6
+weapon_id = "heaven_shaking_hammer"
+
+[node name="PlasmaSprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_frames")
+hframes = 4
+vframes = 4
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true

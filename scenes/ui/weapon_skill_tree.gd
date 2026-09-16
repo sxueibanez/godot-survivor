@@ -68,6 +68,9 @@ const WEAPON_SKILLS: Dictionary = {
 	],
 	"heaven_shaking_hammer": [
 		{"id": "tree_heaven_shaking_hammer_extra_wave", "title": "连环震波", "description": "解锁局内冲击波升级；每级额外向锤击方向释放一道冲击波，最多4级。", "requires": []},
+		{"id": "tree_heaven_shaking_hammer_lava", "title": "熔岩震地", "description": "解锁局内岩浆升级；震地波后留下持续3秒的岩浆，每0.5秒造成30%武器伤害。", "requires": []},
+		{"id": "tree_heaven_shaking_hammer_pull", "title": "万钧聚震", "description": "解锁局内聚震升级；落锤前短暂将附近敌人拉向砸击点。", "requires": []},
+		{"id": "tree_heaven_shaking_hammer_heavy", "title": "天外重锤", "description": "解锁局内重锤升级；持续战斗每秒积攒1层震势，满10层后下一锤体型、范围和伤害翻倍。", "requires": []},
 	],
 	"sniper_rifle": [
 		{"id": "tree_sniper_rifle_diamond_bullet", "title": "金刚弹", "description": "解锁局内金刚弹升级；子弹穿透敌人后不再衰减伤害。", "requires": []},

@@ -39,7 +39,7 @@ func on_timer_timeout() -> void:
 	if player == null or foreground == null:
 		return
 	var enemies: Array = get_tree().get_nodes_in_group("enemy").filter(func(enemy: Node2D):
-		return not enemy.is_in_group("boss") and enemy.global_position.distance_squared_to(player.global_position) <= MAX_RANGE * MAX_RANGE
+		return enemy.global_position.distance_squared_to(player.global_position) <= MAX_RANGE * MAX_RANGE
 	)
 	var target := find_densest_enemy(enemies)
 	if target == null:

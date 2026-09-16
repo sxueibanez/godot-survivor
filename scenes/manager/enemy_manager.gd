@@ -65,7 +65,7 @@ func on_timer_timeout():
 	if player == null:
 		return
 
-	var spawn_count := get_endless_spawn_count(arena_time_manager.arena_difficulty) if GameEvents.is_endless_mode() else 1
+	var spawn_count := get_endless_spawn_count(arena_time_manager.arena_difficulty) if GameEvents.is_endless_mode() else GameEvents.get_campaign_spawn_count()
 	for _index in spawn_count:
 		var enemy_scene = enemy_table.pick_item()
 		var enemy = enemy_scene.instantiate() as Node2D
@@ -98,7 +98,7 @@ func spawn_test_enemies(count: int = 20) -> void:
 
 func apply_difficulty(enemy: Node2D) -> void:
 	var health = enemy.get_node_or_null("HealthComponent") as HealthComponent
-	if health != null:
+	if health != null and GameEvents.is_endless_mode():
 		var level_health_multiplier := 1.6 if level == 2 else 1.0
 		var mode_health_multiplier := ENDLESS_ENEMY_HEALTH_MULTIPLIER if GameEvents.is_endless_mode() else 1.0
 		health.max_health *= mode_health_multiplier * level_health_multiplier * (1.0 + arena_time_manager.arena_difficulty * 0.05)
@@ -151,6 +151,7 @@ func start_level_1() -> void:
 	spawning = true
 	enemy_table = WeightedTable.new()
 	enemy_table.add_item(basic_enemy_scene, 10)
+	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
 
@@ -163,7 +164,7 @@ func start_level_2() -> void:
 	enemy_table.add_item(wizard_enemy_scene, 5)
 	enemy_table.add_item(exploder_enemy_scene, 4)
 	enemy_table.add_item(ranged_enemy_scene, 5)
-	base_spawn_time = 0.7
+	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
 
@@ -179,7 +180,7 @@ func start_level_3() -> void:
 	enemy_table.add_item(cyclops_bat_scene, 12)
 	enemy_table.add_item(iron_golem_scene, 4)
 	enemy_table.add_item(stone_slime_scene, 6)
-	base_spawn_time = 0.65
+	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
 
@@ -194,6 +195,6 @@ func start_level_4() -> void:
 	enemy_table.add_item(frost_wisp_scene, 9)
 	enemy_table.add_item(frost_boar_scene, 6)
 	enemy_table.add_item(snowball_monster_scene, 7)
-	base_spawn_time = 0.58
+	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()

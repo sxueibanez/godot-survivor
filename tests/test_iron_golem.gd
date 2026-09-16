@@ -2,6 +2,7 @@ extends Node
 
 
 func _ready() -> void:
+	GameEvents.game_mode = "endless" # Test the original asset stats, not campaign scaling.
 	var golem := preload("res://scenes/game_object/iron_golem/iron_golem.tscn").instantiate()
 	add_child(golem)
 	await get_tree().process_frame

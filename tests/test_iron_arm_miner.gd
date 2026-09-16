@@ -2,6 +2,7 @@ extends Node
 
 
 func _ready() -> void:
+	GameEvents.game_mode = "endless" # Isolate original stats and skill mechanics from campaign scaling.
 	var miner := preload("res://scenes/game_object/iron_arm_miner/iron_arm_miner.tscn").instantiate()
 	add_child(miner)
 	await get_tree().process_frame

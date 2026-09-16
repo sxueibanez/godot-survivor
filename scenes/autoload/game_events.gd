@@ -27,6 +27,23 @@ var support_weapon_attack_count_bonus := 0
 var weapon_damage := {}
 var last_damage_source := "未知伤害"
 var game_mode := "campaign"
+var campaign_completed_maps := 0
+
+
+func get_campaign_enemy_health(base_health: float, is_boss: bool = false) -> float:
+	if is_boss:
+		return 2200.0 * (1.0 + campaign_completed_maps * 0.75)
+	var normalized_health := clampf(12.0 * sqrt(maxf(base_health, 1.0) / 10.0), 12.0, 36.0)
+	return normalized_health * (1.0 + campaign_completed_maps * 0.65) * (1.0 + arena_difficulty * 0.025)
+
+
+func get_campaign_damage_multiplier() -> float:
+	return minf(0.65 + campaign_completed_maps * 0.1, 2.0)
+
+
+func get_campaign_spawn_count() -> int:
+	# ponytail: cap simultaneous batches at six; raise only after profiling crowded maps.
+	return mini(1 + floori(campaign_completed_maps / 2.0), 6)
 
 
 func is_endless_mode() -> bool:
@@ -44,6 +61,7 @@ func emit_experience_vial_collected(number: float):
 
 
 func reset_run_stats() -> void:
+	campaign_completed_maps = 0
 	weapon_attack_count = 1
 	base_weapon_attack_count = 1
 	support_damage_multiplier = 1.0

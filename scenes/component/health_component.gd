@@ -6,6 +6,7 @@ signal health_changed
 signal shield_changed(current_shield: float)
 
 @export var max_health: float = 10
+@export_storage var enemy_base_health := 0.0
 var current_health: float
 var shield := 0.0
 var invulnerable_time_left := 0.0
@@ -14,6 +15,10 @@ var death_emitted := false
 
 func _ready():
 	if get_parent().is_in_group("enemy"):
+		if enemy_base_health <= 0.0:
+			enemy_base_health = max_health
+		if not GameEvents.is_endless_mode():
+			max_health = GameEvents.get_campaign_enemy_health(enemy_base_health, get_parent().is_in_group("boss"))
 		max_health *= MetaProgression.get_enemy_health_multiplier()
 	current_health = max_health
 
@@ -25,6 +30,8 @@ func _process(delta: float) -> void:
 func damage(damage_amount: float, source: String = "") -> bool:
 	if get_tree().paused or current_health <= 0 or invulnerable_time_left > 0.0:
 		return false
+	if get_parent().is_in_group("player") and not GameEvents.is_endless_mode():
+		damage_amount *= GameEvents.get_campaign_damage_multiplier()
 	if owner != null and owner.is_in_group("player") and not source.is_empty():
 		var game_events := get_node_or_null("/root/GameEvents")
 		if game_events != null:

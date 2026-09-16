@@ -51,4 +51,34 @@ func run() -> void:
 	assert(foreground.get_child_count() == 7)
 	var bounced_bomb := foreground.get_child(6) as BombAbility
 	assert(bounced_bomb.bounce_remaining == 1 and bounced_bomb.cluster_enabled)
+	previous_target.remove_from_group("enemy")
+	far_target.remove_from_group("enemy")
+	foreground.add_to_group("foreground_layer")
+	var player := Node2D.new()
+	player.add_to_group("player")
+	add_child(player)
+	var boss := Node2D.new()
+	boss.position = Vector2(40, 0)
+	boss.add_to_group("enemy")
+	boss.add_to_group("boss")
+	var health := HealthComponent.new()
+	health.max_health = 1000.0
+	boss.add_child(health)
+	var hurtbox := HurtboxComponent.new()
+	hurtbox.name = "HurtboxComponent"
+	hurtbox.health_component = health
+	boss.add_child(hurtbox)
+	add_child(boss)
+	var boss_controller := load("res://scenes/ability/bomb_ability_controller/bomb_ability_controller.tscn").instantiate() as BombAbilityController
+	add_child(boss_controller)
+	boss_controller.get_node("Timer").stop()
+	var bomb_count := foreground.get_child_count()
+	boss_controller.on_timer_timeout()
+	assert(foreground.get_child_count() == bomb_count + 1, "Only a boss remains: bomb must still launch")
+	var boss_bomb := foreground.get_child(bomb_count) as BombAbility
+	assert(boss_bomb.target_position == boss.global_position)
+	var health_before := health.current_health
+	boss_bomb.global_position = boss.global_position
+	boss_bomb.damage_enemies()
+	assert(health.current_health < health_before, "Bomb explosion must damage bosses")
 	get_tree().quit()

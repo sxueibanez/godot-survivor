@@ -6,6 +6,7 @@ func _ready() -> void:
 
 
 func run() -> void:
+	GameEvents.game_mode = "endless" # Check shield/death-save mechanics with unscaled incoming damage.
 	var player := CharacterBody2D.new()
 	player.add_to_group("player")
 	add_child(player)

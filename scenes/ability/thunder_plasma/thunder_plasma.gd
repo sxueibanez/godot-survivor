@@ -9,6 +9,8 @@ const FRAME_DURATION := 0.1
 
 var damage := 3.0
 var radius := 55.0
+@export var tick_count := TICK_COUNT
+@export var weapon_id := "thunder_orb_book"
 var ticks_left := TICK_COUNT
 var animation_time := 0.0
 
@@ -20,6 +22,7 @@ func configure(position: Vector2, tick_damage: float, new_radius: float) -> void
 
 
 func _ready() -> void:
+	ticks_left = tick_count
 	plasma_sprite.scale = Vector2.ONE * radius / 128.0
 	$Timer.timeout.connect(tick)
 
@@ -38,7 +41,7 @@ func tick() -> void:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
 		hurtbox.health_component.damage(critical_hit["damage"])
-		GameEvents.record_weapon_damage("thunder_orb_book", critical_hit["damage"])
+		GameEvents.record_weapon_damage(weapon_id, critical_hit["damage"])
 		GameEvents.heal_from_damage(critical_hit["damage"])
 		hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])
 		hurtbox.hit.emit()

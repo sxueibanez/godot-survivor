@@ -38,7 +38,7 @@ func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
 		card_instance.play_in(delay)
 		card_instance.selected.connect(on_upgrade_selected.bind(upgrade))
 		card_instance.disabled_for_run.connect(on_upgrade_disabled.bind(upgrade, card_instance))
-		delay += 0.2
+		delay += 0.06
 
 
 func on_upgrade_selected(upgrade: AbilityUpgrade):

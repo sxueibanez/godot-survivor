@@ -11,13 +11,16 @@ var radius := 38.5
 var delay := 0.0
 var elapsed := 0.0
 var started := false
+var lava_enabled := false
+var lava_spawned := false
 
 
-func configure(at: Vector2, new_damage: float, new_radius: float, start_delay: float) -> void:
+func configure(at: Vector2, new_damage: float, new_radius: float, start_delay: float, leaves_lava: bool = false) -> void:
 	global_position = at
 	damage = new_damage
 	radius = new_radius
 	delay = start_delay
+	lava_enabled = leaves_lava
 
 
 func _ready() -> void:
@@ -36,6 +39,11 @@ func _process(delta: float) -> void:
 	var animation_time := elapsed - delay
 	sprite.frame = mini(floori(animation_time / DURATION * FRAME_COUNT), FRAME_COUNT - 1)
 	if animation_time >= DURATION:
+		if lava_enabled and not lava_spawned:
+			lava_spawned = true
+			var lava := load("res://scenes/ability/hammer_lava/hammer_lava.tscn").instantiate() as ThunderPlasma
+			lava.configure(global_position, damage * 0.3, radius * 0.5)
+			get_parent().add_child(lava)
 		queue_free()
 
 
