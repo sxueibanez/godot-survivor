@@ -138,6 +138,8 @@ func perform_slime_spray() -> void:
 
 	var direction: Vector2 = (player.global_position - global_position).normalized()
 	for index: int in MINION_COUNT:
+		if not GameEvents.can_spawn_enemy():
+			break
 		var spread_angle: float = deg_to_rad(-36.0 + index * 8.0)
 		var spray_direction: Vector2 = direction.rotated(spread_angle)
 		var minion: Node2D = basic_enemy_scene.instantiate() as Node2D

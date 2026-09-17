@@ -32,13 +32,31 @@ var game_mode := "campaign"
 var campaign_completed_maps := 0
 var challenge_attack_interval_multiplier := 1.0
 var challenge_experience_multiplier := 1.0
+const MAX_ENEMIES := 30
+
+
+func get_enemy_count(bosses_only: bool = false) -> int:
+	var count := 0
+	for enemy: Node in get_tree().get_nodes_in_group("enemy"):
+		if bosses_only and not enemy.is_in_group("boss"):
+			continue
+		var health := enemy.get_node_or_null("HealthComponent") as HealthComponent
+		if not enemy.is_queued_for_deletion() and (health == null or health.current_health > 0):
+			count += 1
+	return count
+
+
+func can_spawn_enemy(is_boss: bool = false) -> bool:
+	var count := get_enemy_count()
+	return count < MAX_ENEMIES and (is_boss or count - get_enemy_count(true) < MAX_ENEMIES - 2)
 
 
 func get_campaign_enemy_health(base_health: float, is_boss: bool = false) -> float:
 	if is_boss:
 		return 2200.0 * (1.0 + campaign_completed_maps * 0.75)
-	var normalized_health := clampf(12.0 * sqrt(maxf(base_health, 1.0) / 10.0), 12.0, 36.0)
-	return normalized_health * (1.0 + campaign_completed_maps * 0.65) * (1.0 + arena_difficulty * 0.025)
+	var normalized_health := clampf(12.0 * sqrt(maxf(base_health, 1.0) / 10.0), 12.0, 25.0)
+	# Arena difficulty ticks every five seconds; health grows every two ticks.
+	return normalized_health * (1.0 + campaign_completed_maps * 0.65) * (1.0 + floori(arena_difficulty / 2.0) * 0.025)
 
 
 func get_campaign_damage_multiplier() -> float:
@@ -126,6 +144,11 @@ func get_character_passives() -> CharacterPassives:
 func get_character_damage_multiplier(weapon_id: String) -> float:
 	var passives := get_character_passives()
 	return passives.get_damage_multiplier(weapon_id) if passives != null else 1.0
+
+
+func get_character_attack_speed_multiplier() -> float:
+	var passives := get_character_passives()
+	return passives.character.weapon_attack_speed_multiplier if passives != null and passives.character != null else 1.0
 
 
 func get_character_damage_bonus() -> float:

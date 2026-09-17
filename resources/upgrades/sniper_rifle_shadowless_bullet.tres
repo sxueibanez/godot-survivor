@@ -12,5 +12,5 @@ script = ExtResource("1_script")
 id = "sniper_rifle_shadowless_bullet"
 max_quantity = 1
 name = "无影弹"
-description = "子弹在终点分裂为四枚朝四个方向飞出的碎片；每枚造成25%伤害且不能穿透。"
+description = "终点四向分裂：4枚碎片各25%伤害，不穿透。"
 icon = SubResource("AtlasTexture_icon")

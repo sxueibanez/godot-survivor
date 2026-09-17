@@ -9,5 +9,6 @@ id = "elf_ranger"
 display_name = "魔导师"
 move_speed = 100
 ranged_damage_bonus = 0.2
+passive_description = "远程伤害 +20%。"
 sprite = ExtResource("2")
 sprite_offset = Vector2(0, -8)

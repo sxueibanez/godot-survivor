@@ -18,10 +18,12 @@ var distance_scaling_enabled := false
 var character_damage_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready():
 	base_wait_time = $Timer.wait_time
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("axe", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("axe", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("axe", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("axe", "size")
 	size_multiplier = permanent_size_multiplier
 	additional_damage_percent = permanent_damage_multiplier
@@ -32,6 +34,8 @@ func _ready():
 
 
 func on_timer_timeout():
+	if attack_cooldown.active_count > 0:
+		return
 	var player = get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
@@ -48,6 +52,7 @@ func on_timer_timeout():
 		axe_instance.distance_scaling_enabled = distance_scaling_enabled
 		axe_instance.scale = Vector2.ONE * size_multiplier
 		axe_instance.base_damage = base_damage * additional_damage_percent
+		attack_cooldown.track(axe_instance)
 		foreground.add_child(axe_instance)
 		axe_instance.global_position = player.global_position
 
@@ -60,7 +65,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"axe_rate":
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
-			$Timer.start()
+			attack_cooldown.restart()
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count
 		"axe_reflect":

@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "critical_hit"
 max_quantity = 10
 name = "致命一击"
-description = "暴击几率初始5%，每级提升5%。暴击造成200%伤害。"
+description = "暴击率每级+5%；暴击伤害200%。"

@@ -18,6 +18,8 @@ var last_direction := Vector2.RIGHT
 var rage := 0.0
 var frenzy_left := 0.0
 var status: Label
+var skill_icon: TextureRect
+var cooldown_label: Label
 
 
 func _ready() -> void:
@@ -31,9 +33,31 @@ func _ready() -> void:
 	status = Label.new()
 	hud.add_child(status)
 	status.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	status.position = Vector2(8, -28)
+	status.offset_left = 56.0
+	status.offset_top = -76.0
+	status.offset_right = 620.0
+	status.offset_bottom = -48.0
 	status.add_theme_font_size_override("font_size", 12)
 	status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	skill_icon = TextureRect.new()
+	hud.add_child(skill_icon)
+	skill_icon.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	skill_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	skill_icon.offset_left = 8.0
+	skill_icon.offset_top = -84.0
+	skill_icon.offset_right = 48.0
+	skill_icon.offset_bottom = -44.0
+	skill_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	skill_icon.mouse_filter = Control.MOUSE_FILTER_STOP
+	cooldown_label = Label.new()
+	skill_icon.add_child(cooldown_label)
+	cooldown_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	cooldown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cooldown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	cooldown_label.add_theme_font_size_override("font_size", 12)
+	cooldown_label.add_theme_constant_override("outline_size", 3)
+	cooldown_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	cooldown_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func setup(data: CharacterData) -> void:
@@ -99,6 +123,8 @@ func scan_enemies() -> void:
 func get_damage_multiplier(weapon_id: String) -> float:
 	if character == null:
 		return 1.0
+	if character.id == "one_armed":
+		return 1.5
 	if character.id == "lone_gunner" and int(GameEvents.weapon_types.get(weapon_id, -1)) == Ability.WeaponType.RANGED:
 		return solitude_multiplier
 	if character.id == "avenger" and frenzy_left > 0.0:
@@ -170,12 +196,15 @@ func update_status() -> void:
 		return
 	match character.id:
 		"lone_gunner":
-			status.text = "孤胆：远程伤害 +%.0f%% · 近身加速 CD %.1fs" % [(solitude_multiplier - 1.0) * 100.0, danger_cooldown_left]
-		"gambling_scholar":
-			status.text = "赌命：升级时可耗血刷新一次 · 击杀精英回血"
-		"ronin":
-			status.text = "空格：冲刺 · CD %.1fs%s" % [dash_cooldown_left, " · 所有伤害 +10（%.1fs）" % attack_bonus_left if attack_bonus_left > 0.0 else ""]
+			status.text = "远程 +%.0f%%" % [(solitude_multiplier - 1.0) * 100.0]
 		"avenger":
-			status.text = "狂怒 %.1fs · 临时护盾 %.0f" % [frenzy_left, health.temporary_shield] if frenzy_left > 0.0 else "怒气 %.0f / %.0f" % [rage, character.rage_damage_threshold]
+			status.text = "狂怒 %.1fs · 护盾 %.0f" % [frenzy_left, health.temporary_shield] if frenzy_left > 0.0 else "怒气 %.0f/%.0f" % [rage, character.rage_damage_threshold]
 		_:
 			status.text = ""
+	skill_icon.visible = true
+	skill_icon.texture = character.sprite if character.sprite != null else preload("res://scenes/game_object/player/player.png")
+	skill_icon.tooltip_text = "%s\n%s" % [character.display_name, character.passive_description]
+	var cooldown := dash_cooldown_left if character.id == "ronin" else danger_cooldown_left
+	var has_cooldown := character.id in ["ronin", "lone_gunner"]
+	skill_icon.self_modulate = Color(0.45, 0.45, 0.45) if has_cooldown and cooldown > 0.0 else Color.WHITE
+	cooldown_label.text = ("%.1f" % cooldown if cooldown > 0.0 else "就绪") if has_cooldown else "被动"

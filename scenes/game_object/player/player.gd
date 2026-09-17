@@ -54,6 +54,9 @@ func apply_character_visual() -> void:
 		return
 	var sprite := $Visuals/Sprite2D as Sprite2D
 	sprite.texture = character_sprite
+	# Keep source artwork intact while displaying it at the existing character height.
+	character_visual_scale *= 16.0 / character_sprite.get_height()
+	visuals.scale = Vector2.ONE * character_visual_scale
 	var sprite_offset: Vector2 = character.get("sprite_offset")
 	sprite.offset = sprite_offset
 	if bool(character.get("custom_walk_animation")):
@@ -210,6 +213,8 @@ func on_health_changed():
 
 func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades: Dictionary):
 	if ability_upgrade is Ability:
+		if abilities.get_child_count() >= int(character.get("weapon_limit")):
+			return
 		var ability = ability_upgrade as Ability
 		GameEvents.weapon_types[ability.id] = ability.weapon_type
 		var controller: Node = ability.ability_controller_scene.instantiate()

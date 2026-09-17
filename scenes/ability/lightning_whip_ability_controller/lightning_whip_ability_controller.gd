@@ -18,9 +18,11 @@ var wide_arc_enabled := false
 var character_damage_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready() -> void:
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("lightning_whip", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("lightning_whip", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("lightning_whip", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("lightning_whip", "size")
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
@@ -31,6 +33,8 @@ func _ready() -> void:
 
 
 func on_timer_timeout() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
@@ -56,6 +60,7 @@ func on_timer_timeout() -> void:
 		whip.chain_enabled = chain_enabled
 		whip.cloud_enabled = cloud_enabled
 		whip.wide_arc_enabled = wide_arc_enabled
+		attack_cooldown.track(whip)
 		foreground.add_child(whip)
 
 
@@ -67,7 +72,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"lightning_whip_rate":
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
-			$Timer.start()
+			attack_cooldown.restart()
 		"lightning_chain":
 			chain_enabled = true
 		"lightning_cloud":

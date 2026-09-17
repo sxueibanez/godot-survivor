@@ -11,7 +11,7 @@ const CHAIN_DAMAGE_MULTIPLIER := 0.5
 const CLOUD_TRIGGER_CHANCE := 0.1
 
 @export var damage := 8.0
-@export var size_multiplier := 1.0
+@export var size_multiplier := 0.5
 @export var chain_enabled := false
 @export var cloud_enabled := false
 @export var wide_arc_enabled := false

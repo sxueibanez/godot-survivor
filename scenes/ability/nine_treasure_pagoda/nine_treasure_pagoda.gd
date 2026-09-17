@@ -23,6 +23,8 @@ var animation_time := 0.0
 var size_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($WhiteLightTimer)
+
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody2D
 	if player != null:
@@ -57,6 +59,8 @@ func refresh_size() -> void:
 
 
 func emit_white_light() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	var radius := WHITE_LIGHT_RADIUS * size_multiplier
 	var hit_any_enemy := false
 	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
@@ -72,6 +76,7 @@ func emit_white_light() -> void:
 	pulse.z_index = -1
 	pulse.global_position = global_position
 	pulse.scale = Vector2.ONE * 0.15 * size_multiplier
+	attack_cooldown.track(pulse)
 	get_parent().add_child(pulse)
 	var tween := pulse.create_tween().set_parallel()
 	tween.tween_property(pulse, "scale", Vector2.ONE * size_multiplier, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

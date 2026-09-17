@@ -8,5 +8,5 @@ script = ExtResource("1_laser")
 laser_gun_ability_scene = ExtResource("2_laser")
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 4.0
+wait_time = 2.0
 autostart = true

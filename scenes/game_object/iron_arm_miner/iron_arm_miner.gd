@@ -214,6 +214,8 @@ func summon_golems() -> void:
 	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
 	if entities != null:
 		for index in 5:
+			if not GameEvents.can_spawn_enemy():
+				break
 			var golem := IRON_GOLEM_SCENE.instantiate() as Node2D
 			entities.add_child(golem)
 			golem.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 5.0) * 78.0

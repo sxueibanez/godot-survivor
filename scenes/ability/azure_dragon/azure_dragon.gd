@@ -1,6 +1,8 @@
 extends Node2D
 class_name AzureDragonAbility
 
+signal attack_finished
+
 enum State { IDLE, WINDUP, DASH }
 
 const ORBIT_RADIUS := 52.0
@@ -101,6 +103,7 @@ func process_dash(delta: float) -> void:
 		state = State.IDLE
 		state_time = 0.0
 		animation_time = 0.0
+		attack_finished.emit()
 
 
 func damage_enemies() -> void:
@@ -130,4 +133,7 @@ func refresh_visual_size() -> void:
 func set_ultimate_active(active: bool) -> void:
 	ultimate_active = active
 	if active:
+		var was_attacking := state != State.IDLE
 		state = State.IDLE
+		if was_attacking:
+			attack_finished.emit()

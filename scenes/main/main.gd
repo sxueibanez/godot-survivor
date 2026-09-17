@@ -1,7 +1,7 @@
 extends Node
 
 
-const CURRENT_BOSS_SPAWN_TIME := 5.0 * 60.0
+const CURRENT_BOSS_SPAWN_TIME := 3.0 * 60.0
 const ENDLESS_BOSS_INTERVAL := 60.0
 const ENDLESS_INITIAL_SKILL_CHOICES := 5
 
@@ -142,7 +142,7 @@ func _process(_delta: float) -> void:
 		current_level_boss_started = true
 		waiting_for_entrance = true
 		$EnemyManager.stop_spawning()
-		spawn_boss_for_map(current_map_id)
+		challenges.spawn_scheduled_bosses()
 
 	if waiting_for_entrance and not entrance_spawned and get_tree().get_nodes_in_group("enemy").is_empty():
 		spawn_level_entrance()
@@ -165,6 +165,8 @@ func spawn_frost_queen() -> Node2D:
 
 
 func spawn_boss(boss_scene: PackedScene) -> Node2D:
+	if not GameEvents.can_spawn_enemy(true):
+		return null
 	var boss := boss_scene.instantiate() as Node2D
 	if GameEvents.is_endless_mode():
 		$EnemyManager.apply_endless_boss_difficulty(boss)

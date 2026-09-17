@@ -7,6 +7,8 @@ class_name CharacterData
 @export var move_speed := 90
 @export var melee_damage_bonus := 0.0
 @export var ranged_damage_bonus := 0.0
+@export var weapon_limit := 2
+@export var weapon_attack_speed_multiplier := 1.0
 @export var missing_health_damage_bonus_per_10 := 0.0
 @export var missing_health_speed_bonus_per_10 := 0.0
 @export_multiline var passive_description := ""

@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "sword_rain"
 max_quantity = 1
 name = "剑阵"
-description = "场上同时存在超过 5 柄剑时，在怪物最密集处召唤剑阵。每 0.5 秒造成 80% 剑伤害，持续 5 秒。"
+description = "场上超过5剑触发密集处剑阵：每0.5秒80%伤害，持续5秒。"

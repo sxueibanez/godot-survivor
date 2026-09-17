@@ -3,6 +3,7 @@ extends Node
 
 const SAVE_FILE_PATH := "user://game.save"
 const ENEMY_HEALTH_PER_SPECIAL_SKILL := 0.02
+const WEAPON_RESET_COST := 500
 
 var save_data: Dictionary = {
 	"meta_upgrade_currency": 0,
@@ -84,6 +85,31 @@ func purchase_weapon_skill(skill_id: String, cost: int) -> bool:
 	weapon_skills[skill_id] = get_weapon_skill_count(skill_id) + 1
 	save_data["weapon_skills"] = weapon_skills
 	save_data["meta_upgrade_currency"] = currency - cost
+	if not save_data.has("weapon_skill_costs"):
+		save_data["weapon_skill_costs"] = {}
+	save_data["weapon_skill_costs"][skill_id] = cost
+	save()
+	return true
+
+
+func reset_weapon_skills(node_costs: Dictionary) -> bool:
+	var currency := int(save_data["meta_upgrade_currency"])
+	if currency < WEAPON_RESET_COST:
+		return false
+	var skills: Dictionary = save_data["weapon_skills"]
+	var paid_costs: Dictionary = save_data.get("weapon_skill_costs", {})
+	var refund := 0
+	var unlocked := false
+	for skill_id: String in node_costs:
+		if get_weapon_skill_count(skill_id) > 0:
+			unlocked = true
+			refund += int(paid_costs.get(skill_id, node_costs[skill_id]))
+	if not unlocked:
+		return false
+	for skill_id: String in node_costs:
+		skills.erase(skill_id)
+		paid_costs.erase(skill_id)
+	save_data["meta_upgrade_currency"] = currency - WEAPON_RESET_COST + refund
 	save()
 	return true
 

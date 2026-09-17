@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "azure_dragon_xuanwu"
 max_quantity = 1
 name = "玄武守护"
-description = "召唤玄武跟随主角，每30秒刷新20%最大生命护盾；本局首次致命伤改为恢复30%生命并无敌3秒。"
+description = "玄武：每30秒获20%生命护盾；首次致命伤回复30%生命，无敌3秒。"

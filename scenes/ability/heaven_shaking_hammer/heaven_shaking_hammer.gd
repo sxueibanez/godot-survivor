@@ -104,4 +104,6 @@ func spawn_shockwaves() -> void:
 	for index in extra_wave_count + 1:
 		var wave := shockwave_scene.instantiate() as HeavenShakingHammerShockwave
 		wave.configure(global_position + direction * WAVE_SPACING * index, damage, radius, WAVE_DELAY * index, lava_enabled)
+		if has_meta("attack_cooldown"):
+			get_meta("attack_cooldown").track(wave)
 		parent.add_child(wave)

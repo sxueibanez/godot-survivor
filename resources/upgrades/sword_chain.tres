@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "sword_chain"
 max_quantity = 1
 name = "剑影追击"
-description = "剑命中敌人后有 30% 概率再次召唤一柄剑，连续触发同样有 30% 概率。"
+description = "命中有30%概率追加一剑，可连续触发。"

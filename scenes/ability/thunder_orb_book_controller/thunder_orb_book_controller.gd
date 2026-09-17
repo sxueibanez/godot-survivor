@@ -23,9 +23,11 @@ var boss_tracking_enabled := false
 var character_damage_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready() -> void:
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("thunder_orb_book", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("thunder_orb_book", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("thunder_orb_book", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("thunder_orb_book", "size")
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
@@ -36,6 +38,8 @@ func _ready() -> void:
 
 
 func on_timer_timeout() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
 	if player == null or foreground == null:
@@ -48,6 +52,7 @@ func on_timer_timeout() -> void:
 	for index in count:
 		var orb := thunder_orb_scene.instantiate()
 		orb.configure(player.global_position, direction.rotated(deg_to_rad((index - (count - 1) * 0.5) * SPREAD_ANGLE)), base_damage * damage_multiplier, chain_enabled, growth_enabled, plasma_enabled, boss_tracking_enabled, size_multiplier)
+		attack_cooldown.track(orb)
 		foreground.add_child(orb)
 
 
@@ -72,7 +77,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 		"thunder_orb_rate":
 			cooldown_multiplier = 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05
 			update_cooldown()
-			$Timer.start()
+			attack_cooldown.restart()
 		"thunder_orb_chain":
 			chain_enabled = true
 		"thunder_orb_count":

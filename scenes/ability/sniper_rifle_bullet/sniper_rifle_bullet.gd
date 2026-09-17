@@ -121,6 +121,8 @@ func spawn_fragments() -> void:
 		for fragment_direction in [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP]:
 			var fragment := BULLET_SCENE.instantiate() as SniperRifleBullet
 			fragment.configure(global_position, fragment_direction, get_fragment_damage(weapon_damage), size_multiplier, true, false, false, false, true)
+			if has_meta("attack_cooldown"):
+				get_meta("attack_cooldown").track(fragment)
 			get_parent().add_child(fragment)
 
 

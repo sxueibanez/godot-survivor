@@ -19,6 +19,8 @@ var animation_time := 0.0
 var ultimate_active := false
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($AttackTimer)
+
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as Node2D
 	$AttackTimer.timeout.connect(fire_fireballs)
@@ -49,6 +51,8 @@ func _process(delta: float) -> void:
 
 
 func fire_fireballs() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	if ultimate_active or not is_instance_valid(player):
 		return
 	var target := AzureDragonController.find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
@@ -60,6 +64,7 @@ func fire_fireballs() -> void:
 		var fireball := fireball_scene.instantiate() as VermilionFireball
 		var offset := index - (FIREBALL_COUNT - 1) * 0.5
 		fireball.configure(global_position, base_direction.rotated(deg_to_rad(offset * SPREAD_ANGLE)), damage, size_multiplier)
+		attack_cooldown.track(fireball)
 		foreground.add_child(fireball)
 
 

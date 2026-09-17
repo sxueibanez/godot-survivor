@@ -1,7 +1,11 @@
 [gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://daqh6bypsrsqd"]
 
 [ext_resource type="Script" uid="uid://b1bg7kof0u3ov" path="res://resources/characters/character_data.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://b1a02a584nc5x" path="res://assets/characters/ronin.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://dwkkqy81f0iqr" path="res://assets/characters/ronin_original.png" id="2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_original"]
+atlas = ExtResource("2")
+region = Rect2(356, 172, 598, 948)
 
 [resource]
 script = ExtResource("1")
@@ -9,5 +13,5 @@ id = "ronin"
 display_name = "浪客"
 passive_description = "空格：短距离冲刺，冷却 3.5 秒。
 释放冲刺后 1 秒内，所有伤害 +10。"
-sprite = ExtResource("2")
-sprite_offset = Vector2(0, -8)
+sprite = SubResource("AtlasTexture_original")
+sprite_offset = Vector2(0, -474)

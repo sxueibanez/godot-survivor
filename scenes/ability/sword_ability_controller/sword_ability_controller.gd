@@ -30,10 +30,13 @@ var character_damage_multiplier := 1.0
 
 
 
+@onready var greatsword_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($GreatswordTimer)
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready():
 	base_wait_time = $Timer.wait_time
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("sword", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("sword", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("sword", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("sword", "size")
 	size_multiplier = permanent_size_multiplier
 	additional_damage_percent = permanent_damage_multiplier
@@ -92,6 +95,8 @@ func process_giant_sword_rain_trigger() -> void:
 
 
 func on_timer_timeout():
+	if attack_cooldown.active_count > 0:
+		return
 	var player = get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
@@ -119,6 +124,7 @@ func on_timer_timeout():
 		sword_instance.damage = base_damage * additional_damage_percent
 		sword_instance.chain_enabled = chain_enabled
 		sword_instance.scale = Vector2.ONE * size_multiplier
+		attack_cooldown.track(sword_instance)
 		foreground_layer.add_child(sword_instance)
 		sword_instance.global_position = enemies[index % enemies.size()].global_position
 		sword_instance.global_position += Vector2.RIGHT.rotated(randf_range(0, TAU)) * 4
@@ -157,6 +163,8 @@ func on_sword_hit_target(target: Node2D) -> void:
 
 
 func on_greatsword_timer_timeout() -> void:
+	if greatsword_cooldown.active_count > 0:
+		return
 	if not sword_greatsword_enabled:
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
@@ -169,6 +177,7 @@ func on_greatsword_timer_timeout() -> void:
 	var margin := 80.0 * size_multiplier
 	var greatsword := sword_greatsword_ability.instantiate() as SwordGreatswordSweep
 	greatsword.configure(Vector2(center.x + half_width + margin, player.global_position.y), center.x - half_width - margin, base_damage * additional_damage_percent, size_multiplier)
+	greatsword_cooldown.track(greatsword)
 	foreground.add_child(greatsword)
 
 
@@ -197,7 +206,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			var percent_reduction = current_upgrades["sword_rate"]["quantity"] * 0.05
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1 - percent_reduction)
 			$GreatswordTimer.wait_time = 10.0 * permanent_attack_speed_multiplier * (1 - percent_reduction)
-			$Timer.start()
+			attack_cooldown.restart()
 		"sword_damage":
 			additional_damage_percent = permanent_damage_multiplier * (1 + current_upgrades["sword_damage"]["quantity"] * 0.05)
 		"sword_size":
@@ -214,4 +223,4 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			sword_barrage_enabled = true
 		"sword_greatsword_sweep":
 			sword_greatsword_enabled = true
-			$GreatswordTimer.start()
+			greatsword_cooldown.restart()

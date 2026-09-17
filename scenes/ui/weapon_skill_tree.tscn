@@ -95,6 +95,24 @@ custom_minimum_size = Vector2(600, 230)
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="HealthInfo" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/TreeContainer"]
+unique_name_in_owner = true
+offset_left = 4.0
+offset_top = 30.0
+offset_right = 150.0
+offset_bottom = 105.0
+theme_override_font_sizes/font_size = 11
+
+[node name="ResetButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/TreeContainer"]
+unique_name_in_owner = true
+offset_left = 4.0
+offset_top = 115.0
+offset_right = 142.0
+offset_bottom = 143.0
+theme_override_font_sizes/font_size = 10
+text = "重置武器 · 500瓶"
+tooltip_text = "清除当前武器所有技能树节点，返还升级花费，另扣500瓶。"
+
 [node name="BottomBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2

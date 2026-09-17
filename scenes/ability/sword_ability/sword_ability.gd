@@ -42,4 +42,6 @@ func on_hitbox_area_entered(other_area: Area2D) -> void:
 	next_sword.root_damage = root_damage
 	next_sword.global_position = target.global_position + Vector2.RIGHT.rotated(randf_range(0, TAU)) * 4.0
 	next_sword.rotation = (target.global_position - next_sword.global_position).angle()
+	if has_meta("attack_cooldown"):
+		get_meta("attack_cooldown").track(next_sword)
 	foreground.add_child.call_deferred(next_sword)

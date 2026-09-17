@@ -35,10 +35,12 @@ var four_beasts_hit_times: Dictionary = {}
 var four_beasts_trails: Array[Line2D] = []
 var four_beasts_rings: Array[Line2D] = []
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 
 func _ready() -> void:
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("azure_dragon", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("azure_dragon", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("azure_dragon", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("azure_dragon", "size")
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
@@ -78,6 +80,7 @@ func spawn_dragon() -> void:
 		return
 	dragon = azure_dragon_scene.instantiate() as AzureDragonAbility
 	dragon.configure(base_damage * damage_multiplier, size_multiplier)
+	dragon.attack_finished.connect(attack_cooldown.finish)
 	foreground.add_child(dragon)
 
 
@@ -114,6 +117,8 @@ func spawn_white_tiger() -> void:
 
 
 func on_timer_timeout() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	if four_beasts_active:
 		return
 	if not is_instance_valid(dragon):
@@ -126,8 +131,9 @@ func on_timer_timeout() -> void:
 	var target := find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
 	if target != null:
 		dragon.damage = base_damage * damage_multiplier
-		dragon.start_attack(target.global_position)
-		spawn_extra_attack_dragons(target.global_position)
+		if dragon.start_attack(target.global_position):
+			attack_cooldown.begin()
+			spawn_extra_attack_dragons(target.global_position)
 
 
 func spawn_extra_attack_dragons(target_position: Vector2) -> void:
@@ -139,7 +145,9 @@ func spawn_extra_attack_dragons(target_position: Vector2) -> void:
 		extra_dragon.configure(base_damage * damage_multiplier, size_multiplier)
 		foreground.add_child(extra_dragon)
 		extra_dragon.global_position = dragon.global_position + Vector2(0, (index - attack_count * 0.5) * 8.0)
-		extra_dragon.start_attack(target_position)
+		if extra_dragon.start_attack(target_position):
+			attack_cooldown.begin()
+			extra_dragon.attack_finished.connect(attack_cooldown.finish, CONNECT_ONE_SHOT)
 		get_tree().create_timer(AzureDragonAbility.WINDUP_DURATION + AzureDragonAbility.DASH_DURATION + 0.1).timeout.connect(extra_dragon.queue_free)
 
 
@@ -167,7 +175,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			cooldown_multiplier = maxf(0.1, 1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
 			update_cooldown()
 			refresh_dragon()
-			$Timer.start()
+			attack_cooldown.restart()
 		"azure_dragon_vermilion_bird":
 			spawn_vermilion_bird()
 		"azure_dragon_xuanwu":
@@ -201,6 +209,7 @@ func begin_four_beasts_rush() -> void:
 	if not (is_instance_valid(dragon) and is_instance_valid(vermilion_bird) and is_instance_valid(xuanwu) and is_instance_valid(white_tiger)):
 		return
 	four_beasts_active = true
+	$FourBeastsTimer.stop()
 	four_beasts_time = 0.0
 	four_beasts_hit_times.clear()
 	$Timer.paused = true
@@ -213,6 +222,7 @@ func begin_four_beasts_rush() -> void:
 
 func end_four_beasts_rush() -> void:
 	four_beasts_active = false
+	$FourBeastsTimer.start(FOUR_BEASTS_INTERVAL)
 	$Timer.paused = false
 	for beast: Node2D in [dragon, vermilion_bird, xuanwu, white_tiger]:
 		if is_instance_valid(beast):

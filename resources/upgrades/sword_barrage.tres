@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "sword_barrage"
 max_quantity = 1
 name = "剑雨"
-description = "同一敌人受到 10 次剑伤害后，2 秒内从主角当前位置连续发射 10 把剑。"
+description = "同一敌人中剑10次，2秒内连射10剑。"

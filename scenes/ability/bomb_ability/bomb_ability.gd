@@ -8,6 +8,10 @@ const CHILD_COUNT := 5
 const CHILD_MULTIPLIER := 0.3
 const BURN_MULTIPLIER := 0.6
 const BOUNCE_TARGET_RANGE := 140.0
+const HEAT_REACTION_FRACTION := 0.5
+const GIANT_RADIUS_MULTIPLIER := 1.5
+const GIANT_KNOCKBACK_SPEED := 240.0
+const GIANT_KNOCKBACK_DURATION := 0.3
 
 @onready var bomb_sprite: Sprite2D = $BombSprite
 @onready var explosion_sprite: Sprite2D = $ExplosionSprite
@@ -24,6 +28,8 @@ var cluster_enabled := false
 var is_mini := false
 var elapsed := 0.0
 var exploding := false
+var heat_reaction_enabled := false
+var is_giant := false
 
 var burn_scene := preload("res://scenes/ability/bomb_burn/bomb_burn.tscn")
 
@@ -42,7 +48,10 @@ func configure(from: Vector2, to: Vector2, new_damage: float, new_radius: float,
 func _ready() -> void:
 	global_position = start_position
 	bomb_sprite.scale = Vector2.ONE * (0.025 if is_mini else 0.04)
-	explosion_sprite.scale = Vector2.ONE * radius / 150.0
+	if is_giant:
+		bomb_sprite.scale *= GIANT_RADIUS_MULTIPLIER
+		bomb_sprite.modulate = Color("ffb66b")
+	explosion_sprite.scale = Vector2.ONE * get_explosion_radius() / 150.0
 	explosion_sprite.visible = false
 	explosion_sound.volume_db = -12.0 if is_mini else -4.0
 	launch_sound.volume_db = -14.0 if is_mini else -8.0
@@ -79,8 +88,9 @@ func explode() -> void:
 
 
 func damage_enemies() -> void:
+	var explosion_radius := get_explosion_radius()
 	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
-		if global_position.distance_squared_to(enemy.global_position) > radius * radius:
+		if global_position.distance_squared_to(enemy.global_position) > explosion_radius * explosion_radius:
 			continue
 		var hurtbox := enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 		if hurtbox == null or hurtbox.health_component == null:
@@ -92,8 +102,24 @@ func damage_enemies() -> void:
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))
 		hurtbox.hit.emit()
+		if heat_reaction_enabled:
+			for effect in enemy.get_children():
+				if effect is BombBurn and not effect.is_queued_for_deletion():
+					effect.trigger_heat_reaction(HEAT_REACTION_FRACTION)
+					effect.refresh(effect.damage)
 		if burn_enabled:
 			apply_burn(enemy)
+		if is_giant and not enemy.is_in_group("boss"):
+			var velocity := enemy.get_node_or_null("VelocityComponent") as VelocityComponent
+			if velocity != null:
+				var direction := global_position.direction_to(enemy.global_position)
+				if direction == Vector2.ZERO:
+					direction = start_position.direction_to(target_position)
+				velocity.apply_knockback(direction if direction != Vector2.ZERO else Vector2.RIGHT, GIANT_KNOCKBACK_SPEED, GIANT_KNOCKBACK_DURATION)
+
+
+func get_explosion_radius() -> float:
+	return radius * (GIANT_RADIUS_MULTIPLIER if is_giant else 1.0)
 
 
 func apply_burn(enemy: Node2D) -> void:
@@ -123,6 +149,9 @@ func spawn_bomb(from: Vector2, to: Vector2, new_damage: float, new_radius: float
 		return
 	var bomb := load("res://scenes/ability/bomb_ability/bomb_ability.tscn").instantiate() as BombAbility
 	bomb.configure(from, to, new_damage, new_radius, bounces, burns, clusters, is_mini)
+	bomb.heat_reaction_enabled = heat_reaction_enabled
+	if has_meta("attack_cooldown"):
+		get_meta("attack_cooldown").track(bomb)
 	parent.add_child(bomb)
 
 

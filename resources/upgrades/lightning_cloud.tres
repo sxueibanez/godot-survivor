@@ -7,4 +7,4 @@ script = ExtResource("1_cloud")
 id = "lightning_cloud"
 max_quantity = 1
 name = "雷云召唤"
-description = "普通攻击命中有 10% 概率生成雷云；雷云持续 5 秒，每秒电击一名敌人，造成 150% 武器伤害。"
+description = "普攻命中10%概率召雷云：每秒150%伤害，持续5秒。"

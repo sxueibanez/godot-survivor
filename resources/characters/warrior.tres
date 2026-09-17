@@ -9,3 +9,4 @@ display_name = "战士"
 max_health = 130.0
 move_speed = 75
 melee_damage_bonus = 0.2
+passive_description = "近战伤害 +20%。"

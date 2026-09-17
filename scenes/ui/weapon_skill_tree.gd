@@ -45,6 +45,8 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_bomb_bounce", "title": "跳弹", "description": "解锁局内跳弹升级；每级增加1次弹跳爆炸，最多3级。", "requires": []},
 		{"id": "tree_bomb_burn", "title": "燃烧弹", "description": "解锁局内燃烧弹升级；命中后每秒造成60%武器伤害，持续5秒。", "requires": []},
 		{"id": "tree_bomb_cluster", "title": "子母弹", "description": "解锁局内子母弹升级；每次主炸弹爆炸洒出5枚30%威力与范围的小炸弹。", "requires": []},
+		{"id": "tree_bomb_heat_reaction", "title": "热爆反应", "description": "结算50%剩余燃烧伤害并刷新燃烧。", "requires": ["tree_bomb_burn"]},
+		{"id": "tree_bomb_giant_charge", "title": "巨型装药", "description": "每第4轮主弹巨化，首爆半径+50%，击退小怪。", "requires": []},
 	],
 	"thunder_orb_book": [
 		{"id": "tree_thunder_orb_chain", "title": "雷链", "description": "解锁局内雷链升级；雷球每秒攻击周围最多3名敌人。", "requires": []},
@@ -107,6 +109,8 @@ class SkillTreeCanvas extends Control:
 @onready var next_weapon_button: Button = %NextWeaponButton
 @onready var tree_container: Control = %TreeContainer
 @onready var back_button: Button = %BackButton
+@onready var health_info: Label = %HealthInfo
+@onready var reset_button: Button = %ResetButton
 
 var selected_weapon_id := "sword"
 var weapon_tab_buttons: Dictionary = {}
@@ -114,6 +118,7 @@ var weapon_tab_buttons: Dictionary = {}
 
 func _ready() -> void:
 	back_button.pressed.connect(on_back_pressed)
+	reset_button.pressed.connect(on_reset_pressed)
 	previous_weapon_button.pressed.connect(scroll_weapon_tabs.bind(-1))
 	next_weapon_button.pressed.connect(scroll_weapon_tabs.bind(1))
 	weapon_scroll.gui_input.connect(on_weapon_scroll_gui_input)
@@ -137,9 +142,17 @@ func build_tabs() -> void:
 
 func refresh_tree() -> void:
 	currency_label.text = "瓶子：%d" % int(MetaProgression.save_data["meta_upgrade_currency"])
+	health_info.text = "每解锁一个专属技能\n所有怪物血量 +2%%\n\n当前总加成：+%.0f%%" % [(MetaProgression.get_enemy_health_multiplier() - 1.0) * 100.0]
+	var has_unlock := false
+	for node_id: String in get_selected_node_costs():
+		if MetaProgression.get_weapon_skill_count(node_id) > 0:
+			has_unlock = true
+	reset_button.disabled = not has_unlock or int(MetaProgression.save_data["meta_upgrade_currency"]) < MetaProgression.WEAPON_RESET_COST
 	for child: Node in tree_container.get_children():
-		child.free()
+		if child != health_info and child != reset_button:
+			child.free()
 	var canvas := SkillTreeCanvas.new()
+	canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tree_container.add_child(canvas)
 	add_center_weapon(canvas)
@@ -267,3 +280,20 @@ func on_node_purchased(node_id: String, cost: int) -> void:
 
 func on_back_pressed() -> void:
 	ScreenTransition.transition_to_scene("res://scenes/ui/main_menu.tscn")
+
+
+func get_selected_node_costs() -> Dictionary:
+	var costs := {}
+	var skills: Array = WEAPON_SKILLS[selected_weapon_id]
+	for branch in 5:
+		var skill: Dictionary = skills[branch] if branch < skills.size() else {}
+		for step in 4:
+			var node_id := get_node_id(branch, step, skill)
+			if not node_id.is_empty():
+				costs[node_id] = int(NODE_COSTS[step])
+	return costs
+
+
+func on_reset_pressed() -> void:
+	MetaProgression.reset_weapon_skills(get_selected_node_costs())
+	refresh_tree()

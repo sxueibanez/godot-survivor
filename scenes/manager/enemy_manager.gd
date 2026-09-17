@@ -67,6 +67,8 @@ func on_timer_timeout():
 
 	var spawn_count := get_endless_spawn_count(arena_time_manager.arena_difficulty) if GameEvents.is_endless_mode() else GameEvents.get_campaign_spawn_count()
 	for _index in spawn_count:
+		if not GameEvents.can_spawn_enemy():
+			break
 		var enemy_scene = enemy_table.pick_item()
 		var enemy = enemy_scene.instantiate() as Node2D
 		apply_difficulty(enemy)
@@ -90,6 +92,8 @@ func spawn_test_enemies(count: int = 20) -> void:
 		return
 	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene, frost_wisp_scene, frost_boar_scene, snowball_monster_scene]
 	for _index in count:
+		if not GameEvents.can_spawn_enemy():
+			break
 		var enemy := enemy_scenes.pick_random().instantiate() as Node2D
 		apply_difficulty(enemy)
 		entities_layer.add_child(enemy)

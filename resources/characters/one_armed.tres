@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/characters/character_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/characters/one_armed_original.png" id="2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_original"]
+atlas = ExtResource("2")
+region = Rect2(262, 173, 697, 980)
+
+[resource]
+script = ExtResource("1")
+id = "one_armed"
+display_name = "单臂者"
+max_health = 100.0
+move_speed = 90
+weapon_limit = 1
+weapon_attack_speed_multiplier = 1.5
+passive_description = "全局只能装备一把武器。\n武器伤害 +50%，攻击速度 +50%。"
+sprite = SubResource("AtlasTexture_original")
+sprite_offset = Vector2(0, -490)

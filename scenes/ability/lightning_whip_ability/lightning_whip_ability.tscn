@@ -1,9 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://b00rwn6u7t8e1"]
+[gd_scene format=3 uid="uid://b00rwn6u7t8e1"]
 
 [ext_resource type="Script" uid="uid://dvdiwqf1haj78" path="res://scenes/ability/lightning_whip_ability/lightning_whip_ability.gd" id="1_whip"]
 [ext_resource type="Texture2D" uid="uid://bg8l05aokj3h3" path="res://scenes/ability/lightning_whip_ability/lightning_whip_frames.png" id="2_frames"]
-[ext_resource type="AudioStream" path="res://assets/audio/weapons/lightning_whip_launch.wav" id="3_launch"]
-[ext_resource type="AudioStream" path="res://assets/audio/weapons/lightning_whip_hit.wav" id="4_hit"]
+[ext_resource type="AudioStream" uid="uid://djp0fktbvgpph" path="res://assets/audio/weapons/lightning_whip_launch.wav" id="3_launch"]
+[ext_resource type="AudioStream" uid="uid://dwd50iosr0mpr" path="res://assets/audio/weapons/lightning_whip_hit.wav" id="4_hit"]
 
 [sub_resource type="AtlasTexture" id="WhipFrame2"]
 atlas = ExtResource("2_frames")
@@ -55,17 +55,17 @@ script = ExtResource("1_whip")
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="Visuals" unique_id=881178827]
 position = Vector2(40, 0)
-scale = Vector2(0.18, 0.18)
+scale = Vector2(0.14, 0.14)
 sprite_frames = SubResource("WhipFrames")
 autoplay = "default"
-frame_progress = 0.7615545
+frame = 4
 
-[node name="LaunchSound" type="AudioStreamPlayer2D" parent="."]
+[node name="LaunchSound" type="AudioStreamPlayer2D" parent="." unique_id=1170504755]
 stream = ExtResource("3_launch")
 volume_db = -8.0
 bus = &"sfx"
 
-[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+[node name="HitSound" type="AudioStreamPlayer2D" parent="." unique_id=1947677714]
 stream = ExtResource("4_hit")
 volume_db = -8.0
 bus = &"sfx"

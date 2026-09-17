@@ -12,5 +12,5 @@ script = ExtResource("1_script")
 id = "sword_greatsword_sweep"
 max_quantity = 1
 name = "横贯天锋"
-description = "每10秒召唤一柄大剑从地图右侧冲向左侧，对触碰到的敌人造成一次350%武器伤害。"
+description = "每10秒大剑横扫：从右向左，造成350%武器伤害。"
 icon = SubResource("AtlasTexture_icon")

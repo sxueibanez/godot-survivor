@@ -152,13 +152,17 @@ func _ready() -> void:
 	health.damage(17.0)
 	assert(passives.rage == 5.0)
 	for data: CharacterData in [gunner, scholar, ronin, avenger]:
-		assert(data.sprite.get_size() == Vector2(16, 16))
+		assert(data.sprite.get_height() > 16)
 		assert(not data.custom_walk_animation)
 	assert(InputMap.has_action("character_dash"))
-	for character_id: String in ["warrior", "elf_ranger", "blooddrinker", "lone_gunner", "gambling_scholar", "ronin", "avenger"]:
+	for character_id: String in ["warrior", "elf_ranger", "blooddrinker", "lone_gunner", "gambling_scholar", "ronin", "avenger", "one_armed"]:
 		var data := load("res://resources/characters/%s.tres" % character_id) as CharacterData
 		player.call("set_character", data)
-		assert(player.get_node("Visuals").scale == Vector2(1.25, 1.25))
+		var sprite := player.get_node("Visuals/Sprite2D") as Sprite2D
+		if data.sprite != null:
+			assert(is_equal_approx(sprite.texture.get_height() * player.get_node("Visuals").scale.y, 20.0))
+		else:
+			assert(player.get_node("Visuals").scale == Vector2(1.25, 1.25))
 		assert(player.scale == Vector2.ONE) # Only artwork grows, not the physics body.
 	var selection := (load("res://scenes/ui/character_select.tscn") as PackedScene).instantiate()
 	add_child(selection)
@@ -167,7 +171,7 @@ func _ready() -> void:
 	var panel := selection.get_child(0) as PanelContainer
 	var scroll := panel.get_child(0) as ScrollContainer
 	var list := scroll.get_child(0) as VBoxContainer
-	assert(list.get_child_count() == 8) # Title and seven selectable characters.
+	assert(list.get_child_count() == 9) # Title and eight selectable characters.
 	assert(list.get_combined_minimum_size().x <= panel.size.x)
 	assert(scroll.get_v_scroll_bar().max_value > scroll.size.y)
 	get_tree().paused = false
@@ -210,6 +214,38 @@ func _ready() -> void:
 		get_viewport().push_input(space, true)
 		assert(clicks.count == 1) # Space must not activate the last clicked test button.
 		assert(passives.dash_left > 0.0)
+	for controller: Node in player.get_node("Abilities").get_children():
+		controller.queue_free()
+	await get_tree().process_frame
+	var one_armed := load("res://resources/characters/one_armed.tres") as CharacterData
+	player.call("set_character", one_armed)
+	var single_experience := ExperienceManager.new()
+	add_child(single_experience)
+	var single_upgrades := load("res://scenes/manager/upgrade_manager.gd").new() as Node
+	single_upgrades.experience_manager = single_experience
+	add_child(single_upgrades)
+	assert(single_upgrades.pick_weapon_upgrades(3).size() == 3)
+	single_upgrades.apply_upgrade(sword)
+	assert(single_upgrades.get_weapon_count() == 1)
+	assert(single_upgrades.pick_weapon_upgrades(3).is_empty())
+	for upgrade: AbilityUpgrade in single_upgrades.pick_upgrades(20):
+		assert(not upgrade is Ability)
+	for upgrade: AbilityUpgrade in single_upgrades.pick_challenge_upgrades(20):
+		assert(not upgrade is Ability)
+	var axe := load("res://resources/upgrades/axe.tres") as Ability
+	single_upgrades.apply_upgrade(axe)
+	assert(not single_upgrades.current_upgrades.has("axe"))
+	player.call("on_ability_upgrade_added", axe, {}) # Direct/debug events cannot bypass the cap.
+	assert(player.get_node("Abilities").get_child_count() == 1)
+	GameEvents.critical_disabled = true
+	assert(is_equal_approx(float(GameEvents.get_critical_damage(10.0, "sword")["damage"]), 15.0))
+	var single_sword := player.get_node("Abilities").get_child(0)
+	var normal_interval := maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("sword", "attack_speed"))
+	assert(is_equal_approx(single_sword.permanent_attack_speed_multiplier, normal_interval / 1.5))
+	var sword_rate := load("res://resources/upgrades/sword_rate.tres") as AbilityUpgrade
+	single_upgrades.apply_upgrade(sword_rate)
+	assert(single_upgrades.current_upgrades.has("sword_rate"))
+	assert(is_equal_approx(single_sword.get_node("Timer").wait_time, single_sword.base_wait_time * normal_interval / 1.5 * 0.95))
 	print("New character mechanics: PASS")
 	for child: Node in get_children():
 		child.queue_free()

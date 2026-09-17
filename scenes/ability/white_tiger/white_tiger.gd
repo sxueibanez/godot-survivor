@@ -18,6 +18,8 @@ var animation_time := 0.0
 var ultimate_active := false
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($AttackTimer)
+
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as Node2D
 	$AttackTimer.timeout.connect(release_tornado)
@@ -49,6 +51,8 @@ func _process(delta: float) -> void:
 
 
 func release_tornado() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	if ultimate_active or not is_instance_valid(player):
 		return
 	var target := AzureDragonController.find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
@@ -57,6 +61,7 @@ func release_tornado() -> void:
 		return
 	var tornado := tornado_scene.instantiate() as SacredTornado
 	tornado.configure(global_position, global_position.direction_to(target.global_position), damage, size_multiplier)
+	attack_cooldown.track(tornado)
 	foreground.add_child(tornado)
 
 

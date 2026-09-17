@@ -10,6 +10,7 @@ var new_characters: Array[Resource] = [
 	preload("res://resources/characters/gambling_scholar.tres"),
 	preload("res://resources/characters/ronin.tres"),
 	preload("res://resources/characters/avenger.tres"),
+	preload("res://resources/characters/one_armed.tres"),
 ]
 
 

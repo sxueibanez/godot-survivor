@@ -7,4 +7,4 @@ script = ExtResource("1_chain")
 id = "lightning_chain"
 max_quantity = 1
 name = "电弧连锁"
-description = "命中时有 50% 概率对附近敌人释放两条可连锁闪电链，每条造成 50% 武器伤害，最多触发 3 次。"
+description = "命中50%概率释放2条雷链：各50%伤害，最多连锁3次。"

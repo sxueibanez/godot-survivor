@@ -54,6 +54,8 @@ var upgrade_bomb := preload("res://resources/upgrades/bomb.tres")
 var upgrade_bomb_bounce := preload("res://resources/upgrades/bomb_bounce.tres")
 var upgrade_bomb_burn := preload("res://resources/upgrades/bomb_burn.tres")
 var upgrade_bomb_cluster := preload("res://resources/upgrades/bomb_cluster.tres")
+var upgrade_bomb_heat_reaction := preload("res://resources/upgrades/bomb_heat_reaction.tres")
+var upgrade_bomb_giant_charge := preload("res://resources/upgrades/bomb_giant_charge.tres")
 var upgrade_bomb_damage := preload("res://resources/upgrades/bomb_damage.tres")
 var upgrade_bomb_size := preload("res://resources/upgrades/bomb_size.tres")
 var upgrade_bomb_rate := preload("res://resources/upgrades/bomb_rate.tres")
@@ -142,6 +144,8 @@ func start_initial_choices(choice_rounds: int = 1) -> void:
 
 
 func apply_upgrade(upgrade: AbilityUpgrade):
+	if upgrade is Ability and (current_upgrades.has(upgrade.id) or get_weapon_count() >= get_weapon_limit()):
+		return
 	var has_upgrade = current_upgrades.has(upgrade.id)
 	if not has_upgrade:
 		current_upgrades[upgrade.id] = {
@@ -209,6 +213,8 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_bomb_bounce, "tree_bomb_bounce", 8)
 		add_unlocked_special(upgrade_bomb_burn, "tree_bomb_burn", 8)
 		add_unlocked_special(upgrade_bomb_cluster, "tree_bomb_cluster", 8)
+		add_unlocked_special(upgrade_bomb_heat_reaction, "tree_bomb_heat_reaction", 8)
+		add_unlocked_special(upgrade_bomb_giant_charge, "tree_bomb_giant_charge", 8)
 	elif chosen_upgrade.id == upgrade_thunder_orb_book.id:
 		upgrade_pool.add_item(upgrade_thunder_orb_damage, 10)
 		upgrade_pool.add_item(upgrade_thunder_orb_size, 10)
@@ -270,13 +276,19 @@ func try_unlock_four_beasts_upgrade() -> void:
 
 
 func update_weapon_pool() -> void:
-	if get_weapon_count() >= 2:
+	if get_weapon_count() >= get_weapon_limit():
 		for weapon: Ability in weapon_upgrades:
 			upgrade_pool.remove_item(weapon)
+			weapon_pool.remove_item(weapon)
 		return
 	for weapon: Ability in weapon_upgrades:
 		if not current_upgrades.has(weapon.id) and not disabled_upgrade_ids.has(weapon.id):
 			upgrade_pool.add_item(weapon, 10)
+
+
+func get_weapon_limit() -> int:
+	var player := get_tree().get_first_node_in_group("player")
+	return int(player.character.weapon_limit) if player != null else 2
 
 
 func get_weapon_count() -> int:

@@ -24,9 +24,11 @@ var charge_label: Label
 var character_damage_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready() -> void:
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("heaven_shaking_hammer", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("heaven_shaking_hammer", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("heaven_shaking_hammer", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("heaven_shaking_hammer", "size")
 	damage_multiplier = permanent_damage_multiplier
 	size_multiplier = permanent_size_multiplier
@@ -59,6 +61,8 @@ func _process(delta: float) -> void:
 
 
 func on_timer_timeout() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
 	if player == null or foreground == null:
@@ -79,6 +83,7 @@ func on_timer_timeout() -> void:
 		hammer.configure(player.global_position, target.global_position, base_damage * damage_multiplier, BASE_RADIUS * size_multiplier, extra_wave_count, lava_enabled, pull_enabled, is_heavy)
 		if is_heavy:
 			quake_charge = 0.0
+		attack_cooldown.track(hammer)
 		foreground.add_child(hammer)
 
 
@@ -90,7 +95,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
 		"heaven_shaking_hammer_rate":
 			$Timer.wait_time = base_wait_time * permanent_attack_speed_multiplier * (1.0 - current_upgrades[upgrade.id]["quantity"] * 0.05)
-			$Timer.start()
+			attack_cooldown.restart()
 		"heaven_shaking_hammer_extra_wave":
 			extra_wave_count = int(current_upgrades[upgrade.id]["quantity"])
 		"heaven_shaking_hammer_lava":

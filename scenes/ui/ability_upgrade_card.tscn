@@ -232,6 +232,16 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 
+[node name="KeyHint" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+theme_override_constants/outline_size = 2
+text = "1"
+horizontal_alignment = 1
+tooltip_text = "按对应数字键选择"
+
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -241,7 +251,7 @@ theme_type_variation = &"AlternatePanelContainer"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"BlueOutlineLabel"
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 24
 text = "升级名称"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -260,6 +270,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"BlueOutlineLabel"
 text = "升级说明"
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
 [node name="DisableOverlay" type="Control" parent="."]

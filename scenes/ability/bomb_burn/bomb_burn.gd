@@ -29,17 +29,25 @@ func refresh(new_damage: float) -> void:
 
 
 func tick() -> void:
+	deal_damage(damage)
+	ticks_left -= 1
+	if ticks_left <= 0:
+		queue_free()
+
+
+func trigger_heat_reaction(fraction: float) -> void:
+	deal_damage(damage, ticks_left * fraction)
+
+
+func deal_damage(base_damage: float, tick_multiplier: float = 1.0) -> void:
 	var enemy := get_parent() as Node2D
 	var hurtbox := enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 	if hurtbox == null or hurtbox.health_component == null or hurtbox.health_component.current_health <= 0.0:
 		queue_free()
 		return
-	var damage_amount: float = damage * GameEvents.player_damage_multiplier * GameEvents.get_character_damage_multiplier(weapon_id) + GameEvents.get_character_damage_bonus()
+	var damage_amount: float = (base_damage * GameEvents.player_damage_multiplier * GameEvents.get_character_damage_multiplier(weapon_id) + GameEvents.get_character_damage_bonus()) * tick_multiplier
 	hurtbox.health_component.damage(damage_amount)
 	GameEvents.record_weapon_damage(weapon_id, damage_amount)
 	GameEvents.heal_from_damage(damage_amount)
 	hurtbox.show_damage(damage_amount)
 	hurtbox.hit.emit()
-	ticks_left -= 1
-	if ticks_left <= 0:
-		queue_free()

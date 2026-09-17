@@ -28,9 +28,13 @@ func _process(delta: float) -> void:
 
 
 func split() -> void:
+	if not GameEvents.can_spawn_enemy():
+		return
 	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
 	if entities != null:
 		for index in 3:
+			if not GameEvents.can_spawn_enemy():
+				break
 			var child := duplicate() as CharacterBody2D
 			entities.add_child(child)
 			child.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 3.0) * 18.0

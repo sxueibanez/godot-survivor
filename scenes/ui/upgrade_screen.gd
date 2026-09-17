@@ -40,6 +40,7 @@ func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
 	for upgrade in upgrades:
 		var card_instance = upgrade_card_scene.instantiate()
 		card_container.add_child(card_instance)
+		card_instance.get_node("%KeyHint").text = str(card_container.get_child_count())
 		card_instance.set_ability_upgrade(upgrade)
 		card_instance.play_in(delay)
 		card_instance.selected.connect(on_upgrade_selected.bind(upgrade))
@@ -49,13 +50,15 @@ func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
 
 func enable_health_reroll(fraction: float) -> void:
 	health_reroll_button = Button.new()
-	health_reroll_button.text = "赌命刷新：消耗当前生命 %.0f%%（本次升级限一次）" % (fraction * 100.0)
+	health_reroll_button.text = "刷新\n生命 -%.0f%%" % (fraction * 100.0)
+	health_reroll_button.tooltip_text = "消耗当前生命刷新技能，每次升级限一次"
+	health_reroll_button.add_theme_font_size_override("font_size", 10)
 	add_child(health_reroll_button)
-	health_reroll_button.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	health_reroll_button.offset_left = -240.0
-	health_reroll_button.offset_right = 240.0
-	health_reroll_button.offset_top = -50.0
-	health_reroll_button.offset_bottom = -10.0
+	health_reroll_button.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
+	health_reroll_button.offset_left = 8.0
+	health_reroll_button.offset_right = 72.0
+	health_reroll_button.offset_top = -22.0
+	health_reroll_button.offset_bottom = 22.0
 	health_reroll_button.pressed.connect(on_health_reroll_pressed)
 
 
@@ -76,7 +79,10 @@ func on_upgrade_selected(upgrade: AbilityUpgrade):
 func on_upgrade_disabled(upgrade: AbilityUpgrade, card: Control) -> void:
 	upgrade_disabled.emit(upgrade)
 	available_card_count -= 1
+	card_container.remove_child(card)
 	card.queue_free()
+	for index in card_container.get_child_count():
+		card_container.get_child(index).get_node("%KeyHint").text = str(index + 1)
 	if available_card_count <= 0:
 		closing = true
 		closed_without_selection.emit()

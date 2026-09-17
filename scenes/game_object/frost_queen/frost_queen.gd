@@ -257,6 +257,8 @@ func summon_wisps() -> void:
 	begin_action()
 	await get_tree().create_timer(0.45).timeout
 	for index in 4:
+		if not GameEvents.can_spawn_enemy():
+			break
 		var wisp := WISP_SCENE.instantiate() as Node2D
 		entities.add_child(wisp)
 		wisp.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 4.0) * 76.0

@@ -1,7 +1,6 @@
 extends Node
 
 const MAX_RANGE := 300.0
-const BEAM_DURATION := 2.0
 
 @export var laser_gun_ability_scene: PackedScene
 
@@ -23,9 +22,11 @@ var kill_duration_extension_enabled := false
 var character_damage_multiplier := 1.0
 
 
+@onready var attack_cooldown = preload("res://scenes/ability/attack_cooldown.gd").new($Timer)
+
 func _ready() -> void:
 	permanent_damage_multiplier = (1.0 + MetaProgression.get_upgrade_count("meta_damage") * 0.01 + MetaProgression.get_weapon_tree_bonus("laser_gun", "damage")) * character_damage_multiplier
-	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("laser_gun", "attack_speed"))
+	permanent_attack_speed_multiplier = maxf(0.1, 1.0 - MetaProgression.get_upgrade_count("meta_attack_speed") * 0.03 - MetaProgression.get_weapon_tree_bonus("laser_gun", "attack_speed")) / GameEvents.get_character_attack_speed_multiplier()
 	permanent_size_multiplier = 1.0 + MetaProgression.get_upgrade_count("meta_weapon_size") * 0.05 + MetaProgression.get_weapon_tree_bonus("laser_gun", "size")
 	damage_multiplier = permanent_damage_multiplier
 	beam_size_multiplier = permanent_size_multiplier
@@ -36,6 +37,8 @@ func _ready() -> void:
 
 
 func on_timer_timeout() -> void:
+	if attack_cooldown.active_count > 0:
+		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
@@ -65,6 +68,7 @@ func on_timer_timeout() -> void:
 		laser.stun_enabled = stun_enabled
 		laser.auto_aim_enabled = auto_aim_enabled
 		laser.kill_duration_extension_enabled = kill_duration_extension_enabled
+		attack_cooldown.track(laser)
 		foreground.add_child(laser)
 
 
@@ -92,4 +96,4 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 
 
 func update_cooldown() -> void:
-	$Timer.wait_time = (BEAM_DURATION + base_cooldown * (1.0 - cooldown_reduction)) * permanent_attack_speed_multiplier
+	$Timer.wait_time = (base_cooldown * (1.0 - cooldown_reduction)) * permanent_attack_speed_multiplier

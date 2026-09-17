@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "laser_gun_reflect"
 max_quantity = 1
 name = "边界折射"
-description = "主射线长度提升 50%；碰到地图边缘时反射三根扇形射线：长度 150%、伤害 75%、宽度 25%。"
+description = "射程+50%；碰墙分出3束：长度150%、伤害75%、宽度25%。"

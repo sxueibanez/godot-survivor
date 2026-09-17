@@ -1,15 +1,17 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://cpt63bn6a5pcf"]
 
-[ext_resource type="Script" path="res://resources/characters/character_data.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/characters/lone_gunner.png" id="2"]
+[ext_resource type="Script" uid="uid://b1bg7kof0u3ov" path="res://resources/characters/character_data.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://8l1uj6q3fbni" path="res://assets/characters/lone_gunner_original.png" id="2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_original"]
+atlas = ExtResource("2")
+region = Rect2(208, 179, 805, 988)
 
 [resource]
 script = ExtResource("1")
 id = "lone_gunner"
 display_name = "孤胆枪手"
-max_health = 100.0
-move_speed = 90
-passive_description = "附近敌人越少，远程伤害越高（最多 +40%）。\n精英 / Boss 近身：移速 +50%，持续 1.5 秒，冷却 10 秒。"
-sprite = ExtResource("2")
-sprite_offset = Vector2(0, -8)
-
+passive_description = "附近敌人越少，远程伤害越高（最多 +40%）。
+精英 / Boss 近身：移速 +50%，持续 1.5 秒，冷却 10 秒。"
+sprite = SubResource("AtlasTexture_original")
+sprite_offset = Vector2(0, -494)
