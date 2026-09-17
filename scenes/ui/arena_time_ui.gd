@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-const MAP_NAMES := ["暮色平原", "幽影荒原", "赤铜矿坑", "霜冻雪原"]
+const MAP_NAMES := ["暮色平原", "幽影荒原", "赤铜矿坑", "霜冻雪原", "熔火铸炉"]
 
 @export var arena_time_manager: Node
 @onready var label = %Label

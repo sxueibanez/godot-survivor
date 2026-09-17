@@ -160,7 +160,10 @@ func spawn_enemy(position: Vector2) -> Node2D:
 	if not GameEvents.can_spawn_enemy():
 		return null
 	var spawner: Node = main.get_node("EnemyManager")
-	var scene: PackedScene = spawner.enemy_table.pick_item()
+	var scene: PackedScene = spawner.pick_enemy_scene()
+	var forge: Node = get_tree().get_first_node_in_group("forge_map")
+	if forge != null and forge.active:
+		position = forge.safe_position(position)
 	var enemy := scene.instantiate() as Node2D
 	spawner.apply_difficulty(enemy)
 	main.get_node("Entities").add_child(enemy)
@@ -310,7 +313,7 @@ func spawn_scheduled_bosses() -> void:
 	var first: int = main.get("previous_map_id")
 	var second: int = main.get("current_map_id")
 	if first == 0 or first == second:
-		first = second % 4 + 1
+		first = second % main.MAP_COUNT + 1
 	var boss_maps: Array[int] = [second]
 	if bounty_selected:
 		boss_maps.push_front(first)

@@ -3,6 +3,9 @@ extends Node
 # 10px outside
 const SPAWN_RADIUS = 375
 const ENDLESS_ENEMY_HEALTH_MULTIPLIER := 0.5
+const CINDER := preload("res://scenes/game_object/forge_enemy/cinder.tscn")
+const GUARD := preload("res://scenes/game_object/forge_enemy/guard.tscn")
+const WORKER := preload("res://scenes/game_object/forge_enemy/worker.tscn")
 
 @export var basic_enemy_scene: PackedScene
 @export var wizard_enemy_scene: PackedScene
@@ -36,6 +39,9 @@ func get_spawn_position() -> Vector2:
 	var player = get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return Vector2.ZERO
+	var forge: Node = get_tree().get_first_node_in_group("forge_map")
+	if forge != null and forge.active:
+		return forge.get_spawn_position(player.global_position)
 
 	var spawn_position: Vector2
 	var random_direction := Vector2.RIGHT.rotated(randf_range(0, TAU))
@@ -56,6 +62,41 @@ func get_spawn_position() -> Vector2:
 	return Vector2.ZERO
 
 
+func get_boss_spawn_position() -> Vector2:
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player == null:
+		return Vector2.ZERO
+	var forge: Node = get_tree().get_first_node_in_group("forge_map")
+	if forge != null and forge.active:
+		return forge.safe_position(forge.get_spawn_position(player.global_position, 180.0), 72.0)
+	var shape := CircleShape2D.new()
+	shape.radius = 40.0
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.collision_mask = 1
+	var space := player.get_world_2d().direct_space_state
+	var angle := randf() * TAU
+	for distance: float in [180.0, 120.0, 80.0, 48.0]:
+		for index in 32:
+			var candidate := player.global_position + Vector2.RIGHT.rotated(angle + index * TAU / 32) * distance
+			if not boss_position_has_floor(candidate):
+				continue
+			query.transform = Transform2D(0.0, candidate)
+			var ray := PhysicsRayQueryParameters2D.create(player.global_position, candidate, 1)
+			if space.intersect_shape(query, 1).is_empty() and space.intersect_ray(ray).is_empty():
+				return candidate
+	# Player position is an in-map fallback, never the unrelated world origin.
+	return player.global_position
+
+
+func boss_position_has_floor(point: Vector2) -> bool:
+	var terrain := get_parent().get_node("TileMap") as TileMap
+	for offset: Vector2 in [Vector2.ZERO, Vector2(-48, 0), Vector2(48, 0), Vector2(0, -88), Vector2(0, 40)]:
+		if terrain.get_cell_source_id(0, terrain.local_to_map(terrain.to_local(point + offset))) == -1:
+			return false
+	return true
+
+
 func on_timer_timeout():
 	if not spawning:
 		return
@@ -69,7 +110,7 @@ func on_timer_timeout():
 	for _index in spawn_count:
 		if not GameEvents.can_spawn_enemy():
 			break
-		var enemy_scene = enemy_table.pick_item()
+		var enemy_scene = pick_enemy_scene()
 		var enemy = enemy_scene.instantiate() as Node2D
 		apply_difficulty(enemy)
 
@@ -82,6 +123,16 @@ func get_endless_spawn_count(difficulty: int) -> int:
 	return 1 + floori(float(difficulty) / 12.0)
 
 
+func pick_enemy_scene() -> PackedScene:
+	var scene: PackedScene = enemy_table.pick_item()
+	if level == 5:
+		if scene == GUARD and get_tree().get_nodes_in_group("forge_guard").size() >= 2:
+			return CINDER
+		if scene == WORKER and get_tree().get_nodes_in_group("forge_worker").size() >= 3:
+			return CINDER
+	return scene
+
+
 func get_endless_boss_health_multiplier(difficulty: int) -> float:
 	return 0.25 + difficulty * 0.015
 
@@ -91,6 +142,8 @@ func spawn_test_enemies(count: int = 20) -> void:
 	if entities_layer == null:
 		return
 	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene, frost_wisp_scene, frost_boar_scene, snowball_monster_scene]
+	if level == 5:
+		enemy_scenes.assign([CINDER, WORKER, GUARD])
 	for _index in count:
 		if not GameEvents.can_spawn_enemy():
 			break
@@ -124,6 +177,12 @@ func apply_endless_boss_difficulty(boss: Node2D) -> void:
 
 func on_arena_difficulty_increased(arena_difficulty: int):
 	timer.wait_time = max(0.25, base_spawn_time / (1.0 + arena_difficulty * 0.025))
+	if level == 5:
+		if arena_difficulty == 6:
+			enemy_table.add_item(WORKER, 3)
+		if arena_difficulty == 12:
+			enemy_table.add_item(GUARD, 2)
+		return
 	
 	if arena_difficulty == 6 and not GameEvents.is_endless_mode():
 		enemy_table.add_item(wizard_enemy_scene, 20)
@@ -140,6 +199,9 @@ func resume_spawning() -> void:
 
 
 func start_endless() -> void:
+	if level == 5:
+		start_level_5()
+		return
 	spawning = true
 	enemy_table = WeightedTable.new()
 	var enemy_scenes: Array[PackedScene] = [basic_enemy_scene, wizard_enemy_scene, exploder_enemy_scene, ranged_enemy_scene, cyclops_bat_scene, iron_golem_scene, stone_slime_scene, frost_wisp_scene, frost_boar_scene, snowball_monster_scene]
@@ -199,6 +261,16 @@ func start_level_4() -> void:
 	enemy_table.add_item(frost_wisp_scene, 9)
 	enemy_table.add_item(frost_boar_scene, 6)
 	enemy_table.add_item(snowball_monster_scene, 7)
+	base_spawn_time = 0.9
+	timer.wait_time = base_spawn_time
+	timer.start()
+
+
+func start_level_5() -> void:
+	level = 5
+	spawning = true
+	enemy_table = WeightedTable.new()
+	enemy_table.add_item(CINDER, 10)
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()

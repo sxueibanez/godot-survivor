@@ -2,8 +2,8 @@ extends Node
 
 const INITIAL_UPGRADES := 5
 const NEXT_ROUND_UPGRADES := 3
-const BOSS_HEALTH := [800.0, 1000.0, 1200.0, 1400.0]
-const BOSS_NAMES := ["史莱姆王", "雷电骑士", "铁臂矿工", "冰霜女王"]
+const BOSS_HEALTH := [800.0, 1000.0, 1200.0, 1400.0, 1600.0]
+const BOSS_NAMES := ["史莱姆王", "雷电骑士", "铁臂矿工", "冰霜女王", "熔炉暴君"]
 enum Stage { CHARACTER, INITIAL, FIGHT, CLEANUP, REWARD, REST, EXTRA, ROUND_COMPLETE, FINISHED }
 
 var stage := Stage.CHARACTER
@@ -64,7 +64,7 @@ func start_fight() -> void:
 	main.show_map(round_index + 1)
 	MusicPlayer.play_level(round_index + 1)
 	var hud: Node = main.get_node("ArenaTimeUI")
-	hud.map_name = "第%d轮 · 第 %d / 4 场 · %s" % [round_number, round_index + 1, BOSS_NAMES[round_index]]
+	hud.map_name = "第%d轮 · 第 %d / %d 场 · %s" % [round_number, round_index + 1, BOSS_NAMES.size(), BOSS_NAMES[round_index]]
 	remaining_bosses = round_number
 	pending_boss_maps.clear()
 	dead_boss_ids.clear()
@@ -75,7 +75,7 @@ func start_fight() -> void:
 	var other_maps: Array[int] = []
 	for extra in round_number - 1:
 		if other_maps.is_empty():
-			other_maps.assign([1, 2, 3, 4])
+			other_maps.assign(range(1, BOSS_NAMES.size() + 1))
 			other_maps.erase(round_index + 1)
 			other_maps.shuffle()
 		pending_boss_maps.append(other_maps.pop_back())
@@ -118,7 +118,7 @@ func on_boss_died(boss_id: int = 0) -> void:
 	if stage == Stage.FINISHED:
 		return
 	cleanup_battle()
-	if round_index == 3:
+	if round_index == BOSS_NAMES.size() - 1:
 		finish(true)
 		return
 	round_index += 1

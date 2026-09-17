@@ -37,9 +37,11 @@ func _process(delta: float) -> void:
 			set_temporary_shield(0.0, 0.0)
 
 
-func damage(damage_amount: float, source: String = "") -> bool:
+func damage(damage_amount: float, source: String = "", source_position: Vector2 = Vector2.INF, damage_kind: String = "direct") -> bool:
 	if get_tree().paused or current_health <= 0 or invulnerable_time_left > 0.0:
 		return false
+	if get_parent().has_method("modify_incoming_damage"):
+		damage_amount = get_parent().modify_incoming_damage(damage_amount, source_position, damage_kind, source)
 	if get_parent().is_in_group("player") and GameEvents.game_mode == "campaign":
 		damage_amount *= GameEvents.get_campaign_damage_multiplier()
 	if owner != null and owner.is_in_group("player") and not source.is_empty():

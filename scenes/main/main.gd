@@ -4,6 +4,7 @@ extends Node
 const CURRENT_BOSS_SPAWN_TIME := 3.0 * 60.0
 const ENDLESS_BOSS_INTERVAL := 60.0
 const ENDLESS_INITIAL_SKILL_CHOICES := 5
+const MAP_COUNT := 5
 
 @export var end_screen_scene: PackedScene
 
@@ -13,6 +14,7 @@ var slime_king_scene = preload("res://scenes/game_object/slime_king/slime_king.t
 var lightning_knight_scene = preload("res://scenes/game_object/lightning_knight/lightning_knight.tscn")
 var iron_arm_miner_scene = preload("res://scenes/game_object/iron_arm_miner/iron_arm_miner.tscn")
 var frost_queen_scene = preload("res://scenes/game_object/frost_queen/frost_queen.tscn")
+var furnace_tyrant_scene = preload("res://scenes/game_object/furnace_tyrant/furnace_tyrant.tscn")
 var waiting_for_entrance := false
 var level_2_started := false
 var entrance_spawned := false
@@ -24,7 +26,8 @@ var challenges: Node
 var boss_rush: Node
 var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
-var map_order := [1, 2, 3, 4]
+var map_order := [1, 2, 3, 4, 5]
+var forge_map: Node2D
 
 
 class LevelEntrance extends Node2D:
@@ -42,6 +45,18 @@ class LevelEntrance extends Node2D:
 
 
 func _ready():
+	forge_map = preload("res://scenes/environment/level_5_forge.gd").new()
+	forge_map.name = "ForgeMap"
+	add_child(forge_map)
+	move_child(forge_map, $Entities.get_index())
+	$CheatUI/LevelSelect.add_item("熔火铸炉", 5)
+	var forge_button := preload("res://scenes/ui/sound_button.tscn").instantiate() as Button
+	forge_button.text = "熔炉暴君"
+	forge_button.position = Vector2(494, 306)
+	forge_button.size = Vector2(68, 18)
+	forge_button.add_theme_font_size_override("font_size", 8)
+	forge_button.pressed.connect(spawn_furnace_tyrant)
+	$CheatUI.add_child(forge_button)
 	GameEvents.campaign_completed_maps = 0
 	%Player.health_component.died.connect(on_player_died)
 	$UpgradeManager.initial_choices_completed.connect(on_initial_choices_completed)
@@ -84,15 +99,8 @@ func on_character_selected(character: Resource) -> void:
 
 
 func begin_endless_mode() -> void:
-	match randi_range(1, 4):
-		1:
-			begin_level_1()
-		2:
-			begin_level_2()
-		3:
-			begin_level_3()
-		4:
-			begin_level_4()
+	begin_level(1, randi_range(1, MAP_COUNT))
+	$EnemyManager.level = current_map_id
 	$EnemyManager.start_endless()
 	$EnemyManager.stop_spawning()
 	next_endless_boss_time = ENDLESS_BOSS_INTERVAL
@@ -129,15 +137,10 @@ func on_learn_skill_button_pressed() -> void:
 
 
 func on_test_level_selected(index: int) -> void:
-	match index:
-		0:
-			begin_level_1()
-		1:
-			begin_level_2()
-		2:
-			begin_level_3()
-		3:
-			begin_level_4()
+	begin_level(current_level, index + 1)
+	if GameEvents.is_endless_mode():
+		$EnemyManager.level = current_map_id
+		$EnemyManager.start_endless()
 
 
 func _process(_delta: float) -> void:
@@ -146,7 +149,7 @@ func _process(_delta: float) -> void:
 	var time_elapsed: float = $ArenaTimeManager.get_time_elapsed()
 	if GameEvents.is_endless_mode():
 		while time_elapsed >= next_endless_boss_time:
-			spawn_boss_for_map(randi_range(1, 4))
+			spawn_boss_for_map(randi_range(1, MAP_COUNT))
 			next_endless_boss_time += ENDLESS_BOSS_INTERVAL
 		return
 	if not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
@@ -175,6 +178,10 @@ func spawn_frost_queen() -> Node2D:
 	return spawn_boss(frost_queen_scene)
 
 
+func spawn_furnace_tyrant() -> Node2D:
+	return spawn_boss(furnace_tyrant_scene)
+
+
 func spawn_boss(boss_scene: PackedScene) -> Node2D:
 	if boss_rush != null and not boss_rush.spawning_boss:
 		return null
@@ -189,7 +196,7 @@ func spawn_boss(boss_scene: PackedScene) -> Node2D:
 		if health != null:
 			health.died.connect(on_endless_boss_died)
 	$Entities.add_child(boss)
-	boss.global_position = $EnemyManager.get_spawn_position()
+	boss.global_position = $EnemyManager.get_boss_spawn_position()
 	return boss
 
 
@@ -203,6 +210,8 @@ func spawn_boss_for_map(map_id: int) -> Node2D:
 			return spawn_iron_arm_miner()
 		4:
 			return spawn_frost_queen()
+		5:
+			return spawn_furnace_tyrant()
 	return null
 
 
@@ -220,6 +229,8 @@ func spawn_level_entrance() -> void:
 	var entrance := LevelEntrance.new()
 	$Entities.add_child(entrance)
 	entrance.global_position = player.global_position + Vector2(72, 0)
+	if forge_map.active:
+		entrance.global_position = forge_map.safe_position(entrance.global_position)
 	var label := Label.new()
 	label.text = "第%d关入口" % (completed_maps + 1)
 	label.position = Vector2(-32, -36)
@@ -254,13 +265,17 @@ func begin_level_4() -> void:
 	begin_level(4)
 
 
-func begin_level(level: int) -> void:
+func begin_level_5() -> void:
+	begin_level(5, 5)
+
+
+func begin_level(level: int, forced_map_id: int = 0) -> void:
 	GameEvents.campaign_completed_maps = completed_maps
 	previous_map_id = current_map_id
 	current_level = level
 	waiting_for_entrance = false
 	entrance_spawned = false
-	current_map_id = map_order[level - 1] if level <= map_order.size() else randi_range(1, 4)
+	current_map_id = forced_map_id if forced_map_id > 0 else (map_order[level - 1] if level <= map_order.size() else randi_range(1, MAP_COUNT))
 	show_map(current_map_id)
 	MusicPlayer.play_level(current_map_id)
 	current_level_boss_started = false
@@ -282,11 +297,25 @@ func start_enemy_wave_for_map(map_id: int) -> void:
 			$EnemyManager.start_level_3()
 		4:
 			$EnemyManager.start_level_4()
+		5:
+			$EnemyManager.start_level_5()
 
 
 func show_map(map_id: int) -> void:
+	var was_forge: bool = forge_map.active
+	forge_map.activate(map_id == 5)
+	for layer in $TileMap.get_layers_count():
+		$TileMap.set_layer_enabled(layer, map_id != 5)
+	if map_id == 5 and not was_forge:
+		%Player.global_position = forge_map.CENTER
+		%Player.velocity = Vector2.ZERO
+	elif was_forge and map_id != 5:
+		# The forge is larger than the shared arena; don't retain an outside position.
+		%Player.global_position = Vector2(384, 384)
+		%Player.velocity = Vector2.ZERO
 	$ArenaTimeUI.set_map(map_id)
 	$TileMap.show()
+	$TileMap.visible = map_id != 5
 	$MineMap.visible = map_id == 3
 	$IceMap.visible = map_id == 4
 	match map_id:

@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/game_object/iron_golem/iron_golem.tscn" id="1"]
+[ext_resource type="Script" path="res://scenes/game_object/forge_enemy/forge_enemy.gd" id="2"]
+[node name="FurnaceGuard" instance=ExtResource("1")]
+script = ExtResource("2")
+kind = 1
+[node name="HealthComponent" parent="."]
+max_health = 55.0
+[node name="VelocityComponent" parent="."]
+max_speed = 26.0

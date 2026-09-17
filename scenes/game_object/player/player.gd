@@ -160,7 +160,7 @@ func check_deal_damage():
 	if number_colliding_bodies == 0 || !damage_interval_timer.is_stopped():
 		return
 	
-	health_component.damage((1.0 + GameEvents.arena_difficulty * 0.05) * 10.0, get_contact_damage_source())
+	health_component.damage((1.0 + GameEvents.arena_difficulty * 0.05) * get_contact_damage(), get_contact_damage_source())
 	damage_interval_timer.start()
 	print(health_component.current_health)
 
@@ -186,6 +186,14 @@ func on_body_entered(other_body: Node2D):
 
 func on_body_exited(other_body: Node2D):
 	number_colliding_bodies -= 1
+
+
+func get_contact_damage() -> float:
+	var amount := 10.0
+	for body: Node2D in $CollisionArea2D.get_overlapping_bodies():
+		if body.is_in_group("enemy"):
+			amount = maxf(amount, float(body.get_meta("contact_damage", 10.0)))
+	return amount
 
 
 func get_contact_damage_source() -> String:

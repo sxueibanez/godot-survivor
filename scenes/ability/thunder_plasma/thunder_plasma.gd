@@ -40,7 +40,7 @@ func tick() -> void:
 		if hurtbox == null or hurtbox.health_component == null or hurtbox.health_component.current_health <= 0.0:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage, weapon_id)
-		hurtbox.health_component.damage(critical_hit["damage"])
+		hurtbox.health_component.damage(critical_hit["damage"], "", global_position, "dot")
 		GameEvents.record_weapon_damage(weapon_id, critical_hit["damage"])
 		GameEvents.heal_from_damage(critical_hit["damage"])
 		hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])

@@ -25,5 +25,5 @@ func run() -> void:
 	assert(main.get("waiting_for_entrance"))
 	main.call("begin_level", 5)
 	assert(main.get("current_level") == 5)
-	assert(main.get("current_map_id") in [1, 2, 3, 4])
+	assert(main.get("current_map_id") in [1, 2, 3, 4, 5])
 	quit()

@@ -50,7 +50,7 @@ func _ready() -> void:
 	var companion: Node = preload("res://scenes/ability/azure_dragon/azure_dragon.tscn").instantiate()
 	main.get_node("Foreground").add_child(companion)
 	var controllers: int = player.abilities.get_child_count()
-	for battle in 4:
+	for battle in 5:
 		assert(main.current_map_id == battle + 1)
 		assert(GameEvents.get_enemy_count(true) == 1)
 		assert(rush.active_boss.get_node("HealthComponent").max_health == rush.BOSS_HEALTH[battle])
@@ -77,7 +77,7 @@ func _ready() -> void:
 		rush.on_boss_died()
 		assert(rush.defeated_bosses == battle + 1)
 		assert(rush.combat_time < before + 0.1)
-		if battle == 3:
+		if battle == 4:
 			break
 		await select_upgrades(1)
 		assert(rush.stage == rush.Stage.REST and get_tree().paused)
@@ -96,10 +96,10 @@ func _ready() -> void:
 			press_number(KEY_KP_1 if battle == 2 else KEY_1)
 			assert(health.current_health == health.max_health)
 		assert(rush.stage == rush.Stage.FIGHT)
-	assert(selections == 9)
+	assert(selections == 10)
 	assert(rush.stage == rush.Stage.ROUND_COMPLETE and get_tree().paused)
 	assert(main.get_child(main.get_child_count() - 1) is EndScreen)
-	assert(main.get_child(main.get_child_count() - 1).get_node("%DefeatReasonLabel").text.contains("累计击败 4"))
+	assert(main.get_child(main.get_child_count() - 1).get_node("%DefeatReasonLabel").text.contains("累计击败 5"))
 	var result: EndScreen = rush.result_screen
 	result.get_node("%Weapon1Label").text = "超长战报\n".repeat(100)
 	await get_tree().create_timer(0.4).timeout
@@ -116,7 +116,7 @@ func _ready() -> void:
 	assert(get_tree().paused and health.current_health == previous_health)
 	await select_upgrades(3)
 	assert(rush.combat_time < previous_time + 0.1)
-	for battle in 4:
+	for battle in 5:
 		assert(rush.stage == rush.Stage.FIGHT)
 		assert(GameEvents.get_enemy_count(true) == 2)
 		assert(rush.remaining_bosses == 2)
@@ -134,10 +134,10 @@ func _ready() -> void:
 		bosses[1].get_node("HealthComponent").damage(100000.0)
 		for frame in 4:
 			await get_tree().process_frame
-		if battle < 3:
+		if battle < 4:
 			await select_upgrades(1)
 			rush.choose_rest(true)
-	assert(rush.stage == rush.Stage.ROUND_COMPLETE and rush.defeated_bosses == 12)
+	assert(rush.stage == rush.Stage.ROUND_COMPLETE and rush.defeated_bosses == 15)
 	assert(rush.result_screen.get_node("%ContinueButton").text.contains("第3轮"))
 	assert(rush.result_screen.get_node("%ContinueButton").text.contains("再选3次"))
 	rush.result_screen.on_continue_button_pressed()
@@ -156,7 +156,7 @@ func _ready() -> void:
 		if index < 2:
 			assert(rush.stage == rush.Stage.FIGHT)
 			assert(not upgrades.choice_screen_open)
-	assert(rush.stage == rush.Stage.REWARD and rush.defeated_bosses == 15)
+	assert(rush.stage == rush.Stage.REWARD and rush.defeated_bosses == 18)
 	rush.finish(false)
 	main.queue_free()
 	await get_tree().process_frame

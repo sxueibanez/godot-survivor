@@ -38,7 +38,7 @@ func strike() -> void:
 	bolt.points = PackedVector2Array([Vector2.ZERO, to_local(target.global_position)])
 	strike_flash_time_left = STRIKE_FLASH_DURATION
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
-	hurtbox.health_component.damage(critical_hit["damage"])
+	hurtbox.health_component.damage(critical_hit["damage"], "", global_position, "dot")
 	GameEvents.record_weapon_damage("lightning_whip", critical_hit["damage"])
 	GameEvents.heal_from_damage(critical_hit["damage"])
 	hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])

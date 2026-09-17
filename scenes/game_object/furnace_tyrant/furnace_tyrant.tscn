@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/game_object/iron_golem/iron_golem.tscn" id="1"]
+[ext_resource type="Script" path="res://scenes/game_object/furnace_tyrant/furnace_tyrant.gd" id="2"]
+[node name="FurnaceTyrant" groups=["boss", "enemy"] instance=ExtResource("1")]
+script = ExtResource("2")
+kind = 3
+metadata/display_name = "熔炉暴君"
+[node name="HealthComponent" parent="."]
+max_health = 2400.0
+[node name="VelocityComponent" parent="."]
+max_speed = 38.0
