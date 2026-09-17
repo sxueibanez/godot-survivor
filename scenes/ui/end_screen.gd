@@ -1,10 +1,24 @@
 extends CanvasLayer
 class_name EndScreen
+signal continue_requested
 
 @onready var panel_container := %PanelContainer
 
 
 func _ready():
+	# Only the report scrolls: navigation buttons always remain on screen.
+	var report := panel_container.get_node("MarginContainer/VBoxContainer/ReportBoxes")
+	var box := report.get_parent()
+	var report_index := report.get_index()
+	var scroll := ScrollContainer.new()
+	scroll.name = "ReportScroll"
+	scroll.custom_minimum_size.y = 80.0
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(scroll)
+	box.move_child(scroll, report_index)
+	report.reparent(scroll)
+	report.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	update_summary()
 	panel_container.pivot_offset = panel_container.size / 2
 	panel_container.scale = Vector2.ZERO
@@ -95,6 +109,10 @@ func play_jingle(defeat: bool = false):
 
 
 func on_continue_button_pressed():
+	if continue_requested.has_connections():
+		%ContinueButton.disabled = true
+		continue_requested.emit()
+		return
 	ScreenTransition.transition()
 	await ScreenTransition.transitioned_halfway
 	

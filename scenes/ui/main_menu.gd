@@ -8,6 +8,7 @@ func _ready():
 	MusicPlayer.play_level(1)
 	%PlayButton.pressed.connect(on_play_pressed)
 	%EndlessButton.pressed.connect(on_endless_pressed)
+	%BossRushButton.pressed.connect(on_boss_rush_pressed)
 	%UpgradesButton.pressed.connect(on_upgrades_pressed)
 	%WeaponSkillsButton.pressed.connect(on_weapon_skills_pressed)
 	%OptionsButton.pressed.connect(on_options_pressed)
@@ -23,6 +24,13 @@ func on_play_pressed():
 
 func on_endless_pressed():
 	GameEvents.game_mode = "endless"
+	ScreenTransition.transition()
+	await ScreenTransition.transitioned_halfway
+	get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+
+
+func on_boss_rush_pressed():
+	GameEvents.game_mode = "boss_rush"
 	ScreenTransition.transition()
 	await ScreenTransition.transitioned_halfway
 	get_tree().change_scene_to_file("res://scenes/main/main.tscn")

@@ -21,6 +21,7 @@ var completed_maps := 0
 var current_map_id := 0
 var previous_map_id := 0
 var challenges: Node
+var boss_rush: Node
 var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
 var map_order := [1, 2, 3, 4]
@@ -53,7 +54,10 @@ func _ready():
 	$CheatUI/LevelSelect.item_selected.connect(on_test_level_selected)
 	challenges = preload("res://scenes/manager/challenge_manager.gd").new()
 	add_child(challenges)
-	if GameEvents.is_endless_mode():
+	if GameEvents.game_mode == "boss_rush":
+		boss_rush = preload("res://scenes/manager/boss_rush_manager.gd").new()
+		add_child(boss_rush)
+	elif GameEvents.is_endless_mode():
 		$EnemyManager.stop_spawning()
 	else:
 		map_order.shuffle()
@@ -68,7 +72,9 @@ func show_character_select() -> void:
 
 func on_character_selected(character: Resource) -> void:
 	%Player.set_character(character)
-	if GameEvents.is_endless_mode():
+	if boss_rush != null:
+		boss_rush.start()
+	elif GameEvents.is_endless_mode():
 		begin_endless_mode()
 		$UpgradeManager.start_initial_choices(ENDLESS_INITIAL_SKILL_CHOICES)
 	else:
@@ -105,6 +111,9 @@ func _unhandled_input(event):
 
 
 func on_player_died():
+	if boss_rush != null:
+		boss_rush.finish(false)
+		return
 	set_process(false)
 	$EnemyManager.stop_spawning()
 	$ArenaTimeManager.set_process(false)
@@ -132,6 +141,8 @@ func on_test_level_selected(index: int) -> void:
 
 
 func _process(_delta: float) -> void:
+	if boss_rush != null:
+		return
 	var time_elapsed: float = $ArenaTimeManager.get_time_elapsed()
 	if GameEvents.is_endless_mode():
 		while time_elapsed >= next_endless_boss_time:
@@ -165,9 +176,13 @@ func spawn_frost_queen() -> Node2D:
 
 
 func spawn_boss(boss_scene: PackedScene) -> Node2D:
+	if boss_rush != null and not boss_rush.spawning_boss:
+		return null
 	if not GameEvents.can_spawn_enemy(true):
 		return null
 	var boss := boss_scene.instantiate() as Node2D
+	if boss_rush != null:
+		boss.get_node("HealthComponent").max_health = boss_rush.BOSS_HEALTH[boss_rush.round_index]
 	if GameEvents.is_endless_mode():
 		$EnemyManager.apply_endless_boss_difficulty(boss)
 		var health := boss.get_node_or_null("HealthComponent") as HealthComponent

@@ -20,9 +20,12 @@ func _ready():
 	if get_parent().is_in_group("enemy"):
 		if enemy_base_health <= 0.0:
 			enemy_base_health = max_health
-		if not GameEvents.is_endless_mode():
+		if GameEvents.game_mode == "campaign":
 			max_health = GameEvents.get_campaign_enemy_health(enemy_base_health, get_parent().is_in_group("boss"))
-		max_health *= MetaProgression.get_enemy_health_multiplier()
+		elif GameEvents.game_mode == "boss_rush" and not get_parent().is_in_group("boss"):
+			max_health = clampf(12.0 * sqrt(enemy_base_health / 10.0), 12.0, 25.0)
+		if GameEvents.game_mode != "boss_rush":
+			max_health *= MetaProgression.get_enemy_health_multiplier()
 	current_health = max_health
 
 
@@ -37,7 +40,7 @@ func _process(delta: float) -> void:
 func damage(damage_amount: float, source: String = "") -> bool:
 	if get_tree().paused or current_health <= 0 or invulnerable_time_left > 0.0:
 		return false
-	if get_parent().is_in_group("player") and not GameEvents.is_endless_mode():
+	if get_parent().is_in_group("player") and GameEvents.game_mode == "campaign":
 		damage_amount *= GameEvents.get_campaign_damage_multiplier()
 	if owner != null and owner.is_in_group("player") and not source.is_empty():
 		var game_events := get_node_or_null("/root/GameEvents")

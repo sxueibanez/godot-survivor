@@ -1,6 +1,7 @@
 extends Node
 
 signal initial_choices_completed
+signal choices_finished
 
 @export var experience_manager: ExperienceManager
 @export var upgrade_screen_scene: PackedScene
@@ -137,6 +138,8 @@ func _ready():
 
 func start_initial_choices(choice_rounds: int = 1) -> void:
 	initial_choices_remaining = maxi(choice_rounds, 0) + clampi(MetaProgression.get_upgrade_count("meta_initial_choices"), 0, 1)
+	if GameEvents.game_mode == "boss_rush":
+		initial_choices_remaining = maxi(choice_rounds, 0)
 	if initial_choices_remaining == 0:
 		initial_choices_completed.emit()
 		return
@@ -338,6 +341,8 @@ func pick_upgrades(choice_count: int = 3) -> Array[AbilityUpgrade]:
 
 
 func on_level_up(current_level: int):
+	if GameEvents.game_mode == "boss_rush":
+		return
 	show_upgrade_choices(3)
 
 
@@ -444,6 +449,8 @@ func on_upgrade_selected(upgrade: AbilityUpgrade, upgrade_screen: Node = null):
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1
 		show_upgrade_choices(3)
+	if not choice_screen_open:
+		choices_finished.emit()
 
 
 func on_upgrade_disabled(upgrade: AbilityUpgrade, _upgrade_screen: Node = null) -> void:
@@ -470,3 +477,5 @@ func on_upgrade_screen_closed(upgrade_screen: Node) -> void:
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1
 		show_upgrade_choices(3)
+	if not choice_screen_open:
+		choices_finished.emit()

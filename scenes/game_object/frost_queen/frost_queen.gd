@@ -143,25 +143,64 @@ class IceBurstEffect extends Node2D:
 
 
 class Blizzard extends Node2D:
+	const WARNING_TIME := 0.8
+	const HOLD_TIME := 1.0
+	const SHRINK_TIME := 3.0
 	var elapsed := 0.0
 	var damage_time := 0.0
+	var hint: Label
+
+	func _ready() -> void:
+		hint = Label.new()
+		hint.text = "进入安全圈"
+		hint.position = Vector2(-48, -12)
+		hint.add_theme_font_size_override("font_size", 12)
+		hint.add_theme_color_override("font_color", Color(0.8, 0.97, 1.0))
+		hint.add_theme_color_override("font_shadow_color", Color.BLACK)
+		hint.add_theme_constant_override("shadow_offset_x", 1)
+		hint.add_theme_constant_override("shadow_offset_y", 1)
+		add_child(hint)
+
+	func get_safe_radius() -> float:
+		return lerpf(145.0, 55.0, clampf((elapsed - WARNING_TIME - HOLD_TIME) / SHRINK_TIME, 0.0, 1.0))
 
 	func _process(delta: float) -> void:
+		if get_tree().paused:
+			return
 		elapsed += delta
+		if elapsed >= WARNING_TIME + HOLD_TIME + SHRINK_TIME:
+			queue_free()
+			return
 		damage_time -= delta
-		var radius := lerpf(145.0, 55.0, minf(elapsed / 4.0, 1.0))
+		var radius := get_safe_radius()
 		var player := get_tree().get_first_node_in_group("player") as Node2D
-		if player != null and damage_time <= 0.0 and global_position.distance_to(player.global_position) > radius:
+		var outside := player != null and global_position.distance_to(player.global_position) > radius
+		hint.visible = elapsed < WARNING_TIME or outside
+		if elapsed >= WARNING_TIME and outside and damage_time <= 0.0:
 			var health := player.get_node_or_null("HealthComponent") as HealthComponent
 			if health != null:
 				health.damage(18.0, "冰霜女王的暴风雪")
 			damage_time = 0.45
 		queue_redraw()
-		if elapsed >= 4.0:
-			queue_free()
 
 	func _draw() -> void:
-		var radius := lerpf(145.0, 55.0, minf(elapsed / 4.0, 1.0))
+		var radius := get_safe_radius()
+		# Cover the visible world outside the safe circle without tinting its interior.
+		var screen_to_local := get_global_transform_with_canvas().affine_inverse()
+		var view := get_viewport_rect()
+		var outer_radius := radius + 64.0
+		for corner: Vector2 in [view.position, Vector2(view.end.x, view.position.y), view.end, Vector2(view.position.x, view.end.y)]:
+			outer_radius = maxf(outer_radius, (screen_to_local * corner).length() + 64.0)
+		var alpha := 0.16 if elapsed < WARNING_TIME else 0.22
+		var player := get_tree().get_first_node_in_group("player") as Node2D
+		if player != null and global_position.distance_to(player.global_position) > radius:
+			alpha += sin(elapsed * 6.0) * 0.035
+		for index in 72:
+			var a := Vector2.RIGHT.rotated(index * TAU / 72.0)
+			var b := Vector2.RIGHT.rotated((index + 1) * TAU / 72.0)
+			draw_colored_polygon(PackedVector2Array([a * radius, a * outer_radius, b * outer_radius, b * radius]), Color(0.75, 0.06, 0.1, alpha))
+		if elapsed < WARNING_TIME:
+			draw_arc(Vector2.ZERO, radius - 4.0, -PI * 0.5, -PI * 0.5 + TAU * elapsed / WARNING_TIME, 72, Color(0.7, 0.95, 1.0), 3.0)
 		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 72, Color(0.86, 0.98, 1.0, 0.95), 2.5)
 		draw_arc(Vector2.ZERO, radius + 5.0, elapsed * 1.6, elapsed * 1.6 + PI * 1.3, 48, Color(0.35, 0.8, 1.0, 0.65), 2.0)
 		draw_arc(Vector2.ZERO, radius + 12.0, -elapsed * 1.1, -elapsed * 1.1 + PI, 40, Color(0.7, 0.94, 1.0, 0.38), 1.5)
@@ -273,11 +312,10 @@ func start_blizzard() -> void:
 	if player == null or foreground == null:
 		return
 	begin_action(BLIZZARD_TEXTURE)
-	await get_tree().create_timer(0.55).timeout
 	var storm := Blizzard.new()
 	foreground.add_child(storm)
 	storm.global_position = player.global_position
-	await get_tree().create_timer(0.35).timeout
+	await get_tree().create_timer(Blizzard.WARNING_TIME + 0.35, false).timeout
 	finish_action()
 
 
