@@ -42,6 +42,7 @@ func fire(direction: Vector2) -> void:
 	for i in PROJECTILE_COUNT:
 		var projectile := projectile_scene.instantiate() as Node2D
 		projectile.set("direction", direction.rotated((i - 1) * 0.16))
+		projectile.set("damage_multiplier", float(get_meta("damage_multiplier", 1.0)))
 		foreground.add_child(projectile)
 		projectile.global_position = global_position
 

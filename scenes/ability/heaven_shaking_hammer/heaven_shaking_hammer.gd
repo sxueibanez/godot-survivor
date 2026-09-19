@@ -19,6 +19,7 @@ var extra_wave_count := 0
 var lava_enabled := false
 var pull_enabled := false
 var is_heavy := false
+var aftershock_enabled := false
 var elapsed := 0.0
 var impact_triggered := false
 
@@ -107,3 +108,10 @@ func spawn_shockwaves() -> void:
 		if has_meta("attack_cooldown"):
 			get_meta("attack_cooldown").track(wave)
 		parent.add_child(wave)
+	if aftershock_enabled:
+		var aftershock := shockwave_scene.instantiate() as HeavenShakingHammerShockwave
+		aftershock.configure(global_position, damage * 0.3, radius * 1.5, WAVE_DELAY, false)
+		aftershock.sprite_modulate = Color(0.75, 0.85, 1.0, 0.7)
+		if has_meta("attack_cooldown"):
+			get_meta("attack_cooldown").track(aftershock)
+		parent.add_child(aftershock)

@@ -37,6 +37,7 @@ func fire(direction: Vector2) -> void:
 		return
 	var laser := laser_scene.instantiate() as Node2D
 	laser.set("direction", direction)
+	laser.set("damage_multiplier", float(get_meta("damage_multiplier", 1.0)))
 	foreground.add_child(laser)
 	laser.global_position = global_position + Vector2(0, -9)
 

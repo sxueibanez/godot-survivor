@@ -15,6 +15,7 @@ var attack_count := 1
 var chain_enabled := false
 var cloud_enabled := false
 var wide_arc_enabled := false
+var paralysis_enabled := false
 var character_damage_multiplier := 1.0
 
 
@@ -60,6 +61,7 @@ func on_timer_timeout() -> void:
 		whip.chain_enabled = chain_enabled
 		whip.cloud_enabled = cloud_enabled
 		whip.wide_arc_enabled = wide_arc_enabled
+		whip.paralysis_enabled = paralysis_enabled
 		attack_cooldown.track(whip)
 		foreground.add_child(whip)
 
@@ -79,5 +81,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			cloud_enabled = true
 		"lightning_wide_arc":
 			wide_arc_enabled = true
+		"lightning_paralysis":
+			paralysis_enabled = true
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count

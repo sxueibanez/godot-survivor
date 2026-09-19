@@ -4,6 +4,7 @@ class_name VialDropComponent
 @export_range(0, 1) var drop_rate: float = .5
 @export var health_component: HealthComponent
 @export var vial_scene: PackedScene
+var disabled := false
 
 
 func _ready():
@@ -11,10 +12,14 @@ func _ready():
 
 
 func on_died():
+	if disabled:
+		return
 	var adjusted_drop_rate = drop_rate
 	var experience_gain_upgrade_count = MetaProgression.get_upgrade_count("experience_gain")
 	if experience_gain_upgrade_count > 0:
 		adjusted_drop_rate += experience_gain_upgrade_count * 0.1
+	if adjusted_drop_rate <= 0.0:
+		return
 	
 	if randf() > adjusted_drop_rate:
 		return

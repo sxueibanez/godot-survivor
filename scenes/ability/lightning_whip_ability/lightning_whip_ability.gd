@@ -9,12 +9,14 @@ const CHAIN_TRIGGER_CHANCE := 0.5
 const CHAIN_TARGET_COUNT := 2
 const CHAIN_DAMAGE_MULTIPLIER := 0.5
 const CLOUD_TRIGGER_CHANCE := 0.1
+const Paralysis = preload("res://scenes/ability/lightning_paralysis.gd")
 
 @export var damage := 8.0
 @export var size_multiplier := 0.5
 @export var chain_enabled := false
 @export var cloud_enabled := false
 @export var wide_arc_enabled := false
+@export var paralysis_enabled := false
 
 var direction := Vector2.RIGHT
 var time_left := DURATION
@@ -60,6 +62,7 @@ func strike() -> void:
 		var velocity := enemy.get_node_or_null("VelocityComponent") as VelocityComponent
 		if velocity != null:
 			velocity.apply_slow(0.25, 3.0)
+		Paralysis.try_apply(enemy, paralysis_enabled)
 		if cloud_enabled and randf() <= CLOUD_TRIGGER_CHANCE:
 			spawn_cloud(enemy)
 		if chain_enabled and randf() <= CHAIN_TRIGGER_CHANCE:
@@ -89,6 +92,7 @@ func spawn_chains(source_enemy: Node2D) -> void:
 		chain.chain_enabled = true
 		chain.chain_depth = 1
 		chain.visited_enemy_ids = [source_enemy.get_instance_id()]
+		chain.paralysis_enabled = paralysis_enabled
 		foreground.add_child(chain)
 
 
@@ -98,5 +102,6 @@ func spawn_cloud(enemy: Node2D) -> void:
 		return
 	var cloud := lightning_cloud_scene.instantiate() as LightningCloudAbility
 	cloud.damage = damage * LightningCloudAbility.DAMAGE_MULTIPLIER
+	cloud.paralysis_enabled = paralysis_enabled
 	cloud.global_position = enemy.global_position + Vector2.UP * LightningCloudAbility.HOVER_HEIGHT
 	foreground.add_child(cloud)

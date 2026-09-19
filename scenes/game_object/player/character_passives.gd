@@ -177,7 +177,7 @@ func spend_reroll_health() -> bool:
 
 func on_enemy_defeated(enemy: Node2D) -> void:
 	if character != null and character.id == "gambling_scholar" and enemy.is_in_group("elite") and health.current_health > 0.0:
-		health.heal(health.max_health * character.elite_heal_fraction)
+		health.heal(health.max_health * character.elite_heal_fraction, "elite_reward")
 
 
 func on_damage_taken(amount: float) -> void:

@@ -32,12 +32,14 @@ func split() -> void:
 		return
 	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
 	if entities != null:
-		for index in 3:
+		var summon_count := maxi(1, ceili(3.0 * GameEvents.curse_summon_count_multiplier))
+		for index in summon_count:
 			if not GameEvents.can_spawn_enemy():
 				break
 			var child := duplicate() as CharacterBody2D
 			entities.add_child(child)
-			child.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 3.0) * 18.0
+			GameEvents.configure_summon(child, self)
+			child.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / summon_count) * 18.0
 			child.call("configure_small")
 	queue_free()
 

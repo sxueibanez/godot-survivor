@@ -12,6 +12,7 @@ const HEAT_REACTION_FRACTION := 0.5
 const GIANT_RADIUS_MULTIPLIER := 1.5
 const GIANT_KNOCKBACK_SPEED := 240.0
 const GIANT_KNOCKBACK_DURATION := 0.3
+const IMPLOSION_PULL_DISTANCE := 10.0
 
 @onready var bomb_sprite: Sprite2D = $BombSprite
 @onready var explosion_sprite: Sprite2D = $ExplosionSprite
@@ -30,6 +31,7 @@ var elapsed := 0.0
 var exploding := false
 var heat_reaction_enabled := false
 var is_giant := false
+var implosion_enabled := false
 
 var burn_scene := preload("res://scenes/ability/bomb_burn/bomb_burn.tscn")
 
@@ -109,6 +111,8 @@ func damage_enemies() -> void:
 					effect.refresh(effect.damage)
 		if burn_enabled:
 			apply_burn(enemy)
+		if implosion_enabled and not enemy.is_in_group("boss"):
+			pull_enemy(enemy)
 		if is_giant and not enemy.is_in_group("boss"):
 			var velocity := enemy.get_node_or_null("VelocityComponent") as VelocityComponent
 			if velocity != null:
@@ -116,6 +120,17 @@ func damage_enemies() -> void:
 				if direction == Vector2.ZERO:
 					direction = start_position.direction_to(target_position)
 				velocity.apply_knockback(direction if direction != Vector2.ZERO else Vector2.RIGHT, GIANT_KNOCKBACK_SPEED, GIANT_KNOCKBACK_DURATION)
+
+
+func pull_enemy(enemy: Node2D) -> void:
+	var distance := enemy.global_position.distance_to(global_position)
+	if distance <= 4.0:
+		return
+	var movement := enemy.global_position.direction_to(global_position) * minf(IMPLOSION_PULL_DISTANCE, distance - 4.0)
+	if enemy is CharacterBody2D:
+		(enemy as CharacterBody2D).move_and_collide(movement)
+	else:
+		enemy.global_position += movement
 
 
 func get_explosion_radius() -> float:
@@ -150,6 +165,7 @@ func spawn_bomb(from: Vector2, to: Vector2, new_damage: float, new_radius: float
 	var bomb := load("res://scenes/ability/bomb_ability/bomb_ability.tscn").instantiate() as BombAbility
 	bomb.configure(from, to, new_damage, new_radius, bounces, burns, clusters, is_mini)
 	bomb.heat_reaction_enabled = heat_reaction_enabled
+	bomb.implosion_enabled = implosion_enabled
 	if has_meta("attack_cooldown"):
 		get_meta("attack_cooldown").track(bomb)
 	parent.add_child(bomb)

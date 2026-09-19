@@ -51,6 +51,8 @@ func run() -> void:
 	root.add_child(player)
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
+	foreground.add_to_group("combat_effects_layer")
 	root.add_child(foreground)
 	var enemy := Node2D.new()
 	enemy.position = Vector2(100, 0)

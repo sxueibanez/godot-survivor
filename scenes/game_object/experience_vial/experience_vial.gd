@@ -5,6 +5,7 @@ extends Node2D
 @onready var sprite = $Sprite2D
 
 var collecting := false
+var experience_value := 1.0
 
 
 func _ready():
@@ -27,7 +28,7 @@ func tween_collect(percent: float, start_position: Vector2):
 
 
 func collect():
-	GameEvents.emit_experience_vial_collected(1)
+	GameEvents.emit_experience_vial_collected(experience_value)
 	queue_free()
 
 
@@ -39,6 +40,7 @@ func collect_to_player() -> void:
 	if collecting:
 		return
 	collecting = true
+	experience_value *= GameEvents.get_curse_experience_multiplier_at(global_position)
 	Callable(disable_collision).call_deferred()
 	
 	var tween = create_tween()

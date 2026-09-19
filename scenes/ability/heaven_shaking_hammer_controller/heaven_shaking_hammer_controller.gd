@@ -19,6 +19,7 @@ var extra_wave_count := 0
 var lava_enabled := false
 var pull_enabled := false
 var heavy_enabled := false
+var aftershock_enabled := false
 var quake_charge := 0.0
 var charge_label: Label
 var character_damage_multiplier := 1.0
@@ -82,6 +83,7 @@ func on_timer_timeout() -> void:
 		var hammer := hammer_ability_scene.instantiate() as HeavenShakingHammerAbility
 		var is_heavy := heavy_enabled and quake_charge >= HEAVY_CHARGE_TIME
 		hammer.configure(player.global_position, target.global_position, base_damage * damage_multiplier, BASE_RADIUS * size_multiplier, extra_wave_count, lava_enabled, pull_enabled, is_heavy)
+		hammer.aftershock_enabled = aftershock_enabled
 		if is_heavy:
 			quake_charge = 0.0
 		attack_cooldown.track(hammer)
@@ -105,5 +107,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			pull_enabled = true
 		"heaven_shaking_hammer_heavy":
 			heavy_enabled = true
+		"heaven_shaking_hammer_aftershock":
+			aftershock_enabled = true
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count

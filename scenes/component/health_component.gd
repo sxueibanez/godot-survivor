@@ -26,6 +26,8 @@ func _ready():
 			max_health = clampf(12.0 * sqrt(enemy_base_health / 10.0), 12.0, 25.0)
 		if GameEvents.game_mode != "boss_rush":
 			max_health *= MetaProgression.get_enemy_health_multiplier()
+		if not get_parent().is_in_group("boss") and not get_parent().is_in_group("elite"):
+			max_health *= GameEvents.curse_enemy_health_multiplier
 	current_health = max_health
 
 
@@ -71,7 +73,9 @@ func damage(damage_amount: float, source: String = "", source_position: Vector2 
 	return current_health == 0
 
 
-func heal(heal_amount: float):
+func heal(heal_amount: float, source: String = "normal"):
+	if get_parent().is_in_group("player") and GameEvents.curse_no_normal_healing and source not in ["life_steal", "boss_reward", "elite_reward", "curse_reward", "max_health_upgrade"]:
+		return
 	current_health = min(current_health + heal_amount, max_health)
 	health_changed.emit()
 

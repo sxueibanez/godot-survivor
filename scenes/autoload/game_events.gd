@@ -32,6 +32,20 @@ var game_mode := "campaign"
 var campaign_completed_maps := 0
 var challenge_attack_interval_multiplier := 1.0
 var challenge_experience_multiplier := 1.0
+var curse_enemy_health_multiplier := 1.0
+var curse_enemy_speed_multiplier := 1.0
+var curse_experience_multiplier := 1.0
+var curse_weapon_damage_multiplier := 1.0
+var curse_attack_interval_multiplier := 1.0
+var curse_player_health_multiplier := 1.0
+var curse_player_speed_multiplier := 1.0
+var curse_elite_interval_multiplier := 1.0
+var curse_summon_cooldown_multiplier := 1.0
+var curse_summon_count_multiplier := 1.0
+var curse_summon_health_multiplier := 1.0
+var curse_no_normal_healing := false
+var curse_boost_next_upgrade := false
+var active_curses: Array[String] = []
 const MAX_ENEMIES := 30
 
 
@@ -63,6 +77,28 @@ func get_campaign_damage_multiplier() -> float:
 	return minf(0.65 + campaign_completed_maps * 0.1, 2.0)
 
 
+func get_enemy_damage(enemy: Node, base_damage: float) -> float:
+	return base_damage * float(enemy.get_meta("damage_multiplier", 1.0))
+
+
+func has_curse(curse_id: String) -> bool:
+	return active_curses.has(curse_id)
+
+
+func get_curse_experience_multiplier_at(point: Vector2) -> float:
+	var manager := get_tree().get_first_node_in_group("curse_manager")
+	return manager.experience_multiplier_at(point) if manager != null else 1.0
+
+
+func configure_summon(summon: Node2D, summoner: Node2D) -> void:
+	summon.set_meta("curse_summon", true)
+	summon.set_meta("summoner_id", summoner.get_instance_id())
+	var health := summon.get_node_or_null("HealthComponent") as HealthComponent
+	if health != null:
+		health.max_health *= curse_summon_health_multiplier
+		health.current_health = health.max_health
+
+
 func get_campaign_spawn_count() -> int:
 	# ponytail: cap simultaneous batches at six; raise only after profiling crowded maps.
 	return mini(1 + floori(campaign_completed_maps / 2.0), 6)
@@ -85,6 +121,20 @@ func emit_experience_vial_collected(number: float):
 func reset_run_stats() -> void:
 	challenge_attack_interval_multiplier = 1.0
 	challenge_experience_multiplier = 1.0
+	curse_enemy_health_multiplier = 1.0
+	curse_enemy_speed_multiplier = 1.0
+	curse_experience_multiplier = 1.0
+	curse_weapon_damage_multiplier = 1.0
+	curse_attack_interval_multiplier = 1.0
+	curse_player_health_multiplier = 1.0
+	curse_player_speed_multiplier = 1.0
+	curse_elite_interval_multiplier = 1.0
+	curse_summon_cooldown_multiplier = 1.0
+	curse_summon_count_multiplier = 1.0
+	curse_summon_health_multiplier = 1.0
+	curse_no_normal_healing = false
+	curse_boost_next_upgrade = false
+	active_curses.clear()
 	campaign_completed_maps = 0
 	weapon_attack_count = 1
 	base_weapon_attack_count = 1
@@ -164,7 +214,7 @@ func heal_from_damage(damage: float) -> void:
 		return
 	var health_component: HealthComponent = player.get_node_or_null("HealthComponent") as HealthComponent
 	if health_component != null:
-		health_component.heal(damage * life_steal_percent)
+		health_component.heal(damage * life_steal_percent, "life_steal")
 
 
 func emit_player_damaged():

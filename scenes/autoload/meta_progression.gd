@@ -9,6 +9,7 @@ var save_data: Dictionary = {
 	"meta_upgrade_currency": 0,
 	"meta_upgrades": {},
 	"weapon_skills": {},
+	"weapon_skill_loadouts": {},
 }
 
 
@@ -29,6 +30,8 @@ func load_save_file() -> void:
 		save_data["meta_upgrades"] = {}
 	if !save_data.has("weapon_skills"):
 		save_data["weapon_skills"] = {}
+	if !save_data.has("weapon_skill_loadouts"):
+		save_data["weapon_skill_loadouts"] = {}
 
 
 func save() -> void:
@@ -55,6 +58,42 @@ func get_upgrade_count(upgrade_id: String) -> int:
 func get_weapon_skill_count(skill_id: String) -> int:
 	var weapon_skills: Dictionary = save_data["weapon_skills"] as Dictionary
 	return int(weapon_skills.get(skill_id, 0))
+
+
+func get_weapon_skill_loadout(weapon_id: String, default_ids: Array[String]) -> Array[String]:
+	var saved: Array = (save_data.get("weapon_skill_loadouts", {}) as Dictionary).get(weapon_id, [])
+	var result: Array[String] = []
+	for value in saved:
+		var skill_id := str(value)
+		if skill_id in default_ids and skill_id not in result and result.size() < 5:
+			result.append(skill_id)
+	if result.is_empty():
+		for index in mini(5, default_ids.size()):
+			result.append(default_ids[index])
+	return result
+
+
+func swap_weapon_skill(weapon_id: String, slot: int, new_skill_id: String, default_ids: Array[String]) -> bool:
+	var loadout := get_weapon_skill_loadout(weapon_id, default_ids)
+	if slot < 0 or slot >= loadout.size() or new_skill_id not in default_ids or get_weapon_skill_count(new_skill_id) <= 0:
+		return false
+	var old_index := loadout.find(new_skill_id)
+	if old_index >= 0:
+		var old_skill := loadout[slot]
+		loadout[slot] = new_skill_id
+		loadout[old_index] = old_skill
+	else:
+		loadout[slot] = new_skill_id
+	var loadouts: Dictionary = save_data.get("weapon_skill_loadouts", {})
+	loadouts[weapon_id] = loadout
+	save_data["weapon_skill_loadouts"] = loadouts
+	save()
+	return true
+
+
+func clear_weapon_skill_loadout(weapon_id: String) -> void:
+	(save_data.get("weapon_skill_loadouts", {}) as Dictionary).erase(weapon_id)
+	save()
 
 
 func get_weapon_tree_bonus(weapon_id: String, stat: String) -> float:

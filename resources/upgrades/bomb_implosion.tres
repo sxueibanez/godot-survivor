@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityUpgrade" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/upgrades/ability_upgrade.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/icons/skills/bomb_implosion.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1")
+id = "bomb_implosion"
+max_quantity = 1
+icon = ExtResource("2_icon")
+name = "爆心牵引"
+description = "爆炸轻微拉近范围内的小怪。"

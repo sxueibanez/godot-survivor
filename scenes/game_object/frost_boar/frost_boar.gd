@@ -103,7 +103,7 @@ func start_charge(player: Node2D) -> void:
 
 func charge(delta: float) -> void:
 	var previous := global_position
-	velocity = charge_direction * CHARGE_SPEED
+	velocity = charge_direction * CHARGE_SPEED * float(get_meta("move_speed_multiplier", 1.0))
 	move_and_slide()
 	distance_left -= previous.distance_to(global_position)
 	trail_time -= delta
@@ -115,7 +115,7 @@ func charge(delta: float) -> void:
 		hit_player = true
 		var health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if health != null:
-			health.damage(42.0, "霜甲野猪")
+			health.damage(GameEvents.get_enemy_damage(self, 42.0), "霜甲野猪")
 		var movement := player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if movement != null:
 			movement.apply_knockback(charge_direction, 320.0, 0.25)

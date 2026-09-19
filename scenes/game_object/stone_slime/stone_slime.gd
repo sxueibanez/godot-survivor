@@ -68,7 +68,7 @@ func _process(delta: float) -> void:
 	if charging:
 		animate(delta, 3.0)
 		var previous_position := global_position
-		velocity = charge_direction * CHARGE_SPEED
+		velocity = charge_direction * CHARGE_SPEED * float(get_meta("move_speed_multiplier", 1.0))
 		move_and_slide()
 		charge_distance -= global_position.distance_to(previous_position)
 		knockback_enemies()
@@ -108,7 +108,7 @@ func hit_player() -> bool:
 		return false
 	var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(CHARGE_DAMAGE)
+		player_health.damage(GameEvents.get_enemy_damage(self, CHARGE_DAMAGE))
 	var player_velocity := player.get_node_or_null("VelocityComponent") as VelocityComponent
 	if player_velocity != null:
 		player_velocity.apply_knockback(charge_direction, 280.0, 0.22)

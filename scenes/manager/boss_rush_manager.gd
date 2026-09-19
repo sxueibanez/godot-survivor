@@ -133,10 +133,11 @@ func cleanup_battle() -> void:
 		for controller: Node in player.abilities.get_children():
 			if controller is AzureDragonController and controller.four_beasts_active:
 				controller.end_four_beasts_rush()
-	for effect: Node in main.get_node("Foreground").get_children():
-		if effect is AzureDragonAbility or effect is VermilionBirdAbility or effect is WhiteTigerAbility or effect is XuanwuAbility or effect is NineTreasurePagodaAbility:
-			continue
-		effect.queue_free()
+	for layer_name: String in ["GroundEffects", "EnemyProjectiles", "PlayerProjectiles", "CombatEffects"]:
+		for effect: Node in main.get_node(layer_name).get_children():
+			if effect is AzureDragonAbility or effect is VermilionBirdAbility or effect is WhiteTigerAbility or effect is XuanwuAbility or effect is NineTreasurePagodaAbility:
+				continue
+			effect.queue_free()
 	for entity: Node in main.get_node("Entities").get_children():
 		if entity != player:
 			entity.queue_free()
@@ -199,7 +200,7 @@ func choose_rest(heal: bool) -> void:
 		if player == null:
 			finish(false)
 			return
-		player.health_component.heal(player.health_component.max_health * 0.30)
+		player.health_component.heal(player.health_component.max_health * 0.30, "boss_reward")
 		start_fight()
 	else:
 		main.get_node("UpgradeManager").show_upgrade_choices(3)

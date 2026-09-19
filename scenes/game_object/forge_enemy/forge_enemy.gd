@@ -101,7 +101,7 @@ func _process(delta: float) -> void:
 	if kind == 0:
 		var distance := global_position.distance_to(player.global_position)
 		if cinder_fuse_left < 0.0 and distance <= CINDER_PREHEAT_RANGE:
-			velocity_component.max_speed = 120.0
+			velocity_component.max_speed = 120.0 * float(get_meta("move_speed_multiplier", 1.0))
 			cinder_fuse_total = clampf((distance - 18.0) / velocity_component.max_speed, 0.65, 1.6)
 			cinder_fuse_left = cinder_fuse_total
 		if cinder_fuse_left >= 0.0:
@@ -128,7 +128,7 @@ func _process(delta: float) -> void:
 			strike.radius = 70
 			strike.warning_time = 0.0
 			strike.active_time = 0.15
-			strike.player_damage = 24
+			strike.player_damage = GameEvents.get_enemy_damage(self, 24)
 			strike.damage_interval = 10
 			strike.damage_source = "炉膛守卫的锻造锤"
 			strike.owner_id = get_instance_id()
@@ -203,7 +203,7 @@ func drop_barrel(delay: float) -> void:
 	barrel.radius = 58
 	barrel.warning_time = delay
 	barrel.active_time = 0.35
-	barrel.player_damage = 28
+	barrel.player_damage = GameEvents.get_enemy_damage(self, 28)
 	barrel.enemy_damage = 45
 	barrel.affect_enemies = true
 	add_effect(barrel, global_position)
@@ -214,7 +214,7 @@ func throw_barrel(target: Vector2) -> void:
 	last_thrown_barrel.radius = 58
 	last_thrown_barrel.warning_time = 1.0
 	last_thrown_barrel.active_time = 0.35
-	last_thrown_barrel.player_damage = 28
+	last_thrown_barrel.player_damage = GameEvents.get_enemy_damage(self, 28)
 	last_thrown_barrel.enemy_damage = 45
 	last_thrown_barrel.affect_enemies = true
 	last_thrown_barrel.owner_id = get_instance_id()
@@ -233,7 +233,7 @@ func explode_cinder() -> void:
 	explosion.warning_time = 0.0
 	explosion.active_time = 0.22
 	explosion.damage_interval = 10.0
-	explosion.player_damage = 22.0
+	explosion.player_damage = GameEvents.get_enemy_damage(self, 22.0)
 	explosion.damage_source = "煤渣虫自爆"
 	explosion.owner_id = get_instance_id()
 	add_effect(explosion, global_position)
@@ -260,7 +260,7 @@ func on_died() -> void:
 			ember.radius = 15
 			ember.warning_time = 0.3
 			ember.active_time = 1.0
-			ember.player_damage = 6
+			ember.player_damage = GameEvents.get_enemy_damage(self, 6)
 			ember.damage_source = "煤渣虫的余烬"
 			add_effect(ember, global_position)
 	var death := EFFECT.new()

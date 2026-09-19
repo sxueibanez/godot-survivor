@@ -42,6 +42,8 @@ func _ready() -> void:
 	var owner_node := owner as Node2D
 	if owner_node == null:
 		return
+	if owner_node.is_in_group("enemy") and not owner_node.is_in_group("boss") and not owner_node.is_in_group("elite"):
+		max_speed *= GameEvents.curse_enemy_speed_multiplier
 	stun_indicator = StunIndicator.new()
 	stun_indicator.position = Vector2(0, -20)
 	stun_indicator.z_as_relative = false

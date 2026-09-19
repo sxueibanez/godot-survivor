@@ -12,6 +12,7 @@ var combo_attack := false
 var impact_radius := 54.0
 var locked_target := Vector2.ZERO
 var summons: Array[Node2D] = []
+var last_skill := ""
 var slag_targets: Array[Vector2] = []
 var event_fired := false
 var rift_index := 0
@@ -192,6 +193,8 @@ func _process(delta: float) -> void:
 			if state_time >= action_duration:
 				begin_state("idle", "walk")
 				attack_cooldown = 0.65 if phase == 3 else 1.0 if phase == 2 else 1.4
+				if last_skill == "summon":
+					attack_cooldown *= GameEvents.curse_summon_cooldown_multiplier
 
 func start_skill(skill: String) -> void:
 	if dead or state != "idle":
@@ -200,6 +203,7 @@ func start_skill(skill: String) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player == null:
 		return
+	last_skill = skill
 	match skill:
 		"dash":
 			dash_direction = global_position.direction_to(player.global_position)
@@ -305,7 +309,7 @@ func owned_effect(effect_kind: String, point: Vector2) -> Node2D:
 	return effect
 
 func spawn_batch(count: int) -> void:
-	for index in count:
+	for index in maxi(1, ceili(count * GameEvents.curse_summon_count_multiplier)):
 		spawn_minion(CINDER)
 
 func spawn_minion(scene: PackedScene) -> void:
@@ -322,6 +326,7 @@ func spawn_minion(scene: PackedScene) -> void:
 	var summon := scene.instantiate() as Node2D
 	summon.set_meta("forge_owner_id", get_instance_id())
 	get_tree().get_first_node_in_group("entities_layer").add_child(summon)
+	GameEvents.configure_summon(summon, self)
 	var point := global_position + Vector2.RIGHT.rotated(randf() * TAU) * 75
 	var map := forge_map()
 	summon.global_position = map.safe_position(point) if map != null else point

@@ -11,7 +11,11 @@ func run() -> void:
 	events.player_damage_multiplier = 1.0
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
 	root.add_child(foreground)
+	var floating_texts := Node2D.new()
+	floating_texts.add_to_group("floating_text_layer")
+	root.add_child(floating_texts)
 	var player := Node2D.new()
 	player.add_to_group("player")
 	root.add_child(player)

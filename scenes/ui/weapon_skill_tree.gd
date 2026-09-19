@@ -40,6 +40,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_lightning_chain", "title": "电弧连锁", "description": "命中时有 50% 概率对附近敌人释放两条可连锁闪电链，每条造成 50% 武器伤害。", "requires": []},
 		{"id": "tree_lightning_cloud", "title": "雷云召唤", "description": "普通攻击命中有 10% 概率生成雷云；雷云持续 5 秒，每秒电击一名敌人，造成 150% 武器伤害。", "requires": []},
 		{"id": "tree_lightning_wide_arc", "title": "雷霆横扫", "description": "普通攻击范围从 90° 提升至 180°。", "requires": []},
+		{"id": "tree_lightning_paralysis", "title": "麻痹电流", "description": "所有伤害有20%概率麻痹0.5秒。", "requires": []},
 	],
 	"bomb": [
 		{"id": "tree_bomb_bounce", "title": "跳弹", "description": "解锁局内跳弹升级；每级增加1次弹跳爆炸，最多3级。", "requires": []},
@@ -47,6 +48,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_bomb_cluster", "title": "子母弹", "description": "解锁局内子母弹升级；每次主炸弹爆炸洒出5枚30%威力与范围的小炸弹。", "requires": []},
 		{"id": "tree_bomb_heat_reaction", "title": "热爆反应", "description": "结算50%剩余燃烧伤害并刷新燃烧。", "requires": ["tree_bomb_burn"]},
 		{"id": "tree_bomb_giant_charge", "title": "巨型装药", "description": "每第4轮主弹巨化，首爆半径+50%，击退小怪。", "requires": []},
+		{"id": "tree_bomb_implosion", "title": "爆心牵引", "description": "爆炸轻微拉近范围内的小怪。", "requires": []},
 	],
 	"thunder_orb_book": [
 		{"id": "tree_thunder_orb_chain", "title": "雷链", "description": "解锁局内雷链升级；雷球每秒攻击周围最多3名敌人。", "requires": []},
@@ -73,6 +75,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_heaven_shaking_hammer_lava", "title": "熔岩震地", "description": "解锁局内岩浆升级；震地波后留下持续3秒的岩浆，每0.5秒造成30%武器伤害。", "requires": []},
 		{"id": "tree_heaven_shaking_hammer_pull", "title": "万钧聚震", "description": "解锁局内聚震升级；落锤前短暂将附近敌人拉向砸击点。", "requires": []},
 		{"id": "tree_heaven_shaking_hammer_heavy", "title": "天外重锤", "description": "解锁局内重锤升级；持续战斗每秒积攒1层震势，满10层后下一锤体型、范围和伤害翻倍。", "requires": []},
+		{"id": "tree_heaven_shaking_hammer_aftershock", "title": "震荡余波", "description": "中心扩散1.5倍余波，造成30%伤害。", "requires": []},
 	],
 	"sniper_rifle": [
 		{"id": "tree_sniper_rifle_diamond_bullet", "title": "金刚弹", "description": "解锁局内金刚弹升级；子弹穿透敌人后不再衰减伤害。", "requires": []},
@@ -86,6 +89,7 @@ const NODE_COSTS := [50, 100, 150, 200]
 const NODE_COLORS := [Color("35b95a"), Color("289ee8"), Color("a64fc2"), Color("ef3f45")]
 const NODE_NAMES := ["攻击 +5%", "攻速 +5%", "大小 +5%"]
 const NODE_STATS := ["damage", "attack_speed", "size"]
+const OVERFLOW_SKILL_COST := 500
 const TREE_CENTER := Vector2(300, 125)
 const NODE_RADII := [36.0, 61.0, 86.0, 104.0]
 const SPECIAL_ICON_IDS := {
@@ -101,6 +105,37 @@ class SkillTreeCanvas extends Control:
 		for branch in 5:
 			var direction := Vector2.UP.rotated(branch * TAU / 5.0)
 			draw_line(TREE_CENTER + direction * 21.0, TREE_CENTER + direction * float(NODE_RADII[3]), Color("59606e"), 3.0)
+
+class SkillNodeButton extends Button:
+	var tree: CanvasLayer
+	var weapon_id := ""
+	var skill_id := ""
+	var slot := -1
+
+	func setup(owner_tree: CanvasLayer, current_weapon: String, current_skill: String, current_slot: int) -> void:
+		tree = owner_tree
+		weapon_id = current_weapon
+		skill_id = current_skill
+		slot = current_slot
+
+	func _get_drag_data(_position: Vector2) -> Variant:
+		if skill_id.is_empty() or MetaProgression.get_weapon_skill_count(skill_id) <= 0:
+			return null
+		var preview := TextureRect.new()
+		preview.texture = tree.call("get_icon", skill_id, false)
+		preview.custom_minimum_size = Vector2(42, 42)
+		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		set_drag_preview(preview)
+		return {"weapon_id": weapon_id, "skill_id": skill_id, "slot": slot}
+
+	func _can_drop_data(_position: Vector2, data: Variant) -> bool:
+		return data is Dictionary and data.get("weapon_id", "") == weapon_id and int(data.get("slot", -1)) != slot and (slot >= 0 or int(data.get("slot", -1)) >= 0)
+
+	func _drop_data(_position: Vector2, data: Variant) -> void:
+		var target_slot := slot if slot >= 0 else int(data.get("slot", -1))
+		var replacement := str(data.get("skill_id", "")) if slot >= 0 else skill_id
+		tree.call("swap_equipped_skill", target_slot, replacement)
 
 @onready var currency_label: Label = %CurrencyLabel
 @onready var weapon_tabs: HBoxContainer = %WeaponTabs
@@ -157,8 +192,10 @@ func refresh_tree() -> void:
 	tree_container.add_child(canvas)
 	add_center_weapon(canvas)
 	var skills: Array = WEAPON_SKILLS[selected_weapon_id] as Array
+	var equipped_skills := get_equipped_skills(selected_weapon_id)
 	for branch in 5:
-		add_branch(canvas, branch, skills)
+		add_branch(canvas, branch, equipped_skills)
+	add_overflow_panel(canvas, skills, equipped_skills)
 
 
 func add_center_weapon(canvas: Control) -> void:
@@ -194,14 +231,16 @@ func add_branch(canvas: Control, branch: int, skills: Array) -> void:
 		var diameter := 32.0 if step < 3 else 38.0
 		button.position = TREE_CENTER + direction * float(NODE_RADII[step]) - Vector2.ONE * diameter * 0.5
 		button.size = Vector2.ONE * diameter
-		button.disabled = !available or unlocked or !previous_unlocked or int(MetaProgression.save_data["meta_upgrade_currency"]) < int(NODE_COSTS[step])
+		button.disabled = !available or (unlocked and step < 3) or !previous_unlocked or (not unlocked and int(MetaProgression.save_data["meta_upgrade_currency"]) < int(NODE_COSTS[step]))
+		if step == 3 and unlocked:
+			(button as SkillNodeButton).setup(self, selected_weapon_id, node_id, branch)
 		if available and !unlocked:
 			button.pressed.connect(on_node_purchased.bind(node_id, int(NODE_COSTS[step])))
 		canvas.add_child(button)
 
 
 func make_node_button(step: int, skill: Dictionary, available: bool, unlocked: bool) -> Button:
-	var button := Button.new()
+	var button: Button = SkillNodeButton.new() if step == 3 else Button.new()
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 8)
 	var color: Color = NODE_COLORS[step] if available else Color("d8d8d8")
@@ -229,6 +268,94 @@ func make_node_button(step: int, skill: Dictionary, available: bool, unlocked: b
 	else:
 		button.tooltip_text = "暂无专属技能"
 	return button
+
+
+func add_overflow_panel(canvas: Control, all_skills: Array, equipped_skills: Array) -> void:
+	if all_skills.size() <= 5:
+		return
+	var panel := PanelContainer.new()
+	panel.position = Vector2(462, 8)
+	panel.size = Vector2(132, 214)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.09, 0.14, 0.94)
+	style.border_color = Color("59606e")
+	style.set_border_width_all(2)
+	panel.add_theme_stylebox_override("panel", style)
+	canvas.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	panel.add_child(column)
+	var title := Label.new()
+	title.text = "候选技能 · 解锁500瓶"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 9)
+	column.add_child(title)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	column.add_child(grid)
+	for skill_value in all_skills:
+		var skill := skill_value as Dictionary
+		var skill_id := str(skill["id"])
+		if equipped_skills.any(func(item: Dictionary): return str(item["id"]) == skill_id):
+			continue
+		var unlocked := MetaProgression.get_weapon_skill_count(skill_id) > 0
+		var button := SkillNodeButton.new()
+		button.custom_minimum_size = Vector2(54, 48)
+		button.setup(self, selected_weapon_id, skill_id, -1)
+		button.tooltip_text = "%s\n%s%s" % [str(skill["title"]), str(skill["description"]), "\n拖到技能树进行替换。" if unlocked else "\n点击解锁 · 500瓶"]
+		var icon := TextureRect.new()
+		icon.position = Vector2(6, 3)
+		icon.size = Vector2(42, 42)
+		icon.texture = get_icon(skill_id, false)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(icon)
+		if not unlocked:
+			button.disabled = int(MetaProgression.save_data["meta_upgrade_currency"]) < OVERFLOW_SKILL_COST
+			button.pressed.connect(on_overflow_skill_purchased.bind(skill_id))
+		grid.add_child(button)
+
+
+func get_equipped_skills(weapon_id: String) -> Array:
+	var all_skills: Array = WEAPON_SKILLS[weapon_id]
+	var ids: Array[String] = []
+	for skill_value in all_skills:
+		ids.append(str((skill_value as Dictionary)["id"]))
+	var equipped_ids := MetaProgression.get_weapon_skill_loadout(weapon_id, ids)
+	var result := []
+	for skill_id in equipped_ids:
+		for skill_value in all_skills:
+			if str((skill_value as Dictionary)["id"]) == skill_id:
+				result.append(skill_value)
+				break
+	return result
+
+
+static func is_skill_equipped(skill_id: String) -> bool:
+	for weapon_id: String in WEAPON_SKILLS:
+		var skills: Array = WEAPON_SKILLS[weapon_id]
+		var ids: Array[String] = []
+		for skill_value in skills:
+			ids.append(str((skill_value as Dictionary)["id"]))
+		if skill_id in ids:
+			return skill_id in MetaProgression.get_weapon_skill_loadout(weapon_id, ids)
+	return false
+
+
+func swap_equipped_skill(slot: int, new_skill_id: String) -> void:
+	var ids: Array[String] = []
+	for skill_value in (WEAPON_SKILLS[selected_weapon_id] as Array):
+		ids.append(str((skill_value as Dictionary)["id"]))
+	if MetaProgression.swap_weapon_skill(selected_weapon_id, slot, new_skill_id, ids):
+		refresh_tree()
+
+
+func on_overflow_skill_purchased(skill_id: String) -> void:
+	MetaProgression.purchase_weapon_skill(skill_id, OVERFLOW_SKILL_COST)
+	refresh_tree()
 
 
 func get_node_id(branch: int, step: int, skill: Dictionary) -> String:
@@ -291,9 +418,13 @@ func get_selected_node_costs() -> Dictionary:
 			var node_id := get_node_id(branch, step, skill)
 			if not node_id.is_empty():
 				costs[node_id] = int(NODE_COSTS[step])
+	for index in skills.size():
+		var skill_id := str((skills[index] as Dictionary)["id"])
+		costs[skill_id] = OVERFLOW_SKILL_COST if index >= 5 else int(NODE_COSTS[3])
 	return costs
 
 
 func on_reset_pressed() -> void:
-	MetaProgression.reset_weapon_skills(get_selected_node_costs())
+	if MetaProgression.reset_weapon_skills(get_selected_node_costs()):
+		MetaProgression.clear_weapon_skill_loadout(selected_weapon_id)
 	refresh_tree()

@@ -295,15 +295,18 @@ func summon_wisps() -> void:
 		return
 	begin_action()
 	await get_tree().create_timer(0.45).timeout
-	for index in 4:
+	var summon_count := maxi(1, ceili(4.0 * GameEvents.curse_summon_count_multiplier))
+	for index in summon_count:
 		if not GameEvents.can_spawn_enemy():
 			break
 		var wisp := WISP_SCENE.instantiate() as Node2D
 		entities.add_child(wisp)
-		wisp.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 4.0) * 76.0
+		GameEvents.configure_summon(wisp, self)
+		wisp.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / summon_count) * 76.0
 	spawn_ice_burst(global_position, 82.0)
 	await get_tree().create_timer(0.4).timeout
 	finish_action()
+	cooldown *= GameEvents.curse_summon_cooldown_multiplier
 
 
 func start_blizzard() -> void:

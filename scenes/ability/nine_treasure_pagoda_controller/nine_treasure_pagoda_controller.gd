@@ -13,9 +13,9 @@ var pagoda: NineTreasurePagodaAbility
 var character_damage_multiplier := 1.0
 var stationary_time := 0.0
 var stationary := false
-var common_damage_levels := 0
-var common_size_levels := 0
-var common_rate_levels := 0
+var common_damage_levels := 0.0
+var common_size_levels := 0.0
+var common_rate_levels := 0.0
 var tree_damage_bonus := 0.0
 var tree_attack_speed_bonus := 0.0
 var tree_size_bonus := 0.0
@@ -86,6 +86,10 @@ func refresh_weapon_attack_count() -> void:
 
 func apply_attack_speed_to_weapon_timers() -> void:
 	for timer: Timer in get_weapon_attack_timers():
+		if timer.has_meta("curse_base_wait"):
+			timer.wait_time = float(timer.get_meta("curse_base_wait"))
+			timer.remove_meta("curse_base_wait")
+			timer.remove_meta("curse_applied_wait")
 		if timer.has_meta("challenge_base_wait"):
 			timer.wait_time = float(timer.get_meta("challenge_base_wait"))
 			timer.remove_meta("challenge_base_wait")
@@ -94,7 +98,7 @@ func apply_attack_speed_to_weapon_timers() -> void:
 		var base_wait := float(timer.get_meta("pagoda_base_wait", timer.wait_time))
 		if last_applied >= 0.0 and not is_equal_approx(timer.wait_time, last_applied):
 			base_wait = timer.wait_time
-		var target_wait := maxf(0.05, base_wait * GameEvents.support_attack_interval_multiplier * GameEvents.challenge_attack_interval_multiplier)
+		var target_wait := maxf(0.05, base_wait * GameEvents.support_attack_interval_multiplier * GameEvents.challenge_attack_interval_multiplier * GameEvents.curse_attack_interval_multiplier)
 		timer.set_meta("pagoda_base_wait", base_wait)
 		timer.set_meta("pagoda_applied_wait", target_wait)
 		timer.wait_time = target_wait
@@ -159,11 +163,11 @@ func has_property(node: Node, property_name: String) -> bool:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
 		"nine_treasure_pagoda_damage":
-			common_damage_levels = int(current_upgrades[upgrade.id]["quantity"])
+			common_damage_levels = float(current_upgrades[upgrade.id]["quantity"])
 		"nine_treasure_pagoda_size":
-			common_size_levels = int(current_upgrades[upgrade.id]["quantity"])
+			common_size_levels = float(current_upgrades[upgrade.id]["quantity"])
 		"nine_treasure_pagoda_rate":
-			common_rate_levels = int(current_upgrades[upgrade.id]["quantity"])
+			common_rate_levels = float(current_upgrades[upgrade.id]["quantity"])
 		"nine_treasure_damage":
 			damage_skill = true
 		"nine_treasure_attack_speed":

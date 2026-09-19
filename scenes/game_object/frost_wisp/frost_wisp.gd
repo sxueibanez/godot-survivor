@@ -15,6 +15,7 @@ var animation_time := 0.0
 class IceBolt extends Node2D:
 	var direction := Vector2.RIGHT
 	var time_left := 4.0
+	var damage_multiplier := 1.0
 
 	func _process(delta: float) -> void:
 		global_position += direction * 185.0 * delta
@@ -23,7 +24,7 @@ class IceBolt extends Node2D:
 		if player != null and global_position.distance_squared_to(player.global_position) <= 13.0 * 13.0:
 			var health := player.get_node_or_null("HealthComponent") as HealthComponent
 			if health != null:
-				health.damage(30.0, "冰晶幽灵")
+				health.damage(30.0 * damage_multiplier, "冰晶幽灵")
 			var movement := player.get_node_or_null("VelocityComponent") as VelocityComponent
 			if movement != null:
 				movement.apply_slow(0.35, 1.2)
@@ -64,6 +65,7 @@ func fire(direction: Vector2) -> void:
 		return
 	var bolt := IceBolt.new()
 	bolt.direction = Vector2.RIGHT if direction == Vector2.ZERO else direction
+	bolt.damage_multiplier = float(get_meta("damage_multiplier", 1.0))
 	bolt.rotation = bolt.direction.angle()
 	foreground.add_child(bolt)
 	bolt.global_position = global_position

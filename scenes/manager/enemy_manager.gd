@@ -6,6 +6,7 @@ const ENDLESS_ENEMY_HEALTH_MULTIPLIER := 0.5
 const CINDER := preload("res://scenes/game_object/forge_enemy/cinder.tscn")
 const GUARD := preload("res://scenes/game_object/forge_enemy/guard.tscn")
 const WORKER := preload("res://scenes/game_object/forge_enemy/worker.tscn")
+const EXPERIENCE_VIAL := preload("res://scenes/game_object/experience_vial/experience_vial.tscn")
 
 @export var basic_enemy_scene: PackedScene
 @export var wizard_enemy_scene: PackedScene
@@ -20,6 +21,7 @@ const WORKER := preload("res://scenes/game_object/forge_enemy/worker.tscn")
 @export var arena_time_manager: ArenaTimeManager
 
 @onready var timer = $Timer
+@onready var elite_timer: Timer = $EliteTimer
 
 var base_spawn_time = 0  # sec
 var enemy_table = WeightedTable.new()
@@ -31,6 +33,7 @@ func _ready():
 	enemy_table.add_item(basic_enemy_scene, 10)
 	base_spawn_time = timer.wait_time
 	timer.timeout.connect(on_timer_timeout)
+	elite_timer.timeout.connect(spawn_elite)
 	arena_time_manager.arena_difficulty_increased.connect(on_arena_difficulty_increased)
 
 
@@ -165,6 +168,55 @@ func apply_difficulty(enemy: Node2D) -> void:
 		velocity.max_speed = roundi(velocity.max_speed * (1.0 + arena_time_manager.arena_difficulty * 0.015))
 
 
+func spawn_elite() -> Node2D:
+	if not spawning or GameEvents.game_mode not in ["campaign", "endless"] or not GameEvents.can_spawn_enemy():
+		return null
+	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
+	if entities == null:
+		return null
+	var elite := pick_enemy_scene().instantiate() as Node2D
+	apply_difficulty(elite)
+	elite.add_to_group("elite")
+	elite.set_meta("periodic_elite", true)
+	elite.set_meta("damage_multiplier", 1.5)
+	elite.set_meta("move_speed_multiplier", 0.7)
+	if elite.has_method("configure_small"):
+		elite.set("can_split", false)
+	entities.add_child(elite)
+	elite.set_meta("contact_damage", float(elite.get_meta("contact_damage", 10.0)) * 1.5)
+	elite.global_position = get_spawn_position()
+	elite.scale *= 1.5
+	elite.modulate = Color(1.0, 0.72, 0.36)
+	var health := elite.get_node_or_null("HealthComponent") as HealthComponent
+	if health != null:
+		health.max_health *= 5.0
+		health.current_health = health.max_health
+		health.died.connect(drop_elite_experience.bind(elite), CONNECT_ONE_SHOT)
+	var velocity := elite.get_node_or_null("VelocityComponent") as VelocityComponent
+	if velocity != null:
+		velocity.max_speed *= 0.7
+	var drop := elite.get_node_or_null("VialDropComponent") as VialDropComponent
+	if drop != null:
+		drop.disabled = true
+	return elite
+
+
+func drop_elite_experience(elite: Node2D) -> void:
+	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
+	if entities == null or not is_instance_valid(elite):
+		return
+	var spawn_position := elite.global_position
+	for index in randi_range(5, 10):
+		var vial := EXPERIENCE_VIAL.instantiate() as Node2D
+		entities.add_child(vial)
+		vial.global_position = spawn_position + Vector2.RIGHT.rotated(index * 2.399963) * (8.0 + index * 2.0)
+
+
+func restart_elite_timer() -> void:
+	if GameEvents.game_mode in ["campaign", "endless"]:
+		elite_timer.start(15.0 * GameEvents.curse_elite_interval_multiplier)
+
+
 func apply_endless_boss_difficulty(boss: Node2D) -> void:
 	var difficulty: int = arena_time_manager.arena_difficulty
 	var health := boss.get_node_or_null("HealthComponent") as HealthComponent
@@ -191,11 +243,13 @@ func on_arena_difficulty_increased(arena_difficulty: int):
 func stop_spawning() -> void:
 	spawning = false
 	timer.stop()
+	elite_timer.stop()
 
 
 func resume_spawning() -> void:
 	spawning = true
 	timer.start()
+	restart_elite_timer()
 
 
 func start_endless() -> void:
@@ -210,6 +264,7 @@ func start_endless() -> void:
 	base_spawn_time = 0.7
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()
 
 
 func start_level_1() -> void:
@@ -220,6 +275,7 @@ func start_level_1() -> void:
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()
 
 
 func start_level_2() -> void:
@@ -233,6 +289,7 @@ func start_level_2() -> void:
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()
 
 
 func start_level_3() -> void:
@@ -249,6 +306,7 @@ func start_level_3() -> void:
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()
 
 
 func start_level_4() -> void:
@@ -264,6 +322,7 @@ func start_level_4() -> void:
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()
 
 
 func start_level_5() -> void:
@@ -274,3 +333,4 @@ func start_level_5() -> void:
 	base_spawn_time = 0.9
 	timer.wait_time = base_spawn_time
 	timer.start()
+	restart_elite_timer()

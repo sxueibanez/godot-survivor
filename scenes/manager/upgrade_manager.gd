@@ -1,5 +1,7 @@
 extends Node
 
+const WeaponSkillTree = preload("res://scenes/ui/weapon_skill_tree.gd")
+
 signal initial_choices_completed
 signal choices_finished
 
@@ -51,12 +53,14 @@ var upgrade_lightning_whip_rate := preload("res://resources/upgrades/lightning_w
 var upgrade_lightning_chain := preload("res://resources/upgrades/lightning_chain.tres")
 var upgrade_lightning_cloud := preload("res://resources/upgrades/lightning_cloud.tres")
 var upgrade_lightning_wide_arc := preload("res://resources/upgrades/lightning_wide_arc.tres")
+var upgrade_lightning_paralysis := preload("res://resources/upgrades/lightning_paralysis.tres")
 var upgrade_bomb := preload("res://resources/upgrades/bomb.tres")
 var upgrade_bomb_bounce := preload("res://resources/upgrades/bomb_bounce.tres")
 var upgrade_bomb_burn := preload("res://resources/upgrades/bomb_burn.tres")
 var upgrade_bomb_cluster := preload("res://resources/upgrades/bomb_cluster.tres")
 var upgrade_bomb_heat_reaction := preload("res://resources/upgrades/bomb_heat_reaction.tres")
 var upgrade_bomb_giant_charge := preload("res://resources/upgrades/bomb_giant_charge.tres")
+var upgrade_bomb_implosion := preload("res://resources/upgrades/bomb_implosion.tres")
 var upgrade_bomb_damage := preload("res://resources/upgrades/bomb_damage.tres")
 var upgrade_bomb_size := preload("res://resources/upgrades/bomb_size.tres")
 var upgrade_bomb_rate := preload("res://resources/upgrades/bomb_rate.tres")
@@ -94,6 +98,7 @@ var upgrade_heaven_shaking_hammer_extra_wave := preload("res://resources/upgrade
 var upgrade_heaven_shaking_hammer_lava := preload("res://resources/upgrades/heaven_shaking_hammer_lava.tres")
 var upgrade_heaven_shaking_hammer_pull := preload("res://resources/upgrades/heaven_shaking_hammer_pull.tres")
 var upgrade_heaven_shaking_hammer_heavy := preload("res://resources/upgrades/heaven_shaking_hammer_heavy.tres")
+var upgrade_heaven_shaking_hammer_aftershock := preload("res://resources/upgrades/heaven_shaking_hammer_aftershock.tres")
 var upgrade_sniper_rifle := preload("res://resources/upgrades/sniper_rifle.tres")
 var upgrade_sniper_rifle_damage := preload("res://resources/upgrades/sniper_rifle_damage.tres")
 var upgrade_sniper_rifle_size := preload("res://resources/upgrades/sniper_rifle_size.tres")
@@ -111,6 +116,7 @@ var pending_upgrade_choices := 0
 var choice_screen_open := false
 var pending_challenge_rewards: Array[int] = []
 var disabled_upgrade_ids: Dictionary = {}
+var external_choice_callback := Callable()
 
 
 func _ready():
@@ -150,13 +156,15 @@ func apply_upgrade(upgrade: AbilityUpgrade):
 	if upgrade is Ability and (current_upgrades.has(upgrade.id) or get_weapon_count() >= get_weapon_limit()):
 		return
 	var has_upgrade = current_upgrades.has(upgrade.id)
+	var quantity_gain := 1.2 if GameEvents.curse_boost_next_upgrade and is_boostable_upgrade(upgrade) else 1.0
 	if not has_upgrade:
 		current_upgrades[upgrade.id] = {
 			"resource": upgrade,
-			"quantity": 1,
+			"quantity": quantity_gain,
 		}
 	else:
-		current_upgrades[upgrade.id]["quantity"] += 1
+		current_upgrades[upgrade.id]["quantity"] += quantity_gain
+	GameEvents.curse_boost_next_upgrade = false
 	
 	# quantity check -> pool 에서 빼버림
 	if upgrade.max_quantity > 0:
@@ -209,6 +217,7 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_lightning_chain, "tree_lightning_chain", 5)
 		add_unlocked_special(upgrade_lightning_cloud, "tree_lightning_cloud", 5)
 		add_unlocked_special(upgrade_lightning_wide_arc, "tree_lightning_wide_arc", 5)
+		add_unlocked_special(upgrade_lightning_paralysis, "tree_lightning_paralysis", 5)
 	elif chosen_upgrade.id == upgrade_bomb.id:
 		upgrade_pool.add_item(upgrade_bomb_damage, 10)
 		upgrade_pool.add_item(upgrade_bomb_size, 10)
@@ -218,6 +227,7 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_bomb_cluster, "tree_bomb_cluster", 8)
 		add_unlocked_special(upgrade_bomb_heat_reaction, "tree_bomb_heat_reaction", 8)
 		add_unlocked_special(upgrade_bomb_giant_charge, "tree_bomb_giant_charge", 8)
+		add_unlocked_special(upgrade_bomb_implosion, "tree_bomb_implosion", 8)
 	elif chosen_upgrade.id == upgrade_thunder_orb_book.id:
 		upgrade_pool.add_item(upgrade_thunder_orb_damage, 10)
 		upgrade_pool.add_item(upgrade_thunder_orb_size, 10)
@@ -251,6 +261,7 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 		add_unlocked_special(upgrade_heaven_shaking_hammer_lava, "tree_heaven_shaking_hammer_lava", 8)
 		add_unlocked_special(upgrade_heaven_shaking_hammer_pull, "tree_heaven_shaking_hammer_pull", 8)
 		add_unlocked_special(upgrade_heaven_shaking_hammer_heavy, "tree_heaven_shaking_hammer_heavy", 8)
+		add_unlocked_special(upgrade_heaven_shaking_hammer_aftershock, "tree_heaven_shaking_hammer_aftershock", 8)
 	elif chosen_upgrade.id == upgrade_sniper_rifle.id:
 		upgrade_pool.add_item(upgrade_sniper_rifle_damage, 10)
 		upgrade_pool.add_item(upgrade_sniper_rifle_size, 10)
@@ -265,7 +276,7 @@ func update_upgrade_pool(chosen_upgrade: AbilityUpgrade):
 
 
 func add_unlocked_special(upgrade: AbilityUpgrade, tree_skill_id: String, weight: int) -> void:
-	if MetaProgression.get_weapon_skill_count(tree_skill_id) > 0 and not disabled_upgrade_ids.has(upgrade.id):
+	if MetaProgression.get_weapon_skill_count(tree_skill_id) > 0 and WeaponSkillTree.is_skill_equipped(tree_skill_id) and not disabled_upgrade_ids.has(upgrade.id):
 		upgrade_pool.add_item(upgrade, weight)
 
 
@@ -406,6 +417,66 @@ func show_choices(chosen_upgrades: Array[AbilityUpgrade], allow_health_reroll: b
 	if allow_health_reroll and passives != null and passives.character.id == "gambling_scholar":
 		upgrade_screen_instance.enable_health_reroll(passives.character.health_reroll_fraction)
 		upgrade_screen_instance.health_reroll_requested.connect(on_health_reroll.bind(upgrade_screen_instance, chosen_upgrades.size()))
+	if allow_health_reroll and initial_choices_remaining == 0 and GameEvents.has_curse("dangerous_investment"):
+		var health := get_tree().get_first_node_in_group("player").get_node_or_null("HealthComponent") as HealthComponent
+		upgrade_screen_instance.enable_dangerous_investment(health != null and health.current_health > health.max_health * 0.1)
+		upgrade_screen_instance.dangerous_investment_requested.connect(on_dangerous_investment.bind(upgrade_screen_instance))
+
+
+func show_external_choices(choices: Array[AbilityUpgrade], callback: Callable) -> bool:
+	if choice_screen_open or choices.is_empty():
+		return false
+	external_choice_callback = callback
+	choice_screen_open = true
+	var screen = upgrade_screen_scene.instantiate()
+	add_child(screen)
+	screen.set_disable_allowed(false)
+	screen.set_ability_upgrades(choices)
+	screen.upgrade_selected.connect(on_external_choice_selected.bind(screen))
+	screen.closed_without_selection.connect(on_upgrade_screen_closed.bind(screen))
+	return true
+
+
+func on_external_choice_selected(choice: AbilityUpgrade, screen: Node) -> void:
+	if external_choice_callback.is_valid():
+		external_choice_callback.call(choice)
+	external_choice_callback = Callable()
+	await screen.tree_exited
+	choice_screen_open = false
+	resume_pending_choices()
+
+
+func on_dangerous_investment(screen: Node) -> void:
+	if screen.closing or screen.dangerous_investment_button.disabled:
+		return
+	var player := get_tree().get_first_node_in_group("player")
+	var health := player.get_node_or_null("HealthComponent") as HealthComponent if player != null else null
+	if health == null or not health.spend_health(health.max_health * 0.1):
+		screen.dangerous_investment_button.disabled = true
+		return
+	GameEvents.curse_boost_next_upgrade = true
+	screen.dangerous_investment_button.disabled = true
+	screen.dangerous_investment_button.text = "危险投资已启用"
+	screen.set_ability_upgrades(pick_boostable_upgrades(4))
+
+
+func is_boostable_upgrade(upgrade: AbilityUpgrade) -> bool:
+	if upgrade is Ability or upgrade.max_quantity == 1:
+		return false
+	return upgrade.id in ["player_speed", "player_health", "critical_hit", "critical_damage"] or upgrade.id.ends_with("_damage") or upgrade.id.ends_with("_size") or upgrade.id.ends_with("_rate") or upgrade.id.ends_with("_cooldown")
+
+
+func pick_boostable_upgrades(choice_count: int) -> Array[AbilityUpgrade]:
+	var candidates: Array[AbilityUpgrade] = []
+	for entry: Dictionary in upgrade_pool.items:
+		var upgrade := entry["item"] as AbilityUpgrade
+		if is_boostable_upgrade(upgrade) and not candidates.has(upgrade):
+			candidates.append(upgrade)
+	candidates.shuffle()
+	if candidates.size() < choice_count:
+		return pick_upgrades(choice_count)
+	candidates.resize(choice_count)
+	return candidates
 
 
 func on_health_reroll(screen: Node, choice_count: int) -> void:
@@ -473,6 +544,16 @@ func on_upgrade_screen_closed(upgrade_screen: Node) -> void:
 		else:
 			show_initial_weapon_choices()
 	elif not pending_challenge_rewards.is_empty():
+		show_challenge_reward(pending_challenge_rewards.pop_front())
+	elif pending_upgrade_choices > 0:
+		pending_upgrade_choices -= 1
+		show_upgrade_choices(3)
+	if not choice_screen_open:
+		choices_finished.emit()
+
+
+func resume_pending_choices() -> void:
+	if not pending_challenge_rewards.is_empty():
 		show_challenge_reward(pending_challenge_rewards.pop_front())
 	elif pending_upgrade_choices > 0:
 		pending_upgrade_choices -= 1

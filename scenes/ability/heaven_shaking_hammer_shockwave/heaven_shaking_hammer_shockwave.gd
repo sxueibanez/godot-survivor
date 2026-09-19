@@ -13,6 +13,7 @@ var elapsed := 0.0
 var started := false
 var lava_enabled := false
 var lava_spawned := false
+var sprite_modulate := Color.WHITE
 
 
 func configure(at: Vector2, new_damage: float, new_radius: float, start_delay: float, leaves_lava: bool = false) -> void:
@@ -26,6 +27,7 @@ func configure(at: Vector2, new_damage: float, new_radius: float, start_delay: f
 func _ready() -> void:
 	sprite.visible = delay <= 0.0
 	sprite.scale = Vector2.ONE * radius / 180.0
+	sprite.modulate = sprite_modulate
 	if delay <= 0.0:
 		start_wave()
 

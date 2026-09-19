@@ -1,12 +1,15 @@
 extends Node2D
 class_name LightningCloudAbility
 
+const Paralysis = preload("res://scenes/ability/lightning_paralysis.gd")
+
 const DURATION := 5.0
 const HOVER_HEIGHT := 64.0
 const DAMAGE_MULTIPLIER := 1.5
 const STRIKE_FLASH_DURATION := 0.12
 
 @export var damage := 12.0
+@export var paralysis_enabled := false
 
 @onready var bolt: Line2D = $Bolt
 
@@ -43,3 +46,4 @@ func strike() -> void:
 	GameEvents.heal_from_damage(critical_hit["damage"])
 	hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])
 	hurtbox.hit.emit()
+	Paralysis.try_apply(target, paralysis_enabled)

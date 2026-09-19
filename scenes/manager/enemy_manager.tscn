@@ -28,3 +28,6 @@ snowball_monster_scene = ExtResource("11_snow")
 [node name="Timer" type="Timer" parent="."]
 one_shot = true
 autostart = true
+
+[node name="EliteTimer" type="Timer" parent="."]
+wait_time = 15.0

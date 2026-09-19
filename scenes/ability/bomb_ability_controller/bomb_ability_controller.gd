@@ -21,6 +21,7 @@ var burn_enabled := false
 var cluster_enabled := false
 var heat_reaction_enabled := false
 var giant_charge_enabled := false
+var implosion_enabled := false
 var throw_rounds := 0
 var character_damage_multiplier := 1.0
 
@@ -64,6 +65,7 @@ func on_timer_timeout() -> void:
 		bomb.configure(player.global_position, target.global_position + offset, base_damage * damage_multiplier, BASE_RADIUS * size_multiplier, bounce_level, burn_enabled, cluster_enabled)
 		bomb.heat_reaction_enabled = heat_reaction_enabled
 		bomb.is_giant = giant_round
+		bomb.implosion_enabled = implosion_enabled
 		attack_cooldown.track(bomb)
 		foreground.add_child(bomb)
 
@@ -106,5 +108,7 @@ func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Diction
 			heat_reaction_enabled = true
 		"bomb_giant_charge":
 			giant_charge_enabled = true
+		"bomb_implosion":
+			implosion_enabled = true
 		"attack_count":
 			attack_count = GameEvents.weapon_attack_count

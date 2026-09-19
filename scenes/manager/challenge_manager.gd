@@ -376,14 +376,21 @@ func apply_attack_rate() -> void:
 		var factor := GameEvents.challenge_attack_interval_multiplier
 		if factor == 1.0 and not timer.has_meta("challenge_base_wait"):
 			continue
+		if timer.has_meta("curse_base_wait"):
+			timer.wait_time = float(timer.get_meta("curse_base_wait"))
+			timer.remove_meta("curse_base_wait")
+			timer.remove_meta("curse_applied_wait")
 		var last := float(timer.get_meta("challenge_applied_wait", -1.0))
 		var base := float(timer.get_meta("challenge_base_wait", timer.wait_time))
 		if last >= 0 and not is_equal_approx(last, timer.wait_time):
 			base = timer.wait_time
-		timer.wait_time = maxf(0.05, base * factor)
+		timer.wait_time = maxf(0.05, base * factor * GameEvents.curse_attack_interval_multiplier)
 		if factor == 1.0:
 			timer.remove_meta("challenge_base_wait")
 			timer.remove_meta("challenge_applied_wait")
+			if GameEvents.curse_attack_interval_multiplier != 1.0:
+				timer.set_meta("curse_base_wait", base)
+				timer.set_meta("curse_applied_wait", timer.wait_time)
 		else:
 			timer.set_meta("challenge_base_wait", base)
 			timer.set_meta("challenge_applied_wait", timer.wait_time)

@@ -84,7 +84,7 @@ func slam() -> void:
 	if player != null and player.global_position.distance_to(attack_center) <= ATTACK_RANGE:
 		var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if player_health != null:
-			player_health.damage(ATTACK_DAMAGE, "铁魔像")
+			player_health.damage(GameEvents.get_enemy_damage(self, ATTACK_DAMAGE), "铁魔像")
 	attacking = false
 	cooldown = ATTACK_COOLDOWN
 	animation_time = 0.0

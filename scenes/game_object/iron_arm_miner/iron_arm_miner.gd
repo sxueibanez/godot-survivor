@@ -213,13 +213,15 @@ func summon_golems() -> void:
 	begin_action()
 	var entities := get_tree().get_first_node_in_group("entities_layer") as Node2D
 	if entities != null:
-		for index in 5:
+		var summon_count := maxi(1, ceili(5.0 * GameEvents.curse_summon_count_multiplier))
+		for index in summon_count:
 			if not GameEvents.can_spawn_enemy():
 				break
 			var golem := IRON_GOLEM_SCENE.instantiate() as Node2D
 			entities.add_child(golem)
-			golem.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / 5.0) * 78.0
-	summon_cooldown = 14.0
+			GameEvents.configure_summon(golem, self)
+			golem.global_position = global_position + Vector2.RIGHT.rotated(index * TAU / summon_count) * 78.0
+	summon_cooldown = 14.0 * GameEvents.curse_summon_cooldown_multiplier
 	finish_action()
 
 

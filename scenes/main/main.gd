@@ -29,6 +29,8 @@ var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
 var map_order := [1, 2, 3, 4, 5]
 var forge_map: Node2D
 var death_sequence_running := false
+var curse_manager: CurseManager
+var current_boss_spawn_time := CURRENT_BOSS_SPAWN_TIME
 
 
 class LevelEntrance extends Node2D:
@@ -79,6 +81,10 @@ func _ready():
 		$EnemyManager.stop_spawning()
 	else:
 		map_order.shuffle()
+	if GameEvents.game_mode in ["campaign", "endless"]:
+		curse_manager = preload("res://scenes/manager/curse_manager.gd").new()
+		add_child(curse_manager)
+		curse_manager.setup(self)
 	show_character_select()
 
 
@@ -112,6 +118,8 @@ func begin_endless_mode() -> void:
 func on_initial_choices_completed() -> void:
 	if GameEvents.is_endless_mode():
 		$EnemyManager.resume_spawning()
+	if curse_manager != null:
+		curse_manager.start()
 
 
 
@@ -126,6 +134,8 @@ func on_player_died() -> void:
 		return
 	death_sequence_running = true
 	set_process(false)
+	if curse_manager != null:
+		curse_manager.set_process(false)
 	$EnemyManager.stop_spawning()
 	$ArenaTimeManager.set_process(false)
 	if challenges != null:
@@ -232,7 +242,7 @@ func _process(_delta: float) -> void:
 			spawn_boss_for_map(randi_range(1, MAP_COUNT))
 			next_endless_boss_time += ENDLESS_BOSS_INTERVAL
 		return
-	if not current_level_boss_started and time_elapsed >= CURRENT_BOSS_SPAWN_TIME:
+	if not current_level_boss_started and time_elapsed >= current_boss_spawn_time:
 		current_level_boss_started = true
 		waiting_for_entrance = true
 		$EnemyManager.stop_spawning()
@@ -299,6 +309,13 @@ func on_endless_boss_died() -> void:
 	$UpgradeManager.show_upgrade_choices(3)
 
 
+func advance_current_boss(seconds: float) -> void:
+	if GameEvents.is_endless_mode():
+		next_endless_boss_time = maxf($ArenaTimeManager.get_time_elapsed(), next_endless_boss_time - seconds)
+	elif not current_level_boss_started:
+		current_boss_spawn_time = maxf(0.0, current_boss_spawn_time - seconds)
+
+
 func spawn_level_entrance() -> void:
 	var player := get_node_or_null("Entities/Player") as Node2D
 	if entrance_spawned or player == null:
@@ -359,12 +376,15 @@ func begin_level(level: int, forced_map_id: int = 0) -> void:
 	show_map(current_map_id)
 	MusicPlayer.play_level(current_map_id)
 	current_level_boss_started = false
+	current_boss_spawn_time = CURRENT_BOSS_SPAWN_TIME
 	$ArenaTimeManager.time_elapsed = 0.0
 	$ArenaTimeManager.arena_difficulty = 0
 	GameEvents.arena_difficulty = 0
 	if not GameEvents.is_endless_mode():
 		start_enemy_wave_for_map(current_map_id)
 	challenges.reset_challenges()
+	if curse_manager != null:
+		curse_manager.on_map_changed()
 
 
 func start_enemy_wave_for_map(map_id: int) -> void:

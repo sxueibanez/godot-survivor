@@ -1,6 +1,8 @@
 extends Node2D
 class_name LightningChainAbility
 
+const Paralysis = preload("res://scenes/ability/lightning_paralysis.gd")
+
 const RANGE := 100.0
 const TARGET_COUNT := 2
 const TRIGGER_CHANCE := 0.5
@@ -11,6 +13,7 @@ const MAX_CHAIN_DEPTH := 3
 @export var target: Node2D
 @export var damage := 4.0
 @export var chain_enabled := false
+@export var paralysis_enabled := false
 
 @onready var chain_animation: AnimatedSprite2D = $Sprite2D
 
@@ -42,6 +45,7 @@ func _ready() -> void:
 		GameEvents.heal_from_damage(critical_hit["damage"])
 		hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])
 		hurtbox.hit.emit()
+		Paralysis.try_apply(target, paralysis_enabled)
 		should_chain = chain_enabled and chain_depth < MAX_CHAIN_DEPTH and randf() <= TRIGGER_CHANCE
 
 	await chain_animation.animation_finished
@@ -70,4 +74,5 @@ func spawn_chains() -> void:
 		chain.chain_enabled = true
 		chain.chain_depth = chain_depth + 1
 		chain.visited_enemy_ids = visited_enemy_ids.duplicate()
+		chain.paralysis_enabled = paralysis_enabled
 		foreground.add_child(chain)

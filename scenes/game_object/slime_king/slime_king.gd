@@ -115,7 +115,7 @@ func _process(delta: float) -> void:
 
 	if slime_spray_time_left <= 0.0:
 		perform_slime_spray()
-		slime_spray_time_left = SLIME_SPRAY_COOLDOWN
+		slime_spray_time_left = SLIME_SPRAY_COOLDOWN * GameEvents.curse_summon_cooldown_multiplier
 		ability_time_left = 4.0
 	elif ability_time_left <= 0.0:
 		match randi_range(0, 2):
@@ -137,13 +137,15 @@ func perform_slime_spray() -> void:
 		return
 
 	var direction: Vector2 = (player.global_position - global_position).normalized()
-	for index: int in MINION_COUNT:
+	var summon_count := maxi(1, ceili(MINION_COUNT * GameEvents.curse_summon_count_multiplier))
+	for index: int in summon_count:
 		if not GameEvents.can_spawn_enemy():
 			break
 		var spread_angle: float = deg_to_rad(-36.0 + index * 8.0)
 		var spray_direction: Vector2 = direction.rotated(spread_angle)
 		var minion: Node2D = basic_enemy_scene.instantiate() as Node2D
 		entities.add_child(minion)
+		GameEvents.configure_summon(minion, self)
 		minion.global_position = global_position + spray_direction * 36.0
 		var minion_velocity: VelocityComponent = minion.get_node_or_null("VelocityComponent") as VelocityComponent
 		if minion_velocity != null:

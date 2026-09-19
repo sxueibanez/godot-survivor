@@ -48,7 +48,7 @@ func _ready() -> void:
 	var player: Node = main.get_node("Entities/Player")
 	var health: HealthComponent = player.health_component
 	var companion: Node = preload("res://scenes/ability/azure_dragon/azure_dragon.tscn").instantiate()
-	main.get_node("Foreground").add_child(companion)
+	main.get_node("CombatEffects").add_child(companion)
 	var controllers: int = player.abilities.get_child_count()
 	for battle in 5:
 		assert(main.current_map_id == battle + 1)
@@ -62,7 +62,7 @@ func _ready() -> void:
 		main.get_node("Entities").add_child(summon)
 		assert(summon.get_node("HealthComponent").max_health == 25.0)
 		var projectile := Node2D.new()
-		main.get_node("Foreground").add_child(projectile)
+		main.get_node("CombatEffects").add_child(projectile)
 		rush._process(2.0)
 		var before: float = rush.combat_time
 		rush.active_boss.get_node("HealthComponent").damage(100000.0)
@@ -179,7 +179,7 @@ func _ready() -> void:
 	assert(GameEvents.get_enemy_count(true) == 30)
 	get_tree().paused = false
 	main.get_node("Entities/Player/HealthComponent").damage(100000.0)
-	await get_tree().process_frame
+	await get_tree().create_timer(1.8, true, false, true).timeout
 	assert(rush.stage == rush.Stage.FINISHED)
 	assert(GameEvents.get_enemy_count(true) == 0)
 	assert(main.get_child(main.get_child_count() - 1).get_node("%TitleLabel").text == "失败")

@@ -7,6 +7,7 @@ const LIFETIME := 4.0
 var direction := Vector2.RIGHT
 var time_left := LIFETIME
 var reflected := false
+var damage_multiplier := 1.0
 
 
 func _ready() -> void:
@@ -26,7 +27,7 @@ func _process(delta: float) -> void:
 	if player != null and global_position.distance_to(player.global_position) < 12.0:
 		var health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if health != null:
-			health.damage(DAMAGE, "远程怪")
+			health.damage(DAMAGE * damage_multiplier, "远程怪")
 		queue_free()
 	elif time_left <= 0.0:
 		queue_free()

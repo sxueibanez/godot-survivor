@@ -21,8 +21,8 @@ var number_colliding_bodies := 0
 var base_speed := 0
 var base_health := 0.0
 var previous_health := 0.0
-var player_speed_upgrade_quantity := 0
-var player_health_upgrade_quantity := 0
+var player_speed_upgrade_quantity := 0.0
+var player_health_upgrade_quantity := 0.0
 var character_visual_scale := 1.0
 var walk_animation_time := 0.0
 var character_passives: CharacterPassives
@@ -96,16 +96,18 @@ func refresh_missing_health_passive() -> void:
 	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
 	var move_speed := float(roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1))) + stacks * float(character.get("missing_health_speed_bonus_per_10"))
 	move_speed *= GameEvents.support_move_speed_multiplier
+	move_speed *= GameEvents.curse_player_speed_multiplier
 	if character_passives != null:
 		move_speed *= character_passives.speed_multiplier
 	velocity_component.max_speed = move_speed
 	GameEvents.player_damage_multiplier = 1.0 + stacks * float(character.get("missing_health_damage_bonus_per_10"))
+	GameEvents.player_damage_multiplier *= GameEvents.curse_weapon_damage_multiplier
 	if GameEvents.speed_damage_no_crit:
 		GameEvents.player_damage_multiplier *= get_speed_damage_multiplier(move_speed)
 
 
 func get_upgraded_max_health() -> float:
-	return base_health * (1.0 + player_health_upgrade_quantity * 0.1) * GameEvents.support_health_multiplier
+	return base_health * (1.0 + player_health_upgrade_quantity * 0.1) * GameEvents.support_health_multiplier * GameEvents.curse_player_health_multiplier
 
 
 func refresh_support_stats() -> void:
@@ -229,12 +231,12 @@ func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades:
 		controller.set("character_damage_multiplier", character.call("get_weapon_damage_multiplier", ability))
 		abilities.add_child(controller)
 	elif ability_upgrade.id == "player_speed":
-		player_speed_upgrade_quantity = int(current_upgrades["player_speed"]["quantity"])
+		player_speed_upgrade_quantity = float(current_upgrades["player_speed"]["quantity"])
 		refresh_missing_health_passive()
 	elif ability_upgrade.id == "speed_damage_no_crit":
 		refresh_missing_health_passive()
 	elif ability_upgrade.id == "player_health":
 		var previous_max_health: float = health_component.max_health
-		player_health_upgrade_quantity = int(current_upgrades["player_health"]["quantity"])
+		player_health_upgrade_quantity = float(current_upgrades["player_health"]["quantity"])
 		health_component.max_health = get_upgraded_max_health()
-		health_component.heal(health_component.max_health - previous_max_health)
+		health_component.heal(health_component.max_health - previous_max_health, "max_health_upgrade")

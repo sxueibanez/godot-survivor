@@ -16,7 +16,7 @@ var base_wait_time := 2.0
 var permanent_damage_multiplier := 1.0
 var permanent_attack_speed_multiplier := 1.0
 var permanent_size_multiplier := 1.0
-var damage_upgrade_quantity := 0
+var damage_upgrade_quantity := 0.0
 var damage_multiplier := 1.0
 var size_multiplier := 1.0
 var attack_count := 1
@@ -86,7 +86,7 @@ func show_rifle(player: Node2D, direction: Vector2) -> void:
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:
 	match upgrade.id:
 		"sniper_rifle_damage":
-			damage_upgrade_quantity = int(current_upgrades[upgrade.id]["quantity"])
+			damage_upgrade_quantity = float(current_upgrades[upgrade.id]["quantity"])
 			refresh_damage_multiplier()
 		"sniper_rifle_size":
 			size_multiplier = permanent_size_multiplier * (1.0 + current_upgrades[upgrade.id]["quantity"] * 0.05)
