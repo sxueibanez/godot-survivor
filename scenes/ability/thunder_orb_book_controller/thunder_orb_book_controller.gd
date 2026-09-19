@@ -41,7 +41,7 @@ func on_timer_timeout() -> void:
 	if attack_cooldown.active_count > 0:
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	var target := find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)

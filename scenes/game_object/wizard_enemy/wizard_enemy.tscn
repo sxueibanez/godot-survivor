@@ -54,6 +54,8 @@ script = ExtResource("1_ta3ds")
 max_health = 30.0
 
 [node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 50
+z_as_relative = false
 custom_minimum_size = Vector2(18, 4)
 offset_left = -9.0
 offset_top = -18.0
@@ -70,7 +72,8 @@ visible = false
 position = Vector2(8, 0)
 scale = Vector2(0.035, 0.035)
 texture = SubResource("AtlasTexture_paralyze")
-z_index = 2
+z_index = 40
+z_as_relative = false
 
 [node name="VelocityComponent" parent="." instance=ExtResource("2_2sxlo")]
 max_speed = 60

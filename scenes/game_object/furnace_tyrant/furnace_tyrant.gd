@@ -17,6 +17,12 @@ var event_fired := false
 var rift_index := 0
 var dead := false
 var rage_lines: Array[Line2D] = []
+var dash_direction := Vector2.RIGHT
+var dash_left := 0.0
+var dash_hit := false
+const DASH_WARNING := 0.45
+const DASH_SPEED := 480.0
+const DASH_MAX_DISTANCE := 280.0
 
 func _ready() -> void:
 	super._ready()
@@ -83,19 +89,46 @@ func _process(delta: float) -> void:
 			move_toward_player(player)
 			attack_cooldown -= delta
 			if attack_cooldown <= 0:
-				var skills := ["summon"]
 				var distance := global_position.distance_to(player.global_position)
+				if distance > 230.0:
+					start_skill("dash")
+					return
+				# Dash already guarantees a follow-up punch, so favor the other attacks.
+				var skills := ["summon", "summon", "flame", "flame"]
+				if distance >= 95.0:
+					skills.append("dash")
 				if distance <= 120:
 					skills.append("punch")
-				if distance <= 200:
-					skills.append("flame")
 				if phase >= 2:
-					skills.append("slag")
+					skills.append_array(["slag", "slag", "slag"])
 					if distance <= 120:
 						skills.append("combo")
 				if phase == 3:
-					skills.append("rifts")
+					skills.append_array(["rifts", "rifts", "rifts"])
 				start_skill(skills.pick_random())
+		"dash_warning":
+			if state_time >= DASH_WARNING:
+				begin_state("dash", "walk")
+		"dash":
+			# One extra update makes the existing walk loop play at triple speed.
+			update_animation(delta * 2.0)
+			var previous := global_position
+			velocity = dash_direction * DASH_SPEED
+			move_and_slide()
+			dash_left -= previous.distance_to(global_position)
+			var player := get_tree().get_first_node_in_group("player") as Node2D
+			if not dash_hit and player != null and global_position.distance_to(player.global_position) <= 55.0:
+				dash_hit = true
+				var health := player.get_node_or_null("HealthComponent") as HealthComponent
+				if health != null:
+					health.damage(32.0, "熔炉暴君的熔火冲锋")
+				var movement := player.get_node_or_null("VelocityComponent") as VelocityComponent
+				if movement != null:
+					movement.apply_knockback(dash_direction, 360.0, 0.25)
+			if dash_left <= 0.0 or is_on_wall() or dash_hit:
+				combo_attack = false
+				combo_count = 1
+				prepare_punch()
 		"punch_charge":
 			if state_time >= action_duration:
 				begin_state("impact", "hammer", 0.3)
@@ -168,6 +201,20 @@ func start_skill(skill: String) -> void:
 	if player == null:
 		return
 	match skill:
+		"dash":
+			dash_direction = global_position.direction_to(player.global_position)
+			if dash_direction == Vector2.ZERO:
+				dash_direction = Vector2.RIGHT
+			facing = dash_direction
+			dash_left = minf(maxf(global_position.distance_to(player.global_position) - 45.0, 90.0), DASH_MAX_DISTANCE)
+			dash_hit = false
+			begin_state("dash_warning", "charge", DASH_WARNING)
+			var warning := owned_effect("warning", global_position)
+			warning.shape = "line"
+			warning.line_end = dash_direction * dash_left
+			warning.radius = 24.0
+			warning.warning_time = DASH_WARNING
+			warning.active_time = 0.01
 		"punch", "combo":
 			combo_attack = skill == "combo"
 			combo_count = (3 if phase == 3 else 2) if skill == "combo" else 1

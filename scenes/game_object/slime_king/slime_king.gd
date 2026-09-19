@@ -152,7 +152,7 @@ func perform_slime_spray() -> void:
 
 func perform_corrosive_spray() -> void:
 	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("ground_effects_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	var direction: Vector2 = (player.global_position - global_position).normalized()
@@ -168,7 +168,7 @@ func perform_corrosive_spray() -> void:
 
 
 func leave_trail_puddle() -> void:
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("ground_effects_layer") as Node2D
 	if foreground == null:
 		return
 	var puddle: CorrosivePuddle = corrosive_puddle_scene.instantiate() as CorrosivePuddle
@@ -265,7 +265,7 @@ func perform_charge() -> void:
 
 
 func create_telegraph(destination: Vector2, radius: float, duration: float) -> void:
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	var telegraph: AttackTelegraph = AttackTelegraph.new(radius, duration)
@@ -274,7 +274,7 @@ func create_telegraph(destination: Vector2, radius: float, duration: float) -> v
 
 
 func create_charge_telegraph(start: Vector2, direction: Vector2, length: float, duration: float) -> void:
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	var telegraph: ChargeTelegraph = ChargeTelegraph.new(direction, length, duration)

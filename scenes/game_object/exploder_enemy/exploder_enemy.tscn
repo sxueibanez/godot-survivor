@@ -48,6 +48,8 @@ sprite = NodePath("../Visuals/Sprite2D")
 hit_flash_material = SubResource("hit_flash_material")
 
 [node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 50
+z_as_relative = false
 custom_minimum_size = Vector2(18, 4)
 offset_left = -9.0
 offset_top = -25.0

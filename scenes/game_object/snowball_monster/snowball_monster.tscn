@@ -37,6 +37,8 @@ drop_rate = 0.7
 health_component = NodePath("../HealthComponent")
 
 [node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 50
+z_as_relative = false
 offset_left = -14.0
 offset_top = -31.0
 offset_right = 14.0

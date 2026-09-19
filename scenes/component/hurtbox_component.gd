@@ -32,7 +32,7 @@ func on_area_entered(other_area: Area2D):
 func show_damage(damage_amount: float, is_critical: bool = false) -> void:
 
 	var floating_text = floating_text_scene.instantiate() as FloatingText
-	get_tree().get_first_node_in_group("foreground_layer").add_child(floating_text)
+	get_tree().get_first_node_in_group("floating_text_layer").add_child(floating_text)
 
 	floating_text.global_position = global_position + (Vector2.UP * 16)
 	

@@ -7,6 +7,8 @@ const DISPLAY_NAMES := ["煤渣虫", "炉膛守卫", "运火工", "熔炉暴君"
 const DISPLAY_HEIGHTS := [22.0, 70.0, 30.0, 96.0]
 const COLLISION_HEIGHTS := [22.0, 42.0, 30.0, 96.0]
 const CONTACT_DAMAGE := [18.0, 24.0, 20.0, 30.0]
+const CINDER_PREHEAT_RANGE := 95.0
+const CINDER_EXPLOSION_RANGE := 38.0
 @export_enum("煤渣虫", "炉膛守卫", "运火工", "熔炉暴君") var kind := 0
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var velocity_component: VelocityComponent = $VelocityComponent
@@ -18,7 +20,12 @@ var action_duration := 0.0
 var attack_cooldown := 1.0
 var barrel: Node2D
 var barrel_dropped := false
+var last_thrown_barrel: Node2D
+var throw_target := Vector2.ZERO
 var hammer_hit := false
+var cinder_fuse_left := -1.0
+var cinder_fuse_total := 0.0
+var cinder_exploded := false
 
 func _enter_tree() -> void:
 	set_meta("display_name", DISPLAY_NAMES[kind])
@@ -30,8 +37,11 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	if kind == 0 and GameEvents.game_mode in ["campaign", "boss_rush"]:
-		# The shared 12-HP normalization otherwise erases the fodder role.
-		health_component.max_health *= 0.75
+		# This used to be x0.75; x3.75 is exactly five times that live value.
+		health_component.max_health *= 3.75
+		health_component.current_health = health_component.max_health
+	elif kind == 0:
+		health_component.max_health *= 5.0
 		health_component.current_health = health_component.max_health
 	health_component.health_changed.connect(update_health_bar)
 	health_component.died.connect(on_died, CONNECT_ONE_SHOT)
@@ -88,6 +98,21 @@ func _process(delta: float) -> void:
 	if player == null:
 		return
 	attack_cooldown -= delta
+	if kind == 0:
+		var distance := global_position.distance_to(player.global_position)
+		if cinder_fuse_left < 0.0 and distance <= CINDER_PREHEAT_RANGE:
+			velocity_component.max_speed = 120.0
+			cinder_fuse_total = clampf((distance - 18.0) / velocity_component.max_speed, 0.65, 1.6)
+			cinder_fuse_left = cinder_fuse_total
+		if cinder_fuse_left >= 0.0:
+			cinder_fuse_left -= delta
+			sprite.modulate = Color(1.35, 0.55 + 0.35 * absf(sin(cinder_fuse_left * 16.0)), 0.3)
+			if cinder_fuse_left <= 0.0:
+				explode_cinder()
+				return
+		move_toward_player(player)
+		queue_redraw()
+		return
 	if kind == 1 and action == "charge":
 		if action_time >= 0.8:
 			set_action("hammer", 0.35)
@@ -117,13 +142,15 @@ func _process(delta: float) -> void:
 				set_action("walk")
 				attack_cooldown = 1.0
 		return
-	if kind == 2 and barrel_dropped:
-		if not is_instance_valid(barrel) or barrel.exploded:
-			health_component.damage(health_component.max_health * 100.0, "运火工的炸药桶", global_position, "environment")
-			return
-		if action == "ignite" and action_time < action_duration:
-			return
-		set_action("shake")
+	if kind == 2 and action == "ignite":
+		if action_time >= action_duration:
+			throw_barrel(throw_target)
+			set_action("shake", 0.35)
+		return
+	if kind == 2 and action == "shake":
+		if action_time >= action_duration:
+			set_action("walk")
+			attack_cooldown = 3.2
 		return
 	if kind == 1 and attack_cooldown <= 0 and global_position.distance_to(player.global_position) <= 74:
 		facing = global_position.direction_to(player.global_position)
@@ -141,10 +168,14 @@ func _process(delta: float) -> void:
 		warning.caster = self
 		warning.require_caster = true
 		add_effect(warning, global_position)
-	elif kind == 2 and global_position.distance_to(player.global_position) <= 60:
+	elif kind == 2 and attack_cooldown <= 0 and global_position.distance_to(player.global_position) <= 220:
+		facing = global_position.direction_to(player.global_position)
 		velocity = Vector2.ZERO
 		velocity_component.velocity = Vector2.ZERO
-		drop_barrel(1.2)
+		throw_target = player.global_position
+		var map := get_tree().get_first_node_in_group("forge_map") as Node2D
+		if map != null and map.active:
+			throw_target = map.safe_position(throw_target, 12.0)
 		set_action("ignite", 0.4)
 	else:
 		move_toward_player(player)
@@ -177,10 +208,42 @@ func drop_barrel(delay: float) -> void:
 	barrel.affect_enemies = true
 	add_effect(barrel, global_position)
 
+func throw_barrel(target: Vector2) -> void:
+	last_thrown_barrel = EFFECT.new()
+	last_thrown_barrel.kind = "barrel"
+	last_thrown_barrel.radius = 58
+	last_thrown_barrel.warning_time = 1.0
+	last_thrown_barrel.active_time = 0.35
+	last_thrown_barrel.player_damage = 28
+	last_thrown_barrel.enemy_damage = 45
+	last_thrown_barrel.affect_enemies = true
+	last_thrown_barrel.owner_id = get_instance_id()
+	last_thrown_barrel.flight_time = 0.65
+	last_thrown_barrel.start_position = global_position
+	last_thrown_barrel.target_position = target
+	add_effect(last_thrown_barrel, global_position)
+
+func explode_cinder() -> void:
+	if cinder_exploded:
+		return
+	cinder_exploded = true
+	var explosion := EFFECT.new()
+	explosion.kind = "fire"
+	explosion.radius = CINDER_EXPLOSION_RANGE
+	explosion.warning_time = 0.0
+	explosion.active_time = 0.22
+	explosion.damage_interval = 10.0
+	explosion.player_damage = 22.0
+	explosion.damage_source = "煤渣虫自爆"
+	explosion.owner_id = get_instance_id()
+	add_effect(explosion, global_position)
+	health_component.damage(health_component.max_health * 100.0, "煤渣虫自爆", global_position, "environment")
+
 func add_effect(effect: Node2D, point: Vector2) -> void:
 	if has_meta("forge_owner_id"):
 		effect.set_meta("forge_owner_id", get_meta("forge_owner_id"))
-	get_tree().get_first_node_in_group("foreground_layer").add_child(effect)
+	var layer_name := "combat_effects_layer" if effect.kind in ["death", "steam"] else "enemy_projectiles_layer"
+	get_tree().get_first_node_in_group(layer_name).add_child(effect)
 	effect.global_position = point
 
 func on_died() -> void:
@@ -213,3 +276,7 @@ func update_health_bar() -> void:
 func _draw() -> void:
 	if kind == 1:
 		draw_arc(Vector2.ZERO, 18, facing.angle() - 0.5, facing.angle() + 0.5, 12, Color(1, 0.8, 0.4), 3)
+	elif kind == 0 and cinder_fuse_left >= 0.0:
+		var progress := clampf(1.0 - cinder_fuse_left / cinder_fuse_total, 0.0, 1.0)
+		draw_circle(Vector2.ZERO, 13.0, Color(1.0, 0.08, 0.02, 0.10 + progress * 0.18))
+		draw_arc(Vector2.ZERO, 14.0, -PI / 2, -PI / 2 + TAU * progress, 28, Color(1.0, 0.2, 0.05), 2.5)

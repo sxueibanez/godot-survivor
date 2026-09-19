@@ -128,7 +128,7 @@ func trigger_crack(index: int) -> bool:
 	effect.warning_time = 1.2
 	effect.active_time = 1.5
 	effect.affect_enemies = true
-	get_tree().get_first_node_in_group("foreground_layer").add_child(effect)
+	get_tree().get_first_node_in_group("ground_effects_layer").add_child(effect)
 	effect.global_position = CENTER + VALVE_OFFSETS[index]
 	cracks[index] = effect
 	return true

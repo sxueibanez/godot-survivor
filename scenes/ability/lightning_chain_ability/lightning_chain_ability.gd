@@ -59,7 +59,7 @@ func spawn_chains() -> void:
 	enemies.sort_custom(func(a: Node2D, b: Node2D):
 		return a.global_position.distance_squared_to(chain_origin) < b.global_position.distance_squared_to(chain_origin)
 	)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	for index in min(TARGET_COUNT, enemies.size()):

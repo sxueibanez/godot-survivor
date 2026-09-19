@@ -63,7 +63,7 @@ func process_sword_rain_trigger() -> void:
 		return
 	sword_rain_threshold_met = true
 	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-	var foreground_layer: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground_layer: Node2D = get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground_layer == null:
 		return
 	var enemies: Array = get_tree().get_nodes_in_group("enemy").filter(func(enemy: Node2D):
@@ -82,7 +82,7 @@ func process_giant_sword_rain_trigger() -> void:
 		return
 	giant_rain_threshold_met = true
 	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-	var foreground_layer: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground_layer: Node2D = get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground_layer == null:
 		return
 	var giant_rain: SwordRainAbility = sword_rain_ability.instantiate() as SwordRainAbility
@@ -116,7 +116,7 @@ func on_timer_timeout():
 		return a_distance < b_distance
 	)
 	
-	var foreground_layer: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground_layer: Node2D = get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground_layer == null:
 		return
 	for index in attack_count:
@@ -151,7 +151,7 @@ func on_sword_hit_target(target: Node2D) -> void:
 		return
 	sword_hit_counts[target_id] = 0
 	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
-	var foreground_layer: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground_layer: Node2D = get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground_layer == null:
 		return
 	var barrage: SwordBarrageAbility = sword_barrage_ability.instantiate() as SwordBarrageAbility
@@ -168,7 +168,7 @@ func on_greatsword_timer_timeout() -> void:
 	if not sword_greatsword_enabled:
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	var camera := get_viewport().get_camera_2d()

@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/enemies/corrosive_puddle.png" id="2_texture"]
 
 [node name="CorrosivePuddle" type="Node2D"]
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

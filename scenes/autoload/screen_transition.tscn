@@ -48,7 +48,7 @@ shader_parameter/fill_in = true
 
 [node name="ScreenTransition" type="CanvasLayer"]
 process_mode = 3
-layer = 5
+layer = 50
 script = ExtResource("1_7eu4g")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

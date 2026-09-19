@@ -6,7 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/weapons/azure_dragon_hit.wav" id="4_hit"]
 
 [node name="AzureDragonAbility" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="DragonSprite" type="Sprite2D" parent="."]

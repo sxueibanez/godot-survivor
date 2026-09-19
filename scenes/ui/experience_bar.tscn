@@ -11,6 +11,7 @@ border_width_bottom = 2
 border_color = Color(0.247059, 0.14902, 0.192157, 1)
 
 [node name="ExperienceBar" type="CanvasLayer"]
+layer = 10
 script = ExtResource("1_i21ui")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

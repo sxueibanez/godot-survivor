@@ -94,7 +94,7 @@ func start_charge(player: Node2D) -> void:
 	warning_time = WARNING_DURATION
 	velocity = Vector2.ZERO
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var warning := ChargeWarning.new(charge_direction)
 		foreground.add_child(warning)
@@ -127,7 +127,7 @@ func charge(delta: float) -> void:
 
 
 func spawn_ice_trail() -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("ground_effects_layer") as Node2D
 	if foreground != null:
 		var patch := IceTrail.new()
 		foreground.add_child(patch)

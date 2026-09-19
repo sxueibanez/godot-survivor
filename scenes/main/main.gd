@@ -28,6 +28,7 @@ var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
 var map_order := [1, 2, 3, 4, 5]
 var forge_map: Node2D
+var death_sequence_running := false
 
 
 class LevelEntrance extends Node2D:
@@ -47,11 +48,13 @@ class LevelEntrance extends Node2D:
 func _ready():
 	forge_map = preload("res://scenes/environment/level_5_forge.gd").new()
 	forge_map.name = "ForgeMap"
+	forge_map.z_index = -100
 	add_child(forge_map)
 	move_child(forge_map, $Entities.get_index())
 	$CheatUI/LevelSelect.add_item("熔火铸炉", 5)
 	var forge_button := preload("res://scenes/ui/sound_button.tscn").instantiate() as Button
 	forge_button.text = "熔炉暴君"
+	forge_button.focus_mode = Control.FOCUS_NONE
 	forge_button.position = Vector2(494, 306)
 	forge_button.size = Vector2(68, 18)
 	forge_button.add_theme_font_size_override("font_size", 8)
@@ -118,18 +121,95 @@ func _unhandled_input(event):
 		get_tree().root.set_input_as_handled()
 
 
-func on_player_died():
-	if boss_rush != null:
-		boss_rush.finish(false)
+func on_player_died() -> void:
+	if death_sequence_running:
 		return
+	death_sequence_running = true
 	set_process(false)
 	$EnemyManager.stop_spawning()
 	$ArenaTimeManager.set_process(false)
-	challenges.stop_challenges()
+	if challenges != null:
+		challenges.stop_challenges()
+	var player := %Player as CharacterBody2D
+	player.set_process(false)
+	player.set_physics_process(false)
+	player.collision_layer = 0
+	player.collision_mask = 0
+	var death_overlay := create_death_overlay()
+	var reason := death_overlay.get_node("DefeatReason") as Label
+	var original_time_scale := Engine.time_scale
+	Engine.time_scale = 0.03
+	await get_tree().create_timer(0.15, true, false, true).timeout
+	Engine.time_scale = 0.3
+	play_player_dissolve(player)
+	await get_tree().create_timer(0.85, true, false, true).timeout
+	reason.text = "被%s击败" % GameEvents.last_damage_source
+	reason.show()
+	await get_tree().create_timer(0.5, true, false, true).timeout
+	Engine.time_scale = original_time_scale
+	death_overlay.queue_free()
+	if boss_rush != null:
+		boss_rush.finish(false)
+		return
 	var end_screen_instance = end_screen_scene.instantiate() as EndScreen
 	add_child(end_screen_instance)
 	end_screen_instance.set_defeat()
 	MetaProgression.save()
+
+
+func create_death_overlay() -> CanvasLayer:
+	var layer := CanvasLayer.new()
+	layer.layer = 60
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+	var flash := ColorRect.new()
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(0.75, 0.03, 0.04, 0.32)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(flash)
+	var flash_tween := flash.create_tween().set_ignore_time_scale(true)
+	flash_tween.tween_property(flash, "color:a", 0.0, 0.3)
+	var reason := Label.new()
+	reason.name = "DefeatReason"
+	reason.hide()
+	reason.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	reason.offset_left = -220.0
+	reason.offset_top = -24.0
+	reason.offset_right = 220.0
+	reason.offset_bottom = 24.0
+	reason.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reason.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	reason.add_theme_font_size_override("font_size", 22)
+	reason.add_theme_constant_override("outline_size", 5)
+	reason.add_theme_color_override("font_outline_color", Color(0.12, 0.04, 0.07))
+	layer.add_child(reason)
+	return layer
+
+
+func play_player_dissolve(player: Node2D) -> void:
+	var particles := CPUParticles2D.new()
+	particles.process_mode = Node.PROCESS_MODE_ALWAYS
+	particles.amount = 42
+	particles.lifetime = 0.25
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	particles.emission_rect_extents = Vector2(10, 14)
+	particles.direction = Vector2.UP
+	particles.spread = 180.0
+	particles.initial_velocity_min = 16.0
+	particles.initial_velocity_max = 35.0
+	particles.gravity = Vector2(0, 18)
+	particles.scale_amount_min = 1.5
+	particles.scale_amount_max = 3.0
+	particles.color = Color(0.75, 0.45, 1.0)
+	particles.position = Vector2(0, -7)
+	player.add_child(particles)
+	particles.emitting = true
+	var visuals := player.get_node("Visuals") as Node2D
+	var dissolve := visuals.create_tween().set_parallel(true).set_ignore_time_scale(true)
+	dissolve.tween_property(visuals, "modulate", Color(1.0, 0.25, 0.3, 0.0), 0.85)
+	dissolve.tween_property(visuals, "scale", visuals.scale * 0.35, 0.85).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 
 func on_learn_skill_button_pressed() -> void:

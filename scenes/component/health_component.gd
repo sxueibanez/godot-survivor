@@ -115,4 +115,6 @@ func check_death():
 		if get_parent().is_in_group("enemy"):
 			GameEvents.enemy_defeated.emit(get_parent() as Node2D)
 		died.emit()
-		owner.queue_free()
+		# The main scene keeps the player briefly for the death dissolve animation.
+		if not get_parent().is_in_group("player"):
+			owner.queue_free()

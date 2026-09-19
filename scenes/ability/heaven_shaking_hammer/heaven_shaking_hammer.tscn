@@ -6,7 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/weapons/heaven_shaking_hammer_launch.ogg" id="4_launch"]
 
 [node name="HeavenShakingHammerAbility" type="Node2D" unique_id=610809315]
-z_index = 2
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="HammerSprite" type="Sprite2D" parent="." unique_id=1475231858]

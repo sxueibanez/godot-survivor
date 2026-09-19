@@ -150,8 +150,7 @@ func show_explosion(center: Vector2) -> void:
 	effect.vframes = 4
 	effect.global_position = center
 	effect.scale = Vector2.ONE * EXPLOSION_RADIUS * size_multiplier / 150.0
-	effect.z_index = 2
-	get_parent().add_child(effect)
+	get_tree().get_first_node_in_group("combat_effects_layer").add_child(effect)
 	var tween := effect.create_tween()
 	tween.tween_property(effect, "frame", 15, 0.3)
 	tween.tween_callback(effect.queue_free)

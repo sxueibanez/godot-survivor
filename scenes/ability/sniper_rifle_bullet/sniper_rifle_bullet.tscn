@@ -7,7 +7,7 @@
 
 [node name="SniperRifleBullet" type="Node2D"]
 script = ExtResource("1_script")
-z_index = 2
+z_index = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_frames")

@@ -142,7 +142,8 @@ wait_time = 0.5
 one_shot = true
 
 [node name="HealthBar" type="ProgressBar" parent="."]
-z_index = 100
+z_index = 50
+z_as_relative = false
 custom_minimum_size = Vector2(32, 6)
 offset_left = -16.0
 offset_top = -23.0
@@ -154,7 +155,8 @@ value = 0.5
 show_percentage = false
 
 [node name="ShieldBar" type="ProgressBar" parent="."]
-z_index = 100
+z_index = 50
+z_as_relative = false
 custom_minimum_size = Vector2(32, 6)
 offset_left = -16.0
 offset_top = -23.0

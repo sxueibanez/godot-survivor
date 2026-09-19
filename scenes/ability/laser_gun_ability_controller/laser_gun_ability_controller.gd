@@ -54,7 +54,7 @@ func on_timer_timeout() -> void:
 	)
 
 	var base_direction: Vector2 = (enemies[0].global_position - player.global_position).normalized()
-	var foreground = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground = get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	for index in attack_count:

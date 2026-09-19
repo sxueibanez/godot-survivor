@@ -56,7 +56,7 @@ func fire_fireballs() -> void:
 	if ultimate_active or not is_instance_valid(player):
 		return
 	var target := AzureDragonController.find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if target == null or foreground == null:
 		return
 	var base_direction := global_position.direction_to(target.global_position)

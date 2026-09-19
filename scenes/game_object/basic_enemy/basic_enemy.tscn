@@ -121,6 +121,8 @@ autoplay = "walk"
 [node name="HealthComponent" parent="." instance=ExtResource("2_en8ir")]
 
 [node name="HealthBar" type="ProgressBar" parent="."]
+z_index = 50
+z_as_relative = false
 custom_minimum_size = Vector2(18, 4)
 offset_left = -9.0
 offset_top = -22.0
@@ -137,7 +139,8 @@ visible = false
 position = Vector2(9, -5)
 scale = Vector2(0.035, 0.035)
 texture = SubResource("AtlasTexture_paralyze")
-z_index = 2
+z_index = 40
+z_as_relative = false
 
 [node name="VialDropComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("3_v8t1l")]
 drop_rate = 0.35

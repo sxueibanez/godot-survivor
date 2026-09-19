@@ -95,7 +95,7 @@ func start_aim(player: Node2D) -> void:
 	warning_time = WARNING_DURATION
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
 	velocity = Vector2.ZERO
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var warning := ChargeWarning.new(charge_direction, charge_distance)
 		foreground.add_child(warning)

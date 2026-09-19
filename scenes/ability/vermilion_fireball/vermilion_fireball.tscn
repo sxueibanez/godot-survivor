@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/abilities/vermilion_fireball_frames.png" id="2_frames"]
 
 [node name="VermilionFireball" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

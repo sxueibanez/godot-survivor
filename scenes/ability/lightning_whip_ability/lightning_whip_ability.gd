@@ -78,7 +78,7 @@ func spawn_chains(source_enemy: Node2D) -> void:
 	enemies.sort_custom(func(a: Node2D, b: Node2D):
 		return a.global_position.distance_squared_to(source_enemy.global_position) < b.global_position.distance_squared_to(source_enemy.global_position)
 	)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	for index in min(CHAIN_TARGET_COUNT, enemies.size()):
@@ -93,7 +93,7 @@ func spawn_chains(source_enemy: Node2D) -> void:
 
 
 func spawn_cloud(enemy: Node2D) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	var cloud := lightning_cloud_scene.instantiate() as LightningCloudAbility

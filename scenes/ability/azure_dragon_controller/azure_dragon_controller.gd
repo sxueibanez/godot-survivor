@@ -75,7 +75,7 @@ func _process(delta: float) -> void:
 func spawn_dragon() -> void:
 	if is_instance_valid(dragon):
 		return
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	dragon = azure_dragon_scene.instantiate() as AzureDragonAbility
@@ -87,7 +87,7 @@ func spawn_dragon() -> void:
 func spawn_vermilion_bird() -> void:
 	if is_instance_valid(vermilion_bird):
 		return
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	vermilion_bird = vermilion_bird_scene.instantiate() as VermilionBirdAbility
@@ -98,7 +98,7 @@ func spawn_vermilion_bird() -> void:
 func spawn_xuanwu() -> void:
 	if is_instance_valid(xuanwu):
 		return
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	xuanwu = xuanwu_scene.instantiate() as XuanwuAbility
@@ -108,7 +108,7 @@ func spawn_xuanwu() -> void:
 func spawn_white_tiger() -> void:
 	if is_instance_valid(white_tiger):
 		return
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	white_tiger = white_tiger_scene.instantiate() as WhiteTigerAbility
@@ -137,7 +137,7 @@ func on_timer_timeout() -> void:
 
 
 func spawn_extra_attack_dragons(target_position: Vector2) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	for index in range(1, attack_count):
@@ -233,7 +233,7 @@ func end_four_beasts_rush() -> void:
 
 func create_four_beasts_effect() -> void:
 	clear_four_beasts_effect()
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	for color: Color in FOUR_BEAST_COLORS:
@@ -242,7 +242,7 @@ func create_four_beasts_effect() -> void:
 		gradient.colors = PackedColorArray([Color(color, 0.0), color])
 		trail.width = 8.0
 		trail.gradient = gradient
-		trail.z_index = -1
+		trail.z_index = 0
 		foreground.add_child(trail)
 		four_beasts_trails.append(trail)
 	for ring_index in 2:
@@ -250,7 +250,7 @@ func create_four_beasts_effect() -> void:
 		ring.closed = true
 		ring.width = 5.0 if ring_index == 0 else 2.0
 		ring.default_color = Color(0.75, 0.95, 1.0, 0.8 if ring_index == 0 else 0.5)
-		ring.z_index = -1
+		ring.z_index = 0
 		foreground.add_child(ring)
 		four_beasts_rings.append(ring)
 

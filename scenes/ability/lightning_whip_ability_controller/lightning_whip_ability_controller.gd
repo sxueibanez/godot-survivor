@@ -48,7 +48,7 @@ func on_timer_timeout() -> void:
 	enemies.sort_custom(func(a: Node2D, b: Node2D):
 		return a.global_position.distance_squared_to(player.global_position) < b.global_position.distance_squared_to(player.global_position)
 	)
-	var foreground = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground = get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	for index in attack_count:

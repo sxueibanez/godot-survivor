@@ -48,6 +48,7 @@ class ChallengeRing extends Node2D:
 func _ready() -> void:
 	main = get_parent()
 	var hud := CanvasLayer.new()
+	hud.layer = 10
 	add_child(hud)
 	status = Label.new()
 	status.position = Vector2(12, 82)
@@ -363,8 +364,10 @@ func apply_attack_rate() -> void:
 		var timer := controller.get_node_or_null("Timer") as Timer
 		if timer != null:
 			timers.append(timer)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer")
-	if foreground != null:
+	for layer_name in ["player_projectiles_layer", "combat_effects_layer"]:
+		var foreground := get_tree().get_first_node_in_group(layer_name)
+		if foreground == null:
+			continue
 		for companion: Node in foreground.get_children():
 			var timer := companion.get_node_or_null("AttackTimer") as Timer
 			if timer != null:

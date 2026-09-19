@@ -57,7 +57,7 @@ static func get_bonus_multiplier(base_bonus: float, extra_bonus: float, is_stati
 
 
 func spawn_pagoda() -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if foreground == null or pagoda_scene == null:
 		return
 	pagoda = pagoda_scene.instantiate() as NineTreasurePagodaAbility
@@ -108,7 +108,7 @@ func get_weapon_attack_timers() -> Array[Timer]:
 			var timer := controller.get_node_or_null("Timer") as Timer
 			if timer != null:
 				timers.append(timer)
-	var foreground := get_tree().get_first_node_in_group("foreground_layer")
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer")
 	if foreground != null:
 		for companion: Node in foreground.get_children():
 			var timer := companion.get_node_or_null("AttackTimer") as Timer

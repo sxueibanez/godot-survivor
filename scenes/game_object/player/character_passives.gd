@@ -28,7 +28,7 @@ func _ready() -> void:
 	health.damage_taken.connect(on_damage_taken)
 	GameEvents.enemy_defeated.connect(on_enemy_defeated)
 	var hud := CanvasLayer.new()
-	hud.layer = 5
+	hud.layer = 10
 	add_child(hud)
 	status = Label.new()
 	hud.add_child(status)

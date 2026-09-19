@@ -54,7 +54,8 @@ func _process(delta: float) -> void:
 		charge_label = Label.new()
 		charge_label.position = Vector2(-28, 20)
 		charge_label.add_theme_font_size_override("font_size", 8)
-		charge_label.z_index = 4
+		charge_label.z_as_relative = false
+		charge_label.z_index = 40
 		player.add_child(charge_label)
 	charge_label.text = "震势 %d/10" % floori(quake_charge)
 	charge_label.modulate = Color("ffda68") if quake_charge >= HEAVY_CHARGE_TIME else Color.WHITE
@@ -64,7 +65,7 @@ func on_timer_timeout() -> void:
 	if attack_cooldown.active_count > 0:
 		return
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	var attack_range := ATTACK_RANGE * size_multiplier

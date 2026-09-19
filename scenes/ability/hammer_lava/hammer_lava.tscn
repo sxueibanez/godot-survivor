@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/abilities/hammer_lava_frames.png" id="2_frames"]
 
 [node name="HammerLava" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 tick_count = 6
 weapon_id = "heaven_shaking_hammer"

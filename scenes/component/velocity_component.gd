@@ -44,7 +44,8 @@ func _ready() -> void:
 		return
 	stun_indicator = StunIndicator.new()
 	stun_indicator.position = Vector2(0, -20)
-	stun_indicator.z_index = 3
+	stun_indicator.z_as_relative = false
+	stun_indicator.z_index = 40
 	stun_indicator.visible = false
 	owner_node.add_child.call_deferred(stun_indicator)
 

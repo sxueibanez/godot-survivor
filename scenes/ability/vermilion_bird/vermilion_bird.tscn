@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ability/vermilion_fireball/vermilion_fireball.tscn" id="3_fireball"]
 
 [node name="VermilionBirdAbility" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 fireball_scene = ExtResource("3_fireball")
 

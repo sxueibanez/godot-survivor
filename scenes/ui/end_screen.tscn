@@ -66,7 +66,7 @@ font_names = PackedStringArray("Microsoft YaHei")
 
 [node name="EndScreen" type="CanvasLayer"]
 process_mode = 3
-layer = 3
+layer = 40
 script = ExtResource("1_qgnjn")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

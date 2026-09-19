@@ -24,7 +24,7 @@ size = Vector2(130, 8)
 script = ExtResource("2_laser")
 
 [node name="Beam" type="Line2D" parent="." unique_id=1563737375]
-z_index = 1
+z_index = 0
 material = SubResource("ShaderMaterial_flow")
 points = PackedVector2Array(24, 0, 284, 0)
 width = 8.0

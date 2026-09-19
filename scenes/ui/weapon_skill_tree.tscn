@@ -19,7 +19,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
 [node name="WeaponSkillTree" type="CanvasLayer"]
-layer = 2
+layer = 30
 script = ExtResource("1_script")
 
 [node name="Backdrop" type="ColorRect" parent="."]

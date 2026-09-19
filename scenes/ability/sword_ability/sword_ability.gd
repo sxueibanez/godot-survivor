@@ -32,7 +32,7 @@ func on_hitbox_area_entered(other_area: Area2D) -> void:
 		GameEvents.sword_hit_target.emit(target)
 	if not chain_enabled or chain_depth >= MAX_CHAIN_DEPTH or not other_area is HurtboxComponent or randf() > CHAIN_CHANCE:
 		return
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if target == null or foreground == null:
 		return
 	var next_sword := sword_scene.instantiate() as SwordAbility

@@ -59,7 +59,7 @@ func _process(delta: float) -> void:
 
 
 func fire(direction: Vector2) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	var bolt := IceBolt.new()

@@ -24,6 +24,8 @@ var exploded := false
 var start_position := Vector2.ZERO
 var target_position := Vector2.ZERO
 var death_actor := "cinder"
+var flight_time := 0.0
+var flight_elapsed := 0.0
 
 func _ready() -> void:
 	add_to_group("forge_effect")
@@ -49,6 +51,11 @@ func _process(delta: float) -> void:
 		return
 	if require_caster and (not is_instance_valid(caster) or caster.is_queued_for_deletion() or caster.get_node("HealthComponent").current_health <= 0):
 		queue_free()
+		return
+	if kind == "barrel" and flight_elapsed < flight_time:
+		flight_elapsed = minf(flight_elapsed + delta, flight_time)
+		global_position = start_position.lerp(target_position, flight_elapsed / flight_time)
+		queue_redraw()
 		return
 	elapsed += delta
 	if kind not in ["slag", "barrel"] and elapsed >= warning_time + active_time:
@@ -135,6 +142,14 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 5, Color(0.1, 0.05, 0.02, 0.4))
 		var texture := ART.texture("slag")
 		draw_texture_rect_region(texture, Rect2(-9, -9 - sin(progress * PI) * 75.0, 18, 18), Rect2(int(elapsed * 12) % 4 * 24, 0, 24, 24))
+		return
+	if kind == "barrel" and flight_elapsed < flight_time:
+		var progress := flight_elapsed / flight_time
+		var height := sin(progress * PI) * 72.0
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.4))
+		draw_circle(Vector2.ZERO, 10.0 * (1.0 - height / 144.0), Color(0.05, 0.02, 0.01, 0.45))
+		draw_set_transform(Vector2.ZERO)
+		draw_texture_rect(ART.texture("barrel"), Rect2(-12, -24 - height, 24, 24), false, Color.WHITE)
 		return
 	var warning := elapsed < warning_time
 	var color := Color(1.0, 0.46, 0.06, 0.18 + sin(elapsed * 18.0) * 0.07) if warning else Color(1.0, 0.2, 0.03, 0.38)

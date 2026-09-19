@@ -290,7 +290,7 @@ func show_sheet(texture: Texture2D, frame: int, columns: Array, rows: Array, gro
 
 
 func create_warning_circle(center: Vector2, radius: float, duration: float) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var warning := WarningCircle.new(radius, duration)
 		foreground.add_child(warning)
@@ -298,7 +298,7 @@ func create_warning_circle(center: Vector2, radius: float, duration: float) -> v
 
 
 func create_dash_warning(direction: Vector2) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var warning := DashWarning.new(direction)
 		foreground.add_child(warning)
@@ -306,7 +306,7 @@ func create_dash_warning(direction: Vector2) -> void:
 
 
 func spawn_shockwave() -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var shockwave := Shockwave.new()
 		foreground.add_child(shockwave)
@@ -315,7 +315,7 @@ func spawn_shockwave() -> void:
 
 func spawn_rock() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if player != null and foreground != null:
 		var rock := RockProjectile.new()
 		rock.direction = global_position.direction_to(player.global_position)

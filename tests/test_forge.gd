@@ -196,21 +196,58 @@ func _ready() -> void:
 		assert(valve.cooldown == 0)
 	clear_effects()
 	await get_tree().process_frame
-	var active_worker := add_enemy(WORKER, map.CENTER + Vector2(30, 0))
+	var active_worker := add_enemy(WORKER, map.CENTER + Vector2(180, 0))
 	active_worker.health_component.max_health = 100
 	active_worker.health_component.current_health = 100
+	active_worker.attack_cooldown = 0
 	active_worker._process(0.01)
-	assert(active_worker.barrel_dropped)
-	active_worker.barrel.set_process(false)
-	active_worker.barrel._process(1.19)
-	assert(not active_worker.barrel.exploded)
-	active_worker.barrel._process(0.02)
-	active_worker._process(0.01)
-	assert(active_worker.health_component.current_health == 0)
+	assert(active_worker.action == "ignite" and active_worker.throw_target == player.global_position)
+	active_worker._process(0.4)
+	var thrown: Node2D = active_worker.last_thrown_barrel
+	thrown.set_process(false)
+	assert(thrown.flight_time == 0.65 and thrown.warning_time == 1.0)
+	var throw_start := thrown.global_position
+	thrown._process(0.325)
+	assert(thrown.global_position != throw_start and thrown.global_position != thrown.target_position)
+	thrown._process(0.325)
+	assert(thrown.global_position == thrown.target_position and thrown.elapsed == 0)
+	thrown._process(0.99)
+	assert(not thrown.exploded)
+	thrown._process(0.02)
+	assert(thrown.exploded and active_worker.health_component.current_health == 100)
+	var death_position := active_worker.global_position
+	assert(active_worker.health_component.damage(100000))
 	await get_tree().process_frame
+	var death_barrel: Node2D
+	for effect: Node2D in get_tree().get_nodes_in_group("forge_effect"):
+		if effect.kind == "barrel" and effect.warning_time == 0.8 and effect.global_position.distance_to(death_position) < 0.01:
+			death_barrel = effect
+	assert(death_barrel != null)
 	clear_effects()
 	await get_tree().process_frame
-	print("FORGE_BARREL_OK: death/active paths exactly once, chain reaction, separate damage, no valve activation")
+	print("FORGE_BARREL_OK: 0.65s parabolic throw, 1s fuse, reusable worker attack, death-site bomb, chain reaction")
+
+	var cinder := add_enemy(CINDER, map.CENTER + Vector2(90, 0))
+	assert(cinder.health_component.max_health == 45.0)
+	player.global_position = map.CENTER
+	cinder._process(0.01)
+	assert(cinder.cinder_fuse_left > 0 and cinder.cinder_fuse_left <= 1.6)
+	assert(cinder.velocity_component.max_speed == 120)
+	var cinder_charge: float = cinder.cinder_fuse_left
+	player.global_position = cinder.global_position + Vector2(200, 0)
+	cinder._process(cinder_charge - 0.01)
+	assert(not cinder.cinder_exploded)
+	cinder._process(0.02)
+	assert(cinder.cinder_exploded and cinder.health_component.current_health == 0)
+	var cinder_blast := false
+	for effect: Node in get_tree().get_nodes_in_group("forge_effect"):
+		if effect.damage_source == "煤渣虫自爆":
+			assert(effect.radius == 38 and effect.player_damage == 22)
+			cinder_blast = true
+	assert(cinder_blast)
+	clear_effects()
+	await get_tree().process_frame
+	print("FORGE_CINDER_OK: five-times live HP, distance-timed preheat, explosion exactly when charge completes")
 
 	main.boss_rush.spawning_boss = true
 	var boss: Node2D = main.spawn_boss_for_map(5)
@@ -231,6 +268,26 @@ func _ready() -> void:
 	assert(boss.phase == 3 and boss.state == "transition")
 	boss._process(0.66)
 	assert(boss.state == "idle")
+	boss.global_position = map.CENTER
+	player.global_position = map.CENTER + Vector2(250, 0)
+	boss.attack_cooldown = 0
+	boss._process(0.01)
+	assert(boss.state == "dash_warning" and boss.dash_left > 0)
+	var dash_warning := false
+	for effect: Node in get_tree().get_nodes_in_group("forge_effect"):
+		if effect.owner_id == boss.get_instance_id() and effect.kind == "warning" and effect.shape == "line":
+			assert(effect.warning_time == 0.45 and effect.radius == 24)
+			dash_warning = true
+	assert(dash_warning)
+	boss._process(0.45)
+	assert(boss.state == "dash")
+	player.global_position = boss.global_position + boss.dash_direction * 40
+	before = health.current_health
+	boss._process(0.016)
+	assert(boss.dash_hit and health.current_health == before - 32)
+	assert(boss.state == "punch_charge")
+	boss.cancel_attacks()
+	boss.begin_state("idle", "walk")
 	player.global_position = map.valves[1].position
 	boss.start_skill("punch")
 	var punch_point: Vector2 = boss.locked_target
@@ -385,7 +442,7 @@ func _ready() -> void:
 	boss.queue_free()
 	await get_tree().process_frame
 	assert(map.active_crack_count() == 0)
-	print("FORGE_BOSS_OK: intro, phases, locked flame, overheat x1.25, 3s/8s immunity, interruption, summon cap/cleanup, environment cap, safe death")
+	print("FORGE_BOSS_OK: forced long-range dash/impact chain, phases, locked flame, overheat, interruption, summon/effect cleanup, safe death")
 
 	main.show_map(1)
 	assert(not map.active)

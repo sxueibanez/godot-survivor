@@ -95,7 +95,7 @@ func _draw() -> void:
 
 
 func spawn_shockwaves() -> void:
-	var parent := get_parent() as Node2D
+	var parent := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if parent == null:
 		return
 	var direction := origin.direction_to(target)

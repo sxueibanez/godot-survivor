@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/ui/arena_time_ui.gd" id="1_1qt50"]
 
 [node name="ArenaTimeUI" type="CanvasLayer"]
+layer = 10
 script = ExtResource("1_1qt50")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

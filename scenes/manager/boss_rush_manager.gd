@@ -161,7 +161,7 @@ func show_rest() -> void:
 	stage = Stage.REST
 	get_tree().paused = true
 	rest_screen = CanvasLayer.new()
-	rest_screen.layer = 20
+	rest_screen.layer = 30
 	rest_screen.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(rest_screen)
 	var center := CenterContainer.new()

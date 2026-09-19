@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/abilities/thunder_plasma_frames.png" id="2_frames"]
 
 [node name="ThunderPlasma" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="PlasmaSprite" type="Sprite2D" parent="."]

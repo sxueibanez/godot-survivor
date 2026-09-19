@@ -6,7 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/weapons/thunder_orb_book_hit.wav" id="4_hit"]
 
 [node name="ThunderOrbBookAbility" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 
 [node name="OrbSprite" type="Sprite2D" parent="."]

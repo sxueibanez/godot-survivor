@@ -224,7 +224,7 @@ func throw_greatsword() -> void:
 	await get_tree().create_timer(WARNING_TIME, false).timeout
 	visuals.rotation = 0.0
 	var sword := ThrownGreatsword.new()
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		foreground.add_child(sword)
 		sword.global_position = global_position + direction * 32.0
@@ -234,7 +234,7 @@ func throw_greatsword() -> void:
 
 
 func strike(position: Vector2) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var lightning := LightningStrike.new()
 		foreground.add_child(lightning)
@@ -274,7 +274,7 @@ func knockback_dash_targets(direction: Vector2, hit_player: bool) -> bool:
 
 
 func create_warning(position: Vector2, radius: float, duration: float, color: Color) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	var warning := WarningCircle.new(radius, duration, color)
@@ -283,7 +283,7 @@ func create_warning(position: Vector2, radius: float, duration: float, color: Co
 
 
 func create_dash_warning(direction: Vector2, length: float) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground == null:
 		return
 	var warning := DashWarning.new(direction, length, WARNING_TIME)

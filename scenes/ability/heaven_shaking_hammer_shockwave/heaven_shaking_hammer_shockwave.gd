@@ -43,7 +43,7 @@ func _process(delta: float) -> void:
 			lava_spawned = true
 			var lava := load("res://scenes/ability/hammer_lava/hammer_lava.tscn").instantiate() as ThunderPlasma
 			lava.configure(global_position, damage * 0.3, radius * 0.5)
-			get_parent().add_child(lava)
+			get_tree().get_first_node_in_group("ground_effects_layer").add_child(lava)
 		queue_free()
 
 

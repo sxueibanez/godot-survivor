@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ability/sacred_tornado/sacred_tornado.tscn" id="3_tornado"]
 
 [node name="WhiteTigerAbility" type="Node2D"]
-z_index = -1
+z_index = 0
 script = ExtResource("1_script")
 tornado_scene = ExtResource("3_tornado")
 

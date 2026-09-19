@@ -114,7 +114,7 @@ func show_chain(target_position: Vector2) -> void:
 	chain.global_position = (global_position + target_position) * 0.5
 	chain.global_rotation = global_position.direction_to(target_position).angle()
 	chain.scale = Vector2(global_position.distance_to(target_position) / chain_texture.get_width(), 0.15)
-	get_parent().add_child(chain)
+	get_tree().get_first_node_in_group("combat_effects_layer").add_child(chain)
 	var tween := chain.create_tween()
 	tween.tween_property(chain, "modulate:a", 0.0, 0.18)
 	tween.tween_callback(chain.queue_free)
@@ -131,7 +131,7 @@ func finish_travel() -> void:
 			damage_enemy(enemy, damage * EXPLOSION_MULTIPLIER)
 	var plasma := plasma_scene.instantiate()
 	plasma.configure(global_position, damage * PLASMA_MULTIPLIER, PLASMA_RADIUS)
-	get_parent().add_child(plasma)
+	get_tree().get_first_node_in_group("ground_effects_layer").add_child(plasma)
 	var tween := create_tween()
 	tween.set_parallel()
 	tween.tween_property(orb_sprite, "scale", orb_sprite.scale * 2.0, 0.2)

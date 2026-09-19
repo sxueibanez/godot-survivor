@@ -273,7 +273,7 @@ func frost_burst() -> void:
 
 func create_ice_walls() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	begin_action()
@@ -308,7 +308,7 @@ func summon_wisps() -> void:
 
 func start_blizzard() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if player == null or foreground == null:
 		return
 	begin_action(BLIZZARD_TEXTURE)
@@ -350,7 +350,7 @@ func finish_action() -> void:
 
 
 func spawn_shard(direction: Vector2) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var shard := IceShard.new()
 		shard.direction = direction
@@ -359,7 +359,7 @@ func spawn_shard(direction: Vector2) -> void:
 
 
 func spawn_ice_burst(position: Vector2, radius: float) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground != null:
 		var burst := IceBurstEffect.new(radius)
 		foreground.add_child(burst)
@@ -367,7 +367,7 @@ func spawn_ice_burst(position: Vector2, radius: float) -> void:
 
 
 func create_warning(position: Vector2, radius: float, duration: float) -> void:
-	var foreground := get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
 		var warning := WarningCircle.new(radius, duration)
 		foreground.add_child(warning)

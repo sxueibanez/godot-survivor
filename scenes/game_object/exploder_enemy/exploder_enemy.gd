@@ -62,7 +62,7 @@ func detonate() -> void:
 
 
 func spawn_smoke() -> void:
-	var foreground: Node2D = get_tree().get_first_node_in_group("foreground_layer") as Node2D
+	var foreground: Node2D = get_tree().get_first_node_in_group("combat_effects_layer") as Node2D
 	if foreground == null:
 		return
 	var smoke := smoke_scene.instantiate() as Node2D
