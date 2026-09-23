@@ -1,0 +1,5 @@
+res://scenes/ability/azure_dragon_controller/azure_dragon_controller.gd
+res://scenes/ui/pause_menu.gd
+res://scenes/ability/bomb_ability/bomb_ability.gd
+res://scenes/ability/bomb_ability_controller/bomb_ability_controller.gd
+res://scenes/ui/weapon_skill_tree.gd
