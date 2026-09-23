@@ -103,6 +103,15 @@ offset_right = 150.0
 offset_bottom = 105.0
 theme_override_font_sizes/font_size = 11
 
+[node name="WeaponUnlockInfo" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/TreeContainer"]
+unique_name_in_owner = true
+offset_left = 4.0
+offset_top = 150.0
+offset_right = 156.0
+offset_bottom = 224.0
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+
 [node name="ResetButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/TreeContainer"]
 unique_name_in_owner = true
 offset_left = 4.0

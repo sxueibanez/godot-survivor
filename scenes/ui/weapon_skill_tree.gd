@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 
+const BOSS_RUSH_MANAGER := preload("res://scenes/manager/boss_rush_manager.gd")
 const WEAPON_IDS: Array[String] = ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer", "sniper_rifle"]
 const WEAPON_NAMES: Dictionary = {
 	"sword": "剑",
@@ -145,6 +146,7 @@ class SkillNodeButton extends Button:
 @onready var tree_container: Control = %TreeContainer
 @onready var back_button: Button = %BackButton
 @onready var health_info: Label = %HealthInfo
+@onready var weapon_unlock_info: Label = %WeaponUnlockInfo
 @onready var reset_button: Button = %ResetButton
 
 var selected_weapon_id := "sword"
@@ -165,11 +167,15 @@ func _ready() -> void:
 func build_tabs() -> void:
 	for weapon_id: String in WEAPON_IDS:
 		var tab := Button.new()
-		tab.text = str(WEAPON_NAMES[weapon_id])
-		tab.custom_minimum_size = Vector2(82, 27)
+		var unlocked := MetaProgression.is_weapon_unlocked(weapon_id)
+		tab.text = ("[已解锁] " if unlocked else "[未解锁] ") + str(WEAPON_NAMES[weapon_id])
+		tab.tooltip_text = get_weapon_unlock_text(weapon_id)
+		tab.custom_minimum_size = Vector2(100, 27)
 		tab.toggle_mode = true
 		tab.button_pressed = weapon_id == selected_weapon_id
 		tab.add_theme_font_size_override("font_size", 10)
+		if not unlocked:
+			tab.modulate = Color("8f94a3")
 		tab.pressed.connect(on_weapon_selected.bind(weapon_id))
 		weapon_tabs.add_child(tab)
 		weapon_tab_buttons[weapon_id] = tab
@@ -177,6 +183,7 @@ func build_tabs() -> void:
 
 func refresh_tree() -> void:
 	currency_label.text = "瓶子：%d" % int(MetaProgression.save_data["meta_upgrade_currency"])
+	weapon_unlock_info.text = get_weapon_unlock_text(selected_weapon_id)
 	health_info.text = "每解锁一个专属技能\n所有怪物血量 +2%%\n\n当前总加成：+%.0f%%" % [(MetaProgression.get_enemy_health_multiplier() - 1.0) * 100.0]
 	var has_unlock := false
 	for node_id: String in get_selected_node_costs():
@@ -184,7 +191,7 @@ func refresh_tree() -> void:
 			has_unlock = true
 	reset_button.disabled = not has_unlock or int(MetaProgression.save_data["meta_upgrade_currency"]) < MetaProgression.WEAPON_RESET_COST
 	for child: Node in tree_container.get_children():
-		if child != health_info and child != reset_button:
+		if child != health_info and child != weapon_unlock_info and child != reset_button:
 			child.free()
 	var canvas := SkillTreeCanvas.new()
 	canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -370,6 +377,20 @@ func get_icon(item_id: String, weapon: bool) -> Texture2D:
 		resource_id = str(SPECIAL_ICON_IDS.get(item_id, item_id.trim_prefix("tree_")))
 	var upgrade := load("res://resources/upgrades/%s.tres" % resource_id) as AbilityUpgrade
 	return AbilityUpgradeCard.get_upgrade_icon(upgrade) if upgrade != null else null
+
+
+func get_weapon_unlock_text(weapon_id: String) -> String:
+	if MetaProgression.is_weapon_unlocked(weapon_id):
+		return "状态：已解锁\n可在开局及升级时的武器选择中出现。"
+	for rule: Dictionary in BOSS_RUSH_MANAGER.WEAPON_UNLOCK_RULES:
+		if str(rule["unlocks"]) != weapon_id:
+			continue
+		var required_weapon := str(WEAPON_NAMES.get(str(rule["weapon_id"]), rule["weapon_id"]))
+		var boss_name := str(BOSS_RUSH_MANAGER.BOSS_NAMES[int(rule["boss_map_id"]) - 1])
+		if bool(rule.get("requires_equipped", false)):
+			return "状态：未解锁\n车轮战中携带【%s】击败【%s】解锁。" % [required_weapon, boss_name]
+		return "状态：未解锁\n车轮战中用【%s】最后一击击败【%s】解锁。" % [required_weapon, boss_name]
+	return "状态：未解锁\n暂无解锁条件。"
 
 
 func on_weapon_selected(weapon_id: String) -> void:
