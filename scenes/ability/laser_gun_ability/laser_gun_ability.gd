@@ -197,7 +197,7 @@ func apply_damage(area: Area2D, delta: float, damage_scale: float = 1.0) -> void
 		damage_multiplier += (DURATION - time_left) / DURATION
 	var damage: float = damage_per_second * damage_multiplier * damage_scale * delta
 	var critical_hit: Dictionary = GameEvents.get_critical_damage(damage, "laser_gun")
-	var killed: bool = area.health_component.damage(critical_hit["damage"])
+	var killed: bool = area.health_component.damage(critical_hit["damage"], "", global_position, "direct", "laser_gun")
 	if hit_sound_time_left <= 0:
 		hit_sound.play_random()
 		hit_sound_time_left = HIT_SOUND_INTERVAL

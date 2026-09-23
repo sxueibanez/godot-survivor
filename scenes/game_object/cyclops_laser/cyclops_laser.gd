@@ -52,7 +52,7 @@ func check_enemy_hit() -> void:
 		var hurtbox: HurtboxComponent = enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 		if hurtbox != null and hurtbox.health_component != null:
 			var critical_hit: Dictionary = GameEvents.get_critical_damage(DAMAGE, "axe")
-			hurtbox.health_component.damage(critical_hit["damage"])
+			hurtbox.health_component.damage(critical_hit["damage"], "", global_position, "direct", "axe")
 			GameEvents.record_weapon_damage("axe", critical_hit["damage"])
 			GameEvents.heal_from_damage(critical_hit["damage"])
 			hurtbox.show_damage(critical_hit["damage"], critical_hit["critical"])

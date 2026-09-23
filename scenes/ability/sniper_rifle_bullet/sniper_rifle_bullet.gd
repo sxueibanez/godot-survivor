@@ -94,7 +94,7 @@ func damage_crossed_enemies(from: Vector2, to: Vector2) -> void:
 		var hit_damage := get_damage_for_hit(weapon_damage, hit_count, no_damage_falloff)
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(hit_damage, "sniper_rifle")
 		var damage_amount := float(critical_hit["damage"])
-		hurtbox.health_component.damage(damage_amount)
+		hurtbox.health_component.damage(damage_amount, "", global_position, "direct", "sniper_rifle")
 		GameEvents.record_weapon_damage("sniper_rifle", damage_amount)
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))
@@ -136,7 +136,7 @@ func explode_at(center: Vector2, explosion_damage: float) -> void:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(explosion_damage, "sniper_rifle")
 		var damage_amount := float(critical_hit["damage"])
-		hurtbox.health_component.damage(damage_amount)
+		hurtbox.health_component.damage(damage_amount, "", global_position, "direct", "sniper_rifle")
 		GameEvents.record_weapon_damage("sniper_rifle", damage_amount)
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))

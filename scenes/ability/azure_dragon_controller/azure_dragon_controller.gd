@@ -294,7 +294,7 @@ func damage_ultimate_contacts(center: Vector2) -> void:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(base_damage * damage_multiplier * FOUR_BEASTS_DAMAGE_MULTIPLIER)
 		var damage_amount := float(critical_hit["damage"])
-		hurtbox.health_component.damage(damage_amount)
+		hurtbox.health_component.damage(damage_amount, "", center, "direct", "azure_dragon")
 		GameEvents.record_weapon_damage("azure_dragon", damage_amount)
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))

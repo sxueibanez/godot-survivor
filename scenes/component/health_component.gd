@@ -14,6 +14,7 @@ var temporary_shield := 0.0
 var temporary_shield_time_left := 0.0
 var invulnerable_time_left := 0.0
 var death_emitted := false
+var last_damage_weapon_id := ""
 
 
 func _ready():
@@ -39,7 +40,7 @@ func _process(delta: float) -> void:
 			set_temporary_shield(0.0, 0.0)
 
 
-func damage(damage_amount: float, source: String = "", source_position: Vector2 = Vector2.INF, damage_kind: String = "direct") -> bool:
+func damage(damage_amount: float, source: String = "", source_position: Vector2 = Vector2.INF, damage_kind: String = "direct", source_weapon_id: String = "") -> bool:
 	if get_tree().paused or current_health <= 0 or invulnerable_time_left > 0.0:
 		return false
 	if get_parent().has_method("modify_incoming_damage"):
@@ -67,6 +68,8 @@ func damage(damage_amount: float, source: String = "", source_position: Vector2 
 	# clamping
 	var previous_health := current_health
 	current_health = max(current_health - damage_amount, 0)
+	if get_parent().is_in_group("boss") and current_health < previous_health:
+		last_damage_weapon_id = source_weapon_id
 	health_changed.emit()
 	damage_taken.emit(previous_health - current_health)
 	Callable(check_death).call_deferred()

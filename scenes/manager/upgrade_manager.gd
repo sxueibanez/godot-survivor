@@ -137,7 +137,8 @@ func _ready():
 	upgrade_pool.add_item(upgrade_auto_collect_experience, 5)
 	upgrade_pool.add_item(upgrade_attack_count, 5)
 	for weapon: Ability in weapon_upgrades:
-		weapon_pool.add_item(weapon, 10)
+		if MetaProgression.is_weapon_unlocked(weapon.id):
+			weapon_pool.add_item(weapon, 10)
 
 	experience_manager.level_up.connect(on_level_up)
 
@@ -296,8 +297,20 @@ func update_weapon_pool() -> void:
 			weapon_pool.remove_item(weapon)
 		return
 	for weapon: Ability in weapon_upgrades:
+		if not MetaProgression.is_weapon_unlocked(weapon.id):
+			weapon_pool.remove_item(weapon)
+			upgrade_pool.remove_item(weapon)
+			continue
 		if not current_upgrades.has(weapon.id) and not disabled_upgrade_ids.has(weapon.id):
 			upgrade_pool.add_item(weapon, 10)
+
+
+func add_unlocked_weapon(weapon_id: String) -> void:
+	for weapon: Ability in weapon_upgrades:
+		if weapon.id == weapon_id and MetaProgression.is_weapon_unlocked(weapon_id):
+			weapon_pool.add_item(weapon, 10)
+			update_weapon_pool()
+			return
 
 
 func get_weapon_limit() -> int:

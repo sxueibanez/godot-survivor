@@ -1,7 +1,7 @@
 extends Node
 class_name BombAbilityController
 
-const MAX_RANGE := 320.0
+const MAX_RANGE := 150.0
 const CLUSTER_RADIUS := 70.0
 const BASE_RADIUS := 30.0
 const GIANT_ROUND_INTERVAL := 4

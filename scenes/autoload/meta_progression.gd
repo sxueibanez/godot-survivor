@@ -4,12 +4,14 @@ extends Node
 const SAVE_FILE_PATH := "user://game.save"
 const ENEMY_HEALTH_PER_SPECIAL_SKILL := 0.02
 const WEAPON_RESET_COST := 500
+const WEAPON_IDS := ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer", "sniper_rifle"]
 
 var save_data: Dictionary = {
 	"meta_upgrade_currency": 0,
 	"meta_upgrades": {},
 	"weapon_skills": {},
 	"weapon_skill_loadouts": {},
+	"unlocked_weapons": {"sword": true},
 }
 
 
@@ -24,19 +26,48 @@ func load_save_file() -> void:
 	
 	var file: FileAccess = FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
 	var loaded_data: Variant = file.get_var()
+	file.close()
 	if loaded_data is Dictionary:
 		save_data = loaded_data as Dictionary
+	var migrated := false
 	if !save_data.has("meta_upgrades"):
 		save_data["meta_upgrades"] = {}
 	if !save_data.has("weapon_skills"):
 		save_data["weapon_skills"] = {}
 	if !save_data.has("weapon_skill_loadouts"):
 		save_data["weapon_skill_loadouts"] = {}
+	if typeof(save_data.get("unlocked_weapons", null)) != TYPE_DICTIONARY:
+		var unlocked_weapons := {}
+		for weapon_id: String in WEAPON_IDS:
+			unlocked_weapons[weapon_id] = true
+		save_data["unlocked_weapons"] = unlocked_weapons
+		migrated = true
+	var saved_weapons: Dictionary = save_data["unlocked_weapons"]
+	if not saved_weapons.get("sword", false):
+		saved_weapons["sword"] = true
+		migrated = true
+	if migrated:
+		save()
 
 
 func save() -> void:
 	var file: FileAccess = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	file.store_var(save_data)
+	file.close()
+
+
+func is_weapon_unlocked(weapon_id: String) -> bool:
+	return bool((save_data.get("unlocked_weapons", {}) as Dictionary).get(weapon_id, false))
+
+
+func unlock_weapon(weapon_id: String) -> bool:
+	if weapon_id not in WEAPON_IDS or is_weapon_unlocked(weapon_id):
+		return false
+	var unlocked_weapons: Dictionary = save_data.get("unlocked_weapons", {})
+	unlocked_weapons[weapon_id] = true
+	save_data["unlocked_weapons"] = unlocked_weapons
+	save()
+	return true
 
 
 func add_meta_upgrade(upgrade: MetaUpgrade):

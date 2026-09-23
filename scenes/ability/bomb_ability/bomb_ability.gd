@@ -12,7 +12,8 @@ const HEAT_REACTION_FRACTION := 0.5
 const GIANT_RADIUS_MULTIPLIER := 1.5
 const GIANT_KNOCKBACK_SPEED := 240.0
 const GIANT_KNOCKBACK_DURATION := 0.3
-const IMPLOSION_PULL_DISTANCE := 10.0
+const IMPLOSION_PULL_RADIUS := 80.0
+const IMPLOSION_PULL_SPEED := 120.0
 
 @onready var bomb_sprite: Sprite2D = $BombSprite
 @onready var explosion_sprite: Sprite2D = $ExplosionSprite
@@ -74,6 +75,11 @@ func _process(delta: float) -> void:
 		explode()
 
 
+func _physics_process(delta: float) -> void:
+	if exploding and implosion_enabled:
+		pull_enemies(delta)
+
+
 func explode() -> void:
 	if exploding:
 		return
@@ -99,7 +105,7 @@ func damage_enemies() -> void:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage, "bomb")
 		var damage_amount := float(critical_hit["damage"])
-		hurtbox.health_component.damage(damage_amount, "", global_position, "area")
+		hurtbox.health_component.damage(damage_amount, "", global_position, "area", "bomb")
 		GameEvents.record_weapon_damage("bomb", damage_amount)
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))
@@ -111,8 +117,6 @@ func damage_enemies() -> void:
 					effect.refresh(effect.damage)
 		if burn_enabled:
 			apply_burn(enemy)
-		if implosion_enabled and not enemy.is_in_group("boss"):
-			pull_enemy(enemy)
 		if is_giant and not enemy.is_in_group("boss"):
 			var velocity := enemy.get_node_or_null("VelocityComponent") as VelocityComponent
 			if velocity != null:
@@ -122,15 +126,19 @@ func damage_enemies() -> void:
 				velocity.apply_knockback(direction if direction != Vector2.ZERO else Vector2.RIGHT, GIANT_KNOCKBACK_SPEED, GIANT_KNOCKBACK_DURATION)
 
 
-func pull_enemy(enemy: Node2D) -> void:
-	var distance := enemy.global_position.distance_to(global_position)
-	if distance <= 4.0:
-		return
-	var movement := enemy.global_position.direction_to(global_position) * minf(IMPLOSION_PULL_DISTANCE, distance - 4.0)
-	if enemy is CharacterBody2D:
-		(enemy as CharacterBody2D).move_and_collide(movement)
-	else:
-		enemy.global_position += movement
+func pull_enemies(delta: float) -> void:
+	var pull_radius := maxf(IMPLOSION_PULL_RADIUS, get_explosion_radius() * 2.0)
+	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
+		if enemy.is_in_group("boss"):
+			continue
+		var distance := enemy.global_position.distance_to(global_position)
+		if distance > pull_radius or distance <= 4.0:
+			continue
+		var movement := enemy.global_position.direction_to(global_position) * minf(IMPLOSION_PULL_SPEED * delta, distance - 4.0)
+		if enemy is CharacterBody2D:
+			(enemy as CharacterBody2D).move_and_collide(movement)
+		else:
+			enemy.global_position += movement
 
 
 func get_explosion_radius() -> float:

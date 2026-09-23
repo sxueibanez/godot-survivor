@@ -4,6 +4,17 @@ const INITIAL_UPGRADES := 5
 const NEXT_ROUND_UPGRADES := 3
 const BOSS_HEALTH := [800.0, 1000.0, 1200.0, 1400.0, 1600.0]
 const BOSS_NAMES := ["史莱姆王", "雷电骑士", "铁臂矿工", "冰霜女王", "熔炉暴君"]
+const WEAPON_UNLOCK_RULES := [
+	{"weapon_id": "sword", "boss_map_id": 1, "unlocks": "axe"},
+	{"weapon_id": "axe", "boss_map_id": 2, "unlocks": "laser_gun"},
+	{"weapon_id": "laser_gun", "boss_map_id": 3, "unlocks": "lightning_whip"},
+	{"weapon_id": "lightning_whip", "boss_map_id": 4, "unlocks": "bomb"},
+	{"weapon_id": "bomb", "boss_map_id": 5, "unlocks": "thunder_orb_book"},
+	{"weapon_id": "thunder_orb_book", "boss_map_id": 1, "unlocks": "azure_dragon"},
+	{"weapon_id": "azure_dragon", "boss_map_id": 2, "unlocks": "nine_treasure_pagoda"},
+	{"weapon_id": "nine_treasure_pagoda", "boss_map_id": 3, "unlocks": "heaven_shaking_hammer", "requires_equipped": true},
+	{"weapon_id": "heaven_shaking_hammer", "boss_map_id": 4, "unlocks": "sniper_rifle"},
+]
 enum Stage { CHARACTER, INITIAL, FIGHT, CLEANUP, REWARD, REST, EXTRA, ROUND_COMPLETE, FINISHED }
 
 var stage := Stage.CHARACTER
@@ -71,7 +82,7 @@ func start_fight() -> void:
 	spawning_boss = true
 	active_boss = main.spawn_boss_for_map(round_index + 1)
 	assert(active_boss != null, "Boss rush failed to spawn boss")
-	active_boss.get_node("HealthComponent").died.connect(on_boss_died.bind(active_boss.get_instance_id()), CONNECT_ONE_SHOT)
+	active_boss.get_node("HealthComponent").died.connect(on_boss_died.bind(active_boss, round_index + 1), CONNECT_ONE_SHOT)
 	var other_maps: Array[int] = []
 	for extra in round_number - 1:
 		if other_maps.is_empty():
@@ -92,12 +103,15 @@ func spawn_pending_bosses() -> void:
 		spawning_boss = false
 		if boss == null:
 			return
-		pending_boss_maps.pop_front()
-		boss.get_node("HealthComponent").died.connect(on_boss_died.bind(boss.get_instance_id()), CONNECT_ONE_SHOT)
+		var boss_map_id: int = pending_boss_maps.pop_front()
+		boss.get_node("HealthComponent").died.connect(on_boss_died.bind(boss, boss_map_id), CONNECT_ONE_SHOT)
 
 
-func on_boss_died(boss_id: int = 0) -> void:
-	if stage != Stage.FIGHT or boss_id == 0 or dead_boss_ids.has(boss_id):
+func on_boss_died(boss: Node2D, boss_map_id: int) -> void:
+	if stage != Stage.FIGHT or not is_instance_valid(boss):
+		return
+	var boss_id := boss.get_instance_id()
+	if dead_boss_ids.has(boss_id):
 		return
 	# If both die on the same frame, player defeat takes precedence.
 	var player: Node = main.get_node_or_null("Entities/Player")
@@ -106,6 +120,7 @@ func on_boss_died(boss_id: int = 0) -> void:
 		return
 	dead_boss_ids[boss_id] = true
 	defeated_bosses += 1
+	try_unlock_weapon(boss, boss_map_id)
 	remaining_bosses -= 1
 	if remaining_bosses > 0:
 		return
@@ -124,6 +139,36 @@ func on_boss_died(boss_id: int = 0) -> void:
 	round_index += 1
 	stage = Stage.REWARD
 	main.get_node("UpgradeManager").show_upgrade_choices(3)
+
+
+func try_unlock_weapon(boss: Node2D, boss_map_id: int) -> void:
+	var health := boss.get_node_or_null("HealthComponent") as HealthComponent
+	if health == null:
+		return
+	var rule: Dictionary = {}
+	for candidate: Dictionary in WEAPON_UNLOCK_RULES:
+		if not MetaProgression.is_weapon_unlocked(str(candidate["unlocks"])):
+			rule = candidate
+			break
+	if rule.is_empty() or int(rule["boss_map_id"]) != boss_map_id:
+		return
+	var required_weapon_id := str(rule["weapon_id"])
+	if bool(rule.get("requires_equipped", false)):
+		if not main.get_node("UpgradeManager").current_upgrades.has(required_weapon_id):
+			return
+	elif health.last_damage_weapon_id != required_weapon_id:
+		return
+	var unlocked_weapon_id := str(rule["unlocks"])
+	if not MetaProgression.unlock_weapon(unlocked_weapon_id):
+		return
+	var upgrade_manager: Node = main.get_node("UpgradeManager")
+	upgrade_manager.add_unlocked_weapon(unlocked_weapon_id)
+	var weapon_name := unlocked_weapon_id
+	for weapon: Ability in upgrade_manager.weapon_upgrades:
+		if weapon.id == unlocked_weapon_id:
+			weapon_name = weapon.name
+			break
+	main.get_node("ArenaTimeUI").show_notification("解锁新武器：%s" % weapon_name)
 
 
 func cleanup_battle() -> void:

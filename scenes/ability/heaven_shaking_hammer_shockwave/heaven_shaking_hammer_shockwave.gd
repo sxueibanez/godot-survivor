@@ -60,7 +60,7 @@ func start_wave() -> void:
 			continue
 		var critical_hit: Dictionary = GameEvents.get_critical_damage(damage)
 		var damage_amount := float(critical_hit["damage"])
-		hurtbox.health_component.damage(damage_amount)
+		hurtbox.health_component.damage(damage_amount, "", global_position, "direct", "heaven_shaking_hammer")
 		GameEvents.record_weapon_damage("heaven_shaking_hammer", damage_amount)
 		GameEvents.heal_from_damage(damage_amount)
 		hurtbox.show_damage(damage_amount, bool(critical_hit["critical"]))
