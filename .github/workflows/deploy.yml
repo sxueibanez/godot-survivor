@@ -10,7 +10,7 @@ jobs:
   build-web:
     strategy:
       matrix:
-        GODOT_VERSION: ["4.2.2"]
+        GODOT_VERSION: ["4.7.2"]
 
     runs-on: ubuntu-latest
     container:
@@ -57,4 +57,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
