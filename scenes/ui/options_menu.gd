@@ -7,6 +7,8 @@ signal back_pressed
 @onready var music_slider: Slider = %MusicSlider
 @onready var sfx_slider: Slider = %SfxSlider
 @onready var back_button: Button = %BackButton
+@onready var music_label: Label = music_slider.get_parent().get_node("Label")
+@onready var sfx_label: Label = sfx_slider.get_parent().get_node("Label")
 
 
 func _ready():
@@ -23,8 +25,14 @@ func update_display():
 			window_button.text = "全屏"
 		_:
 			window_button.text = "窗口化"
-	music_slider.value = get_bus_volume_percent("music")
-	sfx_slider.value = get_bus_volume_percent("sfx")
+	music_slider.set_value_no_signal(get_bus_volume_percent("music"))
+	sfx_slider.set_value_no_signal(get_bus_volume_percent("sfx"))
+	update_volume_labels()
+
+
+func update_volume_labels() -> void:
+	music_label.text = "音乐音量 %d%%" % roundi(music_slider.value * 100.0)
+	sfx_label.text = "音效音量 %d%%" % roundi(sfx_slider.value * 100.0)
 
 
 func get_bus_volume_percent(bus_name: String):
@@ -54,10 +62,13 @@ func on_window_button_pressed():
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 	update_display()
+	MusicPlayer.save_options()
 
 
 func on_audio_slider_changed(value: float, bus_name: String):
 	set_bus_volume_percent(bus_name, value)
+	update_volume_labels()
+	MusicPlayer.save_options()
 
 
 

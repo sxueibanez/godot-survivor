@@ -11,6 +11,9 @@ class IcePatch extends Node2D:
 	var time_left := 7.0
 
 	func _process(delta: float) -> void:
+		if not is_visible_in_tree():
+			queue_free()
+			return
 		time_left -= delta
 		modulate.a = minf(time_left, 1.0)
 		var player := get_tree().get_first_node_in_group("player") as Node2D
@@ -31,17 +34,27 @@ class IcePatch extends Node2D:
 
 
 class WindWarning extends Node2D:
+	const WARNING_DURATION := 1.0
 	var direction: Vector2
 	var elapsed := 0.0
 
 	func _init(new_direction: Vector2) -> void:
 		direction = new_direction
 
+	func _ready() -> void:
+		z_as_relative = false
+		z_index = -19
+
 	func _process(delta: float) -> void:
+		if not is_visible_in_tree():
+			queue_free()
+			return
 		elapsed += delta
+		var player := get_tree().get_first_node_in_group("player") as Node2D
+		if player != null:
+			global_position = player.global_position
 		queue_redraw()
-		if elapsed >= 1.0:
-			var player := get_tree().get_first_node_in_group("player") as Node2D
+		if elapsed >= WARNING_DURATION:
 			if player != null:
 				var movement := player.get_node_or_null("VelocityComponent") as VelocityComponent
 				if movement != null:
@@ -53,6 +66,24 @@ class WindWarning extends Node2D:
 		for offset in [-70.0, -24.0, 24.0, 70.0]:
 			var start: Vector2 = direction.orthogonal() * float(offset) - direction * 150.0
 			draw_line(start, start + direction * 300.0, Color(0.75, 0.94, 1.0, alpha), 3.0)
+			var tip := start + direction * 270.0
+			var wing := direction.orthogonal() * 7.0
+			draw_line(tip, tip - direction * 12.0 + wing, Color(0.9, 1.0, 1.0, alpha), 2.0)
+			draw_line(tip, tip - direction * 12.0 - wing, Color(0.9, 1.0, 1.0, alpha), 2.0)
+		draw_arc(Vector2.ZERO, 28.0, -PI / 2.0, -PI / 2.0 + TAU * clampf(elapsed / WARNING_DURATION, 0.0, 1.0), 32, Color(0.8, 0.96, 1.0, 0.8), 2.0)
+
+
+func _ready() -> void:
+	visibility_changed.connect(on_visibility_changed)
+
+
+func on_visibility_changed() -> void:
+	if not is_visible_in_tree():
+		for child in get_children():
+			if child is IcePatch or child is WindWarning:
+				child.queue_free()
+		patch_time = 0.4
+		wind_time = 4.0
 
 
 func _process(delta: float) -> void:

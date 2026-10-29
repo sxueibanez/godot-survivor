@@ -32,6 +32,11 @@ var game_mode := "campaign"
 var campaign_completed_maps := 0
 var challenge_attack_interval_multiplier := 1.0
 var challenge_experience_multiplier := 1.0
+var expedition_damage_multiplier := 1.0
+var expedition_health_multiplier := 1.0
+var expedition_speed_multiplier := 1.0
+var expedition_incoming_multiplier := 1.0
+var expedition_enemy_speed_multiplier := 1.0
 var curse_enemy_health_multiplier := 1.0
 var curse_enemy_speed_multiplier := 1.0
 var curse_experience_multiplier := 1.0
@@ -61,6 +66,10 @@ func get_enemy_count(bosses_only: bool = false) -> int:
 
 
 func can_spawn_enemy(is_boss: bool = false) -> bool:
+	if game_mode == "frontier":
+		var frontier := get_tree().get_first_node_in_group("frontier_mode")
+		if frontier != null:
+			return frontier.active_enemy_count() < frontier.MAX_ENEMIES - (0 if is_boss else 2)
 	var count := get_enemy_count()
 	return count < MAX_ENEMIES and (is_boss or count - get_enemy_count(true) < MAX_ENEMIES - 2)
 
@@ -93,6 +102,10 @@ func get_curse_experience_multiplier_at(point: Vector2) -> float:
 func configure_summon(summon: Node2D, summoner: Node2D) -> void:
 	summon.set_meta("curse_summon", true)
 	summon.set_meta("summoner_id", summoner.get_instance_id())
+	if game_mode == "frontier":
+		var frontier := get_tree().get_first_node_in_group("frontier_mode")
+		if frontier != null:
+			frontier.register_summon(summon)
 	var health := summon.get_node_or_null("HealthComponent") as HealthComponent
 	if health != null:
 		health.max_health *= curse_summon_health_multiplier
@@ -121,6 +134,11 @@ func emit_experience_vial_collected(number: float):
 func reset_run_stats() -> void:
 	challenge_attack_interval_multiplier = 1.0
 	challenge_experience_multiplier = 1.0
+	expedition_damage_multiplier = 1.0
+	expedition_health_multiplier = 1.0
+	expedition_speed_multiplier = 1.0
+	expedition_incoming_multiplier = 1.0
+	expedition_enemy_speed_multiplier = 1.0
 	curse_enemy_health_multiplier = 1.0
 	curse_enemy_speed_multiplier = 1.0
 	curse_experience_multiplier = 1.0
@@ -183,7 +201,7 @@ func refresh_critical_chance() -> void:
 func get_critical_damage(damage: float, weapon_id: String = "") -> Dictionary:
 	var critical := not critical_disabled and randf() < critical_chance
 	var character_multiplier := get_character_damage_multiplier(weapon_id)
-	return {"damage": damage * player_damage_multiplier * support_damage_multiplier * character_multiplier * (critical_damage_multiplier if critical else 1.0) + get_character_damage_bonus(), "critical": critical}
+	return {"damage": (damage * player_damage_multiplier * support_damage_multiplier * character_multiplier * (critical_damage_multiplier if critical else 1.0) + get_character_damage_bonus()) * expedition_damage_multiplier, "critical": critical}
 
 
 func get_character_passives() -> CharacterPassives:

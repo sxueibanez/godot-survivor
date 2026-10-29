@@ -4,6 +4,8 @@ const MAX_SPEED = 125
 const ACCELERATION_SMOOTHING = 25
 const BOSS_CONTACT_KNOCKBACK_SPEED := 360.0
 const BOSS_CONTACT_KNOCKBACK_DURATION := 0.28
+const FLOATING_TEXT_SCENE := preload("res://scenes/ui/floating_text.tscn")
+const HEAL_TEXT_INTERVAL := 0.25
 
 @export var character: Resource = preload("res://resources/characters/warrior.tres")
 
@@ -15,12 +17,15 @@ const BOSS_CONTACT_KNOCKBACK_DURATION := 0.28
 @onready var animation_player = $AnimationPlayer
 @onready var visuals = $Visuals
 @onready var velocity_component = $VelocityComponent
+@onready var movement_status: Label = $MovementStatus
 
 
 var number_colliding_bodies := 0
 var base_speed := 0
 var base_health := 0.0
 var previous_health := 0.0
+var pending_heal_text := 0.0
+var heal_text_time_left := 0.0
 var player_speed_upgrade_quantity := 0.0
 var player_health_upgrade_quantity := 0.0
 var character_visual_scale := 1.0
@@ -96,6 +101,7 @@ func refresh_missing_health_passive() -> void:
 	var stacks := get_missing_health_stacks(health_component.max_health, health_component.current_health)
 	var move_speed := float(roundi(base_speed * (1.0 + player_speed_upgrade_quantity * 0.1))) + stacks * float(character.get("missing_health_speed_bonus_per_10"))
 	move_speed *= GameEvents.support_move_speed_multiplier
+	move_speed *= GameEvents.expedition_speed_multiplier
 	move_speed *= GameEvents.curse_player_speed_multiplier
 	if character_passives != null:
 		move_speed *= character_passives.speed_multiplier
@@ -107,7 +113,7 @@ func refresh_missing_health_passive() -> void:
 
 
 func get_upgraded_max_health() -> float:
-	return base_health * (1.0 + player_health_upgrade_quantity * 0.1) * GameEvents.support_health_multiplier * GameEvents.curse_player_health_multiplier
+	return base_health * (1.0 + player_health_upgrade_quantity * 0.1) * GameEvents.support_health_multiplier * GameEvents.curse_player_health_multiplier * GameEvents.expedition_health_multiplier
 
 
 func refresh_support_stats() -> void:
@@ -120,6 +126,7 @@ func refresh_support_stats() -> void:
 
 
 func _process(delta):
+	update_heal_text(delta)
 	var movement_vector = get_movement_vector()
 	var direction = movement_vector.normalized()
 	if character_passives != null and character_passives.dash_left > 0.0:
@@ -139,16 +146,31 @@ func _process(delta):
 	var move_sign = sign(movement_vector.x)
 	if move_sign != 0:
 		visuals.scale = Vector2(move_sign * character_visual_scale, character_visual_scale)
+	update_movement_status()
+
+
+func update_movement_status() -> void:
+	var status: Array[String] = []
+	if velocity_component.stun_time_left > 0.0:
+		status.append("眩晕 %.1fs" % (ceilf(velocity_component.stun_time_left * 10.0) / 10.0))
+	if velocity_component.slow_time_left > 0.0:
+		status.append("减速 %.1fs" % (ceilf(velocity_component.slow_time_left * 10.0) / 10.0))
+	if velocity_component.slippery_time_left > 0.0:
+		status.append("打滑")
+	movement_status.text = " · ".join(status)
 
 
 func update_custom_walk_animation(movement_vector: Vector2, delta: float) -> void:
 	if movement_vector == Vector2.ZERO:
 		visuals.position = Vector2.ZERO
 		visuals.rotation = 0.0
+		$Visuals/Sprite2D.scale = Vector2.ONE
 		return
 	walk_animation_time += delta * 10.0
 	visuals.position.y = sin(walk_animation_time) * float(character.get("walk_bob_height"))
 	visuals.rotation = sin(walk_animation_time) * float(character.get("walk_tilt"))
+	var squash := sin(walk_animation_time * 2.0) * 0.04
+	$Visuals/Sprite2D.scale = Vector2(1.0 + squash, 1.0 - squash)
 
 
 func get_movement_vector():	
@@ -156,6 +178,12 @@ func get_movement_vector():
 	var y_movement = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 	
 	return Vector2(x_movement, y_movement)
+
+
+func is_dash_invulnerable() -> bool:
+	if character_passives == null or character_passives.character == null:
+		return false
+	return character_passives.character.id == "ronin" and character_passives.dash_left > 0.0 and velocity_component.stun_time_left <= 0.0 and velocity_component.knockback_time_left <= 0.0
 
 
 func check_deal_damage():
@@ -212,13 +240,59 @@ func on_damage_interval_timer_timeout():
 
 func on_health_changed():
 	refresh_missing_health_passive()
+	var health_change: float = health_component.current_health - previous_health
 	if health_component.current_health < previous_health:
 		GameEvents.emit_player_damaged()
 		$HitRandomStreamPlayer.play_random()
 	elif health_component.current_health > previous_health:
 		GameEvents.emit_player_healed()
+	if health_change > 0.0:
+		pending_heal_text += health_change
+		if pending_heal_text >= 1.0:
+			flush_heal_text()
+		elif heal_text_time_left <= 0.0:
+			heal_text_time_left = HEAL_TEXT_INTERVAL
+	elif health_change < 0.0:
+		flush_heal_text()
+		show_health_change(health_change)
 	update_health_display()
 	previous_health = health_component.current_health
+
+
+func update_heal_text(delta: float) -> void:
+	if heal_text_time_left <= 0.0:
+		return
+	heal_text_time_left -= delta
+	if heal_text_time_left <= 0.0:
+		flush_heal_text()
+
+
+func flush_heal_text() -> void:
+	if pending_heal_text > 0.0:
+		show_health_change(pending_heal_text)
+	pending_heal_text = 0.0
+	heal_text_time_left = 0.0
+
+
+func show_health_change(amount: float) -> void:
+	var layer := get_tree().get_first_node_in_group("floating_text_layer") as Node2D
+	if layer == null:
+		return
+	var floating_text := FLOATING_TEXT_SCENE.instantiate() as FloatingText
+	layer.add_child(floating_text)
+	floating_text.global_position = global_position + Vector2.UP * 30.0
+	var value := absf(amount)
+	var number: String
+	if value >= 1.0:
+		number = "%.0f" % value if is_equal_approx(value, roundf(value)) else "%.1f" % value
+	elif value >= 0.01:
+		number = "%.2f" % value
+	elif value >= 0.001:
+		number = "%.3f" % value
+	else:
+		number = "<0.001"
+	floating_text.start(("+" if amount > 0.0 else "-") + number)
+	floating_text.get_node("Label").add_theme_color_override("font_color", Color(0.4, 1.0, 0.55) if amount > 0.0 else Color(1.0, 0.35, 0.3))
 
 
 func on_ability_upgrade_added(ability_upgrade: AbilityUpgrade, current_upgrades: Dictionary):

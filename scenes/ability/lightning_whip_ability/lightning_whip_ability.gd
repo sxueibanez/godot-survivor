@@ -35,10 +35,25 @@ func _ready() -> void:
 	strike()
 
 
+func _draw() -> void:
+	var fade := clampf(time_left / DURATION, 0.0, 1.0)
+	var points := PackedVector2Array([Vector2.ZERO])
+	for index in 25:
+		var angle := lerpf(-attack_half_angle, attack_half_angle, index / 24.0)
+		points.append(Vector2.RIGHT.rotated(angle) * RANGE)
+	draw_colored_polygon(points, Color(0.35, 0.75, 1.0, 0.1 * fade))
+	draw_arc(Vector2.ZERO, RANGE, -attack_half_angle, attack_half_angle, 24, Color(0.65, 0.93, 1.0, 0.65 * fade), 1.5)
+	var sweep_angle := lerpf(-attack_half_angle, attack_half_angle, 1.0 - fade)
+	var sweep_direction := Vector2.RIGHT.rotated(sweep_angle)
+	draw_line(sweep_direction * 12.0, sweep_direction * RANGE, Color(0.8, 0.97, 1.0, 0.55 * fade), 1.5)
+
+
 func _physics_process(delta: float) -> void:
 	time_left -= delta
 	if time_left <= 0:
 		queue_free()
+	else:
+		queue_redraw()
 
 
 func strike() -> void:

@@ -2,7 +2,7 @@ extends Node
 
 
 func _ready() -> void:
-	GameEvents.game_mode = "endless" # Test the original asset stats, not campaign scaling.
+	GameEvents.game_mode = "endless" # Test asset stats without campaign scaling.
 	var slime := preload("res://scenes/game_object/stone_slime/stone_slime.tscn").instantiate()
 	add_child(slime)
 	await get_tree().process_frame
@@ -30,5 +30,5 @@ func _ready() -> void:
 	target_velocity.knockback_time_left = 0.0
 	slime.call("knockback_enemies")
 	assert(target_velocity.knockback_time_left == 0.0)
-	assert((slime.get_node("HealthComponent") as HealthComponent).max_health == 72.0)
+	assert((slime.get_node("HealthComponent") as HealthComponent).max_health == 10.0)
 	get_tree().quit()

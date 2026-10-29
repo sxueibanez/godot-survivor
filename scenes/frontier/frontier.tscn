@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/frontier/frontier.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/player/player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/game_object/game_camera/game_camera.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/player_health_ui.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/boss_health_bar.tscn" id="5"]
+[ext_resource type="Script" path="res://scenes/frontier/world.gd" id="6"]
+
+[node name="Frontier" type="Node"]
+script = ExtResource("1")
+
+[node name="World" type="Node2D" parent="."]
+z_index = -100
+script = ExtResource("6")
+
+[node name="GroundEffects" type="Node2D" parent="." groups=["ground_effects_layer"]]
+z_index = -10
+
+[node name="EnemyProjectiles" type="Node2D" parent="." groups=["enemy_projectiles_layer"]]
+
+[node name="Entities" type="Node2D" parent="." groups=["entities_layer"]]
+y_sort_enabled = true
+z_index = 10
+
+[node name="Player" parent="Entities" instance=ExtResource("2")]
+
+[node name="PlayerProjectiles" type="Node2D" parent="." groups=["player_projectiles_layer"]]
+z_index = 20
+
+[node name="CombatEffects" type="Node2D" parent="." groups=["combat_effects_layer", "foreground_layer"]]
+z_index = 30
+
+[node name="FloatingText" type="Node2D" parent="." groups=["floating_text_layer"]]
+z_index = 40
+
+[node name="GameCamera" parent="." instance=ExtResource("3")]
+
+[node name="PlayerHealthUI" parent="." instance=ExtResource("4")]
+
+[node name="BossHealthBar" parent="." instance=ExtResource("5")]

@@ -42,6 +42,9 @@ func set_defeat():
 
 
 func update_summary() -> void:
+	var momentum := get_parent().get_node_or_null("CombatMomentum")
+	if momentum != null:
+		panel_container.get_node("MarginContainer/VBoxContainer/SummaryLabel").text = "本局击败 %d · 最高连击 %d" % [momentum.kills, momentum.best_streak]
 	var upgrade_manager: Node = get_parent().get_node_or_null("UpgradeManager")
 	if upgrade_manager == null:
 		%Weapon1Label.text = "武器 1\n未装备"
@@ -63,7 +66,12 @@ func update_summary() -> void:
 func get_weapon_text(slot: int, weapon: AbilityUpgrade, upgrades: Dictionary) -> String:
 	if weapon == null:
 		return "武器 %d\n未装备" % slot
-	return "武器 %d\n%s\n输出 %.0f\n技能：%s" % [slot, weapon.name, GameEvents.weapon_damage.get(weapon.id, 0.0), get_skill_text(weapon.id, upgrades)]
+	var damage := float(GameEvents.weapon_damage.get(weapon.id, 0.0))
+	var total := 0.0
+	for value: Variant in GameEvents.weapon_damage.values():
+		total += maxf(float(value), 0.0)
+	var share := damage / total * 100.0 if total > 0.0 else 0.0
+	return "武器 %d\n%s\n输出 %.0f（%.0f%%）\n技能：%s" % [slot, weapon.name, damage, share, get_skill_text(weapon.id, upgrades)]
 
 
 func get_skill_text(weapon_id: String, upgrades: Dictionary) -> String:

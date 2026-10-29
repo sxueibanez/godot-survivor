@@ -11,11 +11,20 @@ func _ready() -> void:
 	var entrance := entities.get_child(entities.get_child_count() - 1) as Node2D
 	assert(main.get("completed_maps") == 1)
 	assert((entrance.get_child(0) as Label).text == "第2关入口")
+	var tracker: CanvasLayer = entrance.get_node("EntranceTracker")
+	var player := main.get_node("Entities/Player") as Node2D
+	player.global_position = entrance.global_position + Vector2(100, 0)
+	tracker.update_direction()
+	assert(tracker.label.text == "入口：左 · 100")
+	player.global_position = entrance.global_position + Vector2(0, -150)
+	tracker.update_direction()
+	assert(tracker.label.text == "入口：下 · 150")
 	main.call("spawn_level_entrance")
 	assert(main.get("completed_maps") == 1)
 	(main.get_node("Entities/Player") as Node2D).global_position = entrance.global_position
 	await get_tree().process_frame
 	await get_tree().process_frame
+	assert(not is_instance_valid(tracker))
 	assert(main.get("current_level") == 2)
 	main.call("spawn_level_entrance")
 	entrance = entities.get_child(entities.get_child_count() - 1) as Node2D

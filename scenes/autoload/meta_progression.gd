@@ -4,6 +4,9 @@ extends Node
 const SAVE_FILE_PATH := "user://game.save"
 const ENEMY_HEALTH_PER_SPECIAL_SKILL := 0.02
 const WEAPON_RESET_COST := 500
+const CHARACTER_IDS := ["warrior", "elf_ranger", "blooddrinker", "lone_gunner", "gambling_scholar", "ronin", "avenger", "one_armed"]
+const CHARACTER_STATS := ["signature"]
+const CHARACTER_UPGRADE_MAX := 10
 const WEAPON_IDS := ["sword", "axe", "laser_gun", "lightning_whip", "bomb", "thunder_orb_book", "azure_dragon", "nine_treasure_pagoda", "heaven_shaking_hammer", "sniper_rifle"]
 
 var save_data: Dictionary = {
@@ -30,6 +33,17 @@ func load_save_file() -> void:
 	if loaded_data is Dictionary:
 		save_data = loaded_data as Dictionary
 	var migrated := false
+	if save_data.has("character_upgrades") and not save_data.get("character_training_refunded", false):
+		var refund := 0
+		for levels: Variant in (save_data["character_upgrades"] as Dictionary).values():
+			if levels is Dictionary:
+				for stat: String in ["health", "speed", "damage"]:
+					var count := clampi(int(levels.get(stat, 0)), 0, CHARACTER_UPGRADE_MAX)
+					refund += count * 20 + 15 * count * (count - 1) / 2
+		save_data["meta_upgrade_currency"] = int(save_data.get("meta_upgrade_currency", 0)) + refund
+		save_data["character_upgrades"] = {}
+		save_data["character_training_refunded"] = true
+		migrated = true
 	if !save_data.has("meta_upgrades"):
 		save_data["meta_upgrades"] = {}
 	if !save_data.has("weapon_skills"):
@@ -54,6 +68,35 @@ func save() -> void:
 	var file: FileAccess = FileAccess.open(SAVE_FILE_PATH, FileAccess.WRITE)
 	file.store_var(save_data)
 	file.close()
+
+
+func get_character_upgrade(character_id: String, stat: String) -> int:
+	var upgrades: Dictionary = save_data.get("character_upgrades", {})
+	var character_levels: Dictionary = upgrades.get(character_id, {})
+	return clampi(int(character_levels.get(stat, 0)), 0, CHARACTER_UPGRADE_MAX)
+
+
+func character_upgrade_cost(character_id: String, stat: String) -> int:
+	return 20 + get_character_upgrade(character_id, stat) * 15
+
+
+func purchase_character_upgrade(character_id: String, stat: String) -> bool:
+	if character_id not in CHARACTER_IDS or stat not in CHARACTER_STATS:
+		return false
+	var level := get_character_upgrade(character_id, stat)
+	var cost := character_upgrade_cost(character_id, stat)
+	var currency := int(save_data.get("meta_upgrade_currency", 0))
+	if level >= CHARACTER_UPGRADE_MAX or currency < cost:
+		return false
+	var upgrades: Dictionary = save_data.get("character_upgrades", {})
+	var character_levels: Dictionary = upgrades.get(character_id, {})
+	character_levels[stat] = level + 1
+	upgrades[character_id] = character_levels
+	save_data["character_upgrades"] = upgrades
+	save_data["character_training_refunded"] = true
+	save_data["meta_upgrade_currency"] = currency - cost
+	save()
+	return true
 
 
 func is_weapon_unlocked(weapon_id: String) -> bool:

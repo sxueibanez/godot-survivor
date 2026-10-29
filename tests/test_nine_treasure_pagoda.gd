@@ -17,6 +17,7 @@ func _ready() -> void:
 		assert(load("res://resources/upgrades/nine_treasure_%s.tres" % upgrade_id) is AbilityUpgrade)
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
 	add_child(foreground)
 	var player := load("res://scenes/game_object/player/player.tscn").instantiate() as CharacterBody2D
 	add_child(player)
@@ -58,7 +59,7 @@ func _ready() -> void:
 	GameEvents.emit_ability_upgrade_added(load("res://resources/upgrades/attack_count.tres"), {"attack_count": {"quantity": 1}})
 	assert(GameEvents.weapon_attack_count == 3)
 	var pagoda := foreground.get_child(0) as NineTreasurePagodaAbility
-	assert(pagoda != null and pagoda.z_index < player.z_index and pagoda.sprite.region_enabled)
+	assert(pagoda != null and pagoda.sprite.region_enabled and pagoda.get_parent().is_in_group("player_projectiles_layer"))
 	assert(is_equal_approx(pagoda.get_node("WhiteLightTimer").wait_time, 5.0))
 	var enemy := CharacterBody2D.new()
 	enemy.add_to_group("enemy")

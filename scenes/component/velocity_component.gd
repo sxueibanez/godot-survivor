@@ -113,6 +113,11 @@ func accelerate_to_player():
 
 
 func accelerate_in_direction(direction: Vector2):
+	if not direction.is_zero_approx() and owner != null and owner.is_in_group("frontier_siege"):
+		var tower := get_tree().get_first_node_in_group("frontier_defense_target") as Node2D
+		var actor := owner as Node2D
+		if tower != null and actor != null:
+			direction = actor.global_position.direction_to(tower.global_position) if actor.global_position.distance_to(tower.global_position) > 30.0 else Vector2.ZERO
 	if stun_time_left > 0.0 or knockback_time_left > 0.0:
 		velocity = Vector2.ZERO
 		return

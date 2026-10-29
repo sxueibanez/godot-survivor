@@ -98,6 +98,10 @@ func create_controller(script_path: String, wait_time: float) -> Node:
 	timer.name = "Timer"
 	timer.wait_time = wait_time
 	controller.add_child(timer)
+	if script_path.contains("sword_ability_controller"):
+		var greatsword_timer := Timer.new()
+		greatsword_timer.name = "GreatswordTimer"
+		controller.add_child(greatsword_timer)
 	if script_path.contains("azure_dragon"):
 		var ultimate_timer := Timer.new()
 		ultimate_timer.name = "FourBeastsTimer"

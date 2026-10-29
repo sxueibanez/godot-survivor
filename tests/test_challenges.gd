@@ -8,6 +8,10 @@ func _ready() -> void:
 	add_child(main)
 	main.process_mode = Node.PROCESS_MODE_PAUSABLE
 	main.call("begin_level_1")
+	var time_ui: Node = main.get_node("ArenaTimeUI")
+	assert(time_ui.game_state == main)
+	time_ui.update_boss_countdown()
+	assert(time_ui.boss_countdown.visible and time_ui.boss_countdown.text == "Boss 来袭 3:00")
 	main.set_process(false)
 	main.get_node("ArenaTimeManager").set_process(false)
 	main.get_node("EnemyManager").stop_spawning()
@@ -18,6 +22,13 @@ func _ready() -> void:
 	get_tree().paused = false
 	events.start_hunt()
 	assert(events.challenge_enemies.size() == 4)
+	var hunt_marker: Node = events.elite_timers.back()["marker"]
+	assert(is_equal_approx(hunt_marker.time_remaining_fraction, 1.0))
+	events.update_elite_countdowns(15.0)
+	assert(is_equal_approx(hunt_marker.time_remaining_fraction, 0.5))
+	assert((events.elite_timers.back()["label"] as Label).text.contains("15s"))
+	events.update_elite_countdowns(8.0)
+	assert(is_equal_approx(hunt_marker.time_remaining_fraction, 7.0 / 30.0))
 	var health := events.hunt.get_node("HealthComponent") as HealthComponent
 	health.damage(health.max_health * 2)
 	await get_tree().process_frame
@@ -44,9 +55,11 @@ func _ready() -> void:
 	player.global_position = point_position
 	events.call("_process", 4.9)
 	assert(events.overload_left == 0.0)
+	assert(is_equal_approx(events.overload_point.get("charge_progress"), 0.98))
 	player.global_position += Vector2(100, 0)
 	events.call("_process", 2.0)
 	assert(is_equal_approx(events.overload_charge, 4.9))
+	assert(is_equal_approx(events.overload_point.get("charge_progress"), 0.98))
 	assert(events.overload_left == 0.0)
 	player.global_position = point_position
 	events.call("_process", 0.1)

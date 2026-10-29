@@ -26,12 +26,13 @@ func _ready() -> void:
 	add_child(panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	panel.add_child(scroll)
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(content)
 	var title := Label.new()
-	title.text = "选择角色"
+	title.text = "选择角色（↑↓ 选择，回车确认）"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(title)
 	add_character_button(content, warrior)
@@ -39,6 +40,7 @@ func _ready() -> void:
 	add_character_button(content, blooddrinker)
 	for data: Resource in new_characters:
 		add_character_button(content, data)
+	(content.get_child(1) as Button).grab_focus.call_deferred()
 
 
 func add_character_button(content: Container, character: Resource) -> void:

@@ -95,7 +95,7 @@ script = ExtResource("1_bat")
 metadata/display_name = "独眼蝙蝠"
 
 [node name="HealthComponent" parent="." unique_id=1277821333 instance=ExtResource("3_health")]
-max_health = 52.0
+max_health = 10.0
 
 [node name="VelocityComponent" parent="." unique_id=769848971 instance=ExtResource("4_velocity")]
 max_speed = 52

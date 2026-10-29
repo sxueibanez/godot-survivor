@@ -54,6 +54,10 @@ func run() -> void:
 	previous_target.remove_from_group("enemy")
 	far_target.remove_from_group("enemy")
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
+	var floating_texts := Node2D.new()
+	floating_texts.add_to_group("floating_text_layer")
+	add_child(floating_texts)
 	var player := Node2D.new()
 	player.add_to_group("player")
 	add_child(player)
@@ -81,4 +85,12 @@ func run() -> void:
 	boss_bomb.global_position = boss.global_position
 	boss_bomb.damage_enemies()
 	assert(health.current_health < health_before, "Bomb explosion must damage bosses")
+	var burn := preload("res://scenes/ability/bomb_burn/bomb_burn.tscn").instantiate() as BombBurn
+	boss.add_child(burn)
+	GameEvents.expedition_damage_multiplier = 1.25
+	GameEvents.player_damage_multiplier = 1.0
+	health_before = health.current_health
+	burn.deal_damage(10.0)
+	assert(is_equal_approx(health_before - health.current_health, 12.5))
+	GameEvents.expedition_damage_multiplier = 1.0
 	get_tree().quit()

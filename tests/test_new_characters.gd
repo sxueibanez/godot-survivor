@@ -8,6 +8,7 @@ func _ready() -> void:
 	GameEvents.critical_disabled = true
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
 	add_child(foreground)
 	var player := load("res://scenes/game_object/player/player.tscn").instantiate() as CharacterBody2D
 	add_child(player)

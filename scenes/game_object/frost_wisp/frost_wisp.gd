@@ -3,6 +3,8 @@ extends CharacterBody2D
 const FRAME_COLUMNS := [0, 384, 768, 1152, 1536]
 const FRAME_ROWS := [0, 512, 1024]
 const PREFERRED_DISTANCE := 170.0
+const AIM_DURATION := 0.5
+const AIM_LENGTH := 240.0
 
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var velocity_component: VelocityComponent = $VelocityComponent
@@ -10,6 +12,8 @@ const PREFERRED_DISTANCE := 170.0
 
 var cooldown := 1.0
 var animation_time := 0.0
+var aim_time := 0.0
+var aim_direction := Vector2.ZERO
 
 
 class IceBolt extends Node2D:
@@ -18,10 +22,12 @@ class IceBolt extends Node2D:
 	var damage_multiplier := 1.0
 
 	func _process(delta: float) -> void:
+		var previous_position := global_position
 		global_position += direction * 185.0 * delta
 		time_left -= delta
 		var player := get_tree().get_first_node_in_group("player") as Node2D
-		if player != null and global_position.distance_squared_to(player.global_position) <= 13.0 * 13.0:
+		var closest := Geometry2D.get_closest_point_to_segment(player.global_position, previous_position, global_position) if player != null else Vector2.INF
+		if player != null and closest.distance_squared_to(player.global_position) <= 13.0 * 13.0:
 			var health := player.get_node_or_null("HealthComponent") as HealthComponent
 			if health != null:
 				health.damage(30.0 * damage_multiplier, "冰晶幽灵")
@@ -43,9 +49,28 @@ func _ready() -> void:
 	health_component.health_changed.connect(update_health_bar)
 
 
+func _draw() -> void:
+	if aim_time <= 0.0:
+		return
+	var progress := 1.0 - aim_time / AIM_DURATION
+	var tint := Color(0.45, 0.9, 1.0, lerpf(0.3, 0.85, progress))
+	draw_line(aim_direction * 10.0, aim_direction * AIM_LENGTH, tint, 1.5)
+	draw_circle(aim_direction * 12.0, lerpf(2.0, 5.0, progress), tint)
+
+
 func _process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	if player == null:
+	if player == null or health_component.current_health <= 0.0:
+		if aim_time > 0.0:
+			aim_time = 0.0
+			queue_redraw()
+		return
+	if aim_time > 0.0:
+		aim_time = maxf(aim_time - delta, 0.0)
+		queue_redraw()
+		if aim_time == 0.0:
+			fire(aim_direction)
+			cooldown = 2.1
 		return
 	var offset := player.global_position - global_position
 	var distance := offset.length()
@@ -54,9 +79,12 @@ func _process(delta: float) -> void:
 	cooldown -= delta
 	animation_time += delta
 	show_frame(int(animation_time * 8.0) % 8)
-	if cooldown <= 0.0 and distance <= 240.0:
-		fire(offset.normalized())
-		cooldown = 2.1
+	if cooldown <= 0.0 and distance > 0.0 and distance <= 240.0:
+		aim_direction = offset.normalized()
+		aim_time = AIM_DURATION
+		velocity = Vector2.ZERO
+		velocity_component.velocity = Vector2.ZERO
+		queue_redraw()
 
 
 func fire(direction: Vector2) -> void:

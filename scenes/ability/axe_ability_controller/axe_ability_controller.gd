@@ -44,8 +44,11 @@ func on_timer_timeout():
 	if foreground == null:
 		return
 	
-	for index in attack_count + additional_axe_count:
+	var total_axes := maxi(attack_count + additional_axe_count, 0)
+	var start_angle := randf_range(0.0, TAU)
+	for index in total_axes:
 		var axe_instance = axe_ability_scene.instantiate() as AxeAbility
+		axe_instance.base_rotation = Vector2.RIGHT.rotated(start_angle + TAU * index / total_axes)
 		axe_instance.reflect_projectiles = reflect_projectiles
 		axe_instance.return_to_player = return_to_player
 		axe_instance.knockback_enabled = knockback_enabled

@@ -3,6 +3,16 @@ extends RefCounted
 # Environment placeholders remain; actors use the generated transparent atlases.
 const ROOT := "res://assets/forge/placeholders/"
 const SPRITE_ROOT := "res://assets/forge/sprites/"
+const ATLAS_TEXTURES := {
+	"cinder-v2": preload("res://assets/forge/sprites/cinder-v2.png"),
+	"guard-v2": preload("res://assets/forge/sprites/guard-v2.png"),
+	"worker-v2": preload("res://assets/forge/sprites/worker-v2.png"),
+	"tyrant-locomotion-v2": preload("res://assets/forge/sprites/tyrant-locomotion-v2.png"),
+	"tyrant-punch-v2": preload("res://assets/forge/sprites/tyrant-punch-v2.png"),
+	"tyrant-furnace-v2": preload("res://assets/forge/sprites/tyrant-furnace-v2.png"),
+	"tyrant-states-v2": preload("res://assets/forge/sprites/tyrant-states-v2.png"),
+	"fire-effects-v2": preload("res://assets/forge/sprites/fire-effects-v2.png"),
+}
 const FIRE_ROWS := {"fire": 0, "flame": 1, "eruption": 2, "ember": 3}
 const SPRITE_SHEETS := {
 	"cinder-v2": [4, 2, "cinder", {"walk": [0, 1, 2, 3], "death": [4, 5, 6, 7]}],
@@ -37,10 +47,10 @@ static var sprite_textures: Dictionary = {}
 
 static func texture(name: String) -> Texture2D:
 	if not textures.has(name):
-		var image := Image.load_from_file(ROOT + name + ".png")
-		if image == null:
+		var loaded := load(ROOT + name + ".png") as Texture2D
+		if loaded == null:
 			return null
-		textures[name] = ImageTexture.create_from_image(image)
+		textures[name] = loaded
 	return textures[name]
 
 static func fire_frame_texture(kind: String, frame: int) -> AtlasTexture:
@@ -49,10 +59,9 @@ static func fire_frame_texture(kind: String, frame: int) -> AtlasTexture:
 		return frame_textures[key]
 	var name := "fire-effects-v2"
 	if not sprite_images.has(name):
-		var image := Image.load_from_file(SPRITE_ROOT + name + ".png")
-		assert(image != null, "Missing generated forge fire atlas")
-		sprite_images[name] = image
-		sprite_textures[name] = ImageTexture.create_from_image(image)
+		var atlas_texture: Texture2D = ATLAS_TEXTURES[name]
+		sprite_images[name] = atlas_texture.get_image()
+		sprite_textures[name] = atlas_texture
 	var source: Image = sprite_images[name]
 	var cell := Vector2(source.get_width() / 6, source.get_height() / 4)
 	var atlas := AtlasTexture.new()
@@ -76,10 +85,9 @@ static func frame_texture(actor: String, action: String, frame: int) -> AtlasTex
 		if spec[2] != actor or not spec[3].has(action):
 			continue
 		if not sprite_images.has(sheet_name):
-			var loaded := Image.load_from_file(SPRITE_ROOT + sheet_name + ".png")
-			assert(loaded != null, "Missing forge sprite atlas: " + sheet_name)
-			sprite_images[sheet_name] = loaded
-			sprite_textures[sheet_name] = ImageTexture.create_from_image(loaded)
+			var atlas_texture: Texture2D = ATLAS_TEXTURES[sheet_name]
+			sprite_images[sheet_name] = atlas_texture.get_image()
+			sprite_textures[sheet_name] = atlas_texture
 		var image: Image = sprite_images[sheet_name]
 		var columns: int = spec[0]
 		var rows: int = spec[1]

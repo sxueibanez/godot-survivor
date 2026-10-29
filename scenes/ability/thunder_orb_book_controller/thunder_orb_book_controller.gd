@@ -44,28 +44,45 @@ func on_timer_timeout() -> void:
 	var foreground := get_tree().get_first_node_in_group("player_projectiles_layer") as Node2D
 	if player == null or foreground == null:
 		return
-	var target := find_nearest_enemy(get_tree().get_nodes_in_group("enemy"), player.global_position)
-	if target == null:
+	var targets := find_targets(get_tree().get_nodes_in_group("enemy"), player.global_position)
+	if targets.is_empty():
 		return
-	var direction := player.global_position.direction_to(target.global_position)
 	var count := attack_count + additional_orb_count
 	for index in count:
+		var target := targets[index % targets.size()]
+		var direction := player.global_position.direction_to(target.global_position)
+		var spread := 0.0
+		if targets.size() == 1:
+			spread = (index - (count - 1) * 0.5) * SPREAD_ANGLE
+		elif index >= targets.size():
+			var repeat := floori(float(index) / targets.size())
+			spread = (1.0 if repeat % 2 == 1 else -1.0) * ceili(repeat / 2.0) * SPREAD_ANGLE
 		var orb := thunder_orb_scene.instantiate()
-		orb.configure(player.global_position, direction.rotated(deg_to_rad((index - (count - 1) * 0.5) * SPREAD_ANGLE)), base_damage * damage_multiplier, chain_enabled, growth_enabled, plasma_enabled, boss_tracking_enabled, size_multiplier)
+		orb.configure(player.global_position, direction.rotated(deg_to_rad(spread)), base_damage * damage_multiplier, chain_enabled, growth_enabled, plasma_enabled, boss_tracking_enabled, size_multiplier)
 		attack_cooldown.track(orb)
 		foreground.add_child(orb)
 
 
-static func find_nearest_enemy(enemies: Array, origin: Vector2) -> Node2D:
-	var nearest: Node2D
+static func find_targets(enemies: Array, origin: Vector2) -> Array[Node2D]:
+	var targets: Array[Node2D] = []
 	for value: Variant in enemies:
 		var enemy := value as Node2D
-		if enemy == null:
+		if enemy == null or enemy.is_queued_for_deletion():
 			continue
-		var distance := origin.distance_squared_to(enemy.global_position)
-		if distance <= MAX_RANGE * MAX_RANGE and (nearest == null or distance < origin.distance_squared_to(nearest.global_position)):
-			nearest = enemy
-	return nearest
+		var health := enemy.get_node_or_null("HealthComponent") as HealthComponent
+		if health != null and health.current_health <= 0.0:
+			continue
+		if origin.distance_squared_to(enemy.global_position) <= MAX_RANGE * MAX_RANGE:
+			targets.append(enemy)
+	targets.sort_custom(func(a: Node2D, b: Node2D):
+		return origin.distance_squared_to(a.global_position) < origin.distance_squared_to(b.global_position)
+	)
+	return targets
+
+
+static func find_nearest_enemy(enemies: Array, origin: Vector2) -> Node2D:
+	var targets := find_targets(enemies, origin)
+	return targets[0] if not targets.is_empty() else null
 
 
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:

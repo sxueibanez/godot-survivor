@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "bomb_bounce"
 max_quantity = 3
 name = "跳弹"
-description = "炸弹每级增加1次弹跳和后续爆炸，最多3级。"
+description = "炸弹每级增加1次弹跳和后续爆炸，最多3级；优先弹向附近怪物密集处。"

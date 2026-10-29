@@ -45,7 +45,7 @@ func deal_damage(base_damage: float, tick_multiplier: float = 1.0) -> void:
 	if hurtbox == null or hurtbox.health_component == null or hurtbox.health_component.current_health <= 0.0:
 		queue_free()
 		return
-	var damage_amount: float = (base_damage * GameEvents.player_damage_multiplier * GameEvents.get_character_damage_multiplier(weapon_id) + GameEvents.get_character_damage_bonus()) * tick_multiplier
+	var damage_amount: float = (base_damage * GameEvents.player_damage_multiplier * GameEvents.get_character_damage_multiplier(weapon_id) + GameEvents.get_character_damage_bonus()) * tick_multiplier * GameEvents.expedition_damage_multiplier
 	hurtbox.health_component.damage(damage_amount, "", global_position, "dot", weapon_id)
 	GameEvents.record_weapon_damage(weapon_id, damage_amount)
 	GameEvents.heal_from_damage(damage_amount)

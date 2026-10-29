@@ -36,11 +36,10 @@ func _enter_tree() -> void:
 		add_to_group("forge_worker")
 
 func _ready() -> void:
-	if kind == 0 and GameEvents.game_mode in ["campaign", "boss_rush"]:
-		# This used to be x0.75; x3.75 is exactly five times that live value.
+	if kind == 0 and GameEvents.game_mode == "boss_rush":
 		health_component.max_health *= 3.75
 		health_component.current_health = health_component.max_health
-	elif kind == 0:
+	elif kind == 0 and GameEvents.game_mode not in ["campaign", "endless", "expedition"]:
 		health_component.max_health *= 5.0
 		health_component.current_health = health_component.max_health
 	health_component.health_changed.connect(update_health_bar)

@@ -26,6 +26,7 @@ var charging := false
 var aiming := false
 var knocked_enemies := {}
 var normal_collision_mask := 0
+var warning: ChargeWarning
 
 
 class ChargeWarning extends Node2D:
@@ -45,9 +46,13 @@ class ChargeWarning extends Node2D:
 
 	func _draw() -> void:
 		var pulse := 0.45 + sin(elapsed * 24.0) * 0.2
-		draw_line(Vector2.ZERO, direction * distance, Color(1.0, 0.08, 0.08, pulse), HIT_RADIUS * 1.5)
+		draw_line(Vector2.ZERO, direction * distance, Color(1.0, 0.08, 0.08, pulse), HIT_RADIUS * 2.0)
 		draw_line(Vector2.ZERO, direction * distance, Color(1.0, 0.5, 0.35, 0.9), 2.0)
+		draw_circle(Vector2.ZERO, HIT_RADIUS, Color(1.0, 0.08, 0.08, pulse * 0.45))
 		draw_circle(direction * distance, HIT_RADIUS, Color(1.0, 0.08, 0.08, pulse * 0.45))
+		var progress := clampf(elapsed / WARNING_DURATION, 0.0, 1.0)
+		if progress > 0.0:
+			draw_arc(Vector2.ZERO, 22.0, -PI / 2.0, -PI / 2.0 + TAU * progress, 32, Color(1.0, 0.8, 0.3), 3.0)
 
 
 func _ready() -> void:
@@ -55,7 +60,14 @@ func _ready() -> void:
 	show_frame(0)
 
 
+func _exit_tree() -> void:
+	if is_instance_valid(warning):
+		warning.queue_free()
+
+
 func _process(delta: float) -> void:
+	if health_component.current_health <= 0.0:
+		return
 	if aiming:
 		warning_time -= delta
 		if warning_time <= 0.0:
@@ -72,7 +84,7 @@ func _process(delta: float) -> void:
 		move_and_slide()
 		charge_distance -= global_position.distance_to(previous_position)
 		knockback_enemies()
-		if hit_player() or charge_distance <= 0.0 or is_on_wall():
+		if hit_player(previous_position) or charge_distance <= 0.0 or is_on_wall():
 			finish_charge()
 		return
 
@@ -97,18 +109,21 @@ func start_aim(player: Node2D) -> void:
 	velocity = Vector2.ZERO
 	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
-		var warning := ChargeWarning.new(charge_direction, charge_distance)
+		warning = ChargeWarning.new(charge_direction, charge_distance)
 		foreground.add_child(warning)
 		warning.global_position = global_position
 
 
-func hit_player() -> bool:
+func hit_player(previous_position: Vector2) -> bool:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	if player == null or global_position.distance_to(player.global_position) > HIT_RADIUS:
+	if player == null:
+		return false
+	var closest := Geometry2D.get_closest_point_to_segment(player.global_position, previous_position, global_position)
+	if closest.distance_squared_to(player.global_position) > HIT_RADIUS * HIT_RADIUS:
 		return false
 	var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 	if player_health != null:
-		player_health.damage(GameEvents.get_enemy_damage(self, CHARGE_DAMAGE))
+		player_health.damage(GameEvents.get_enemy_damage(self, CHARGE_DAMAGE), "石史莱姆冲锋")
 	var player_velocity := player.get_node_or_null("VelocityComponent") as VelocityComponent
 	if player_velocity != null:
 		player_velocity.apply_knockback(charge_direction, 280.0, 0.22)
@@ -148,3 +163,8 @@ func show_frame(frame: int) -> void:
 
 func update_health_bar() -> void:
 	$HealthBar.value = health_component.get_health_percent()
+	if health_component.current_health <= 0.0:
+		aiming = false
+		charging = false
+		if is_instance_valid(warning):
+			warning.queue_free()

@@ -34,7 +34,7 @@ script = ExtResource("1")
 metadata/display_name = "铁傀儡"
 
 [node name="HealthComponent" parent="." unique_id=315292203 instance=ExtResource("3")]
-max_health = 95.0
+max_health = 10.0
 
 [node name="VelocityComponent" parent="." unique_id=2043588096 instance=ExtResource("4")]
 max_speed = 30

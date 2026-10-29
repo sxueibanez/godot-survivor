@@ -10,4 +10,4 @@ weapon_type = 1
 id = "axe"
 max_quantity = 1
 name = "旋转飞斧"
-description = "定期掷出一把旋转的飞斧。"
+description = "定期掷出旋转飞斧；多把飞斧均匀分布，覆盖周围敌人。"

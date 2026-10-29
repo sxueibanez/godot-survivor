@@ -5,6 +5,6 @@
 script = ExtResource("2")
 kind = 1
 [node name="HealthComponent" parent="."]
-max_health = 55.0
+max_health = 10.0
 [node name="VelocityComponent" parent="."]
 max_speed = 26.0

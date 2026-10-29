@@ -12,4 +12,4 @@ icon = ExtResource("3_icon")
 id = "thunder_orb_book"
 max_quantity = 1
 name = "雷球书"
-description = "每4秒向最近敌人释放缓慢雷球；每名敌人每秒最多受到一次10点伤害。"
+description = "每4秒释放缓慢雷球；多球优先分别瞄准不同敌人，每名敌人每秒最多受到一次10点伤害。"

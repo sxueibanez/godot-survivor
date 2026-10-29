@@ -60,12 +60,15 @@ func _ready() -> void:
 		assert(GameEvents.get_enemy_count(true) == 1)
 		var summon: Node = preload("res://scenes/game_object/iron_golem/iron_golem.tscn").instantiate()
 		main.get_node("Entities").add_child(summon)
-		assert(summon.get_node("HealthComponent").max_health == 25.0)
+		assert(summon.get_node("HealthComponent").max_health == 12.0)
 		var projectile := Node2D.new()
 		main.get_node("CombatEffects").add_child(projectile)
 		rush._process(2.0)
 		var before: float = rush.combat_time
-		rush.active_boss.get_node("HealthComponent").damage(100000.0)
+		var defeated_boss: Node2D = rush.active_boss
+		var boss_health := defeated_boss.get_node("HealthComponent") as HealthComponent
+		boss_health.died.connect(func(): rush.on_boss_died(defeated_boss, battle + 1))
+		boss_health.damage(100000.0)
 		await get_tree().process_frame
 		await get_tree().process_frame
 		await get_tree().process_frame
@@ -74,7 +77,7 @@ func _ready() -> void:
 		assert(is_instance_valid(companion))
 		assert(player.abilities.get_child_count() >= controllers)
 		assert(rush.defeated_bosses == battle + 1)
-		rush.on_boss_died()
+		rush.on_boss_died(null, battle + 1)
 		assert(rush.defeated_bosses == battle + 1)
 		assert(rush.combat_time < before + 0.1)
 		if battle == 4:
@@ -123,12 +126,14 @@ func _ready() -> void:
 		assert(main.current_map_id == battle + 1)
 		var bosses: Array[Node] = get_tree().get_nodes_in_group("boss")
 		assert(bosses[0].scene_file_path != bosses[1].scene_file_path)
-		var first_id: int = bosses[0].get_instance_id()
-		bosses[0].get_node("HealthComponent").damage(100000.0)
+		var first_boss: Node2D = bosses[0]
+		var first_health := first_boss.get_node("HealthComponent") as HealthComponent
+		first_health.died.connect(func(): rush.on_boss_died(first_boss, 0))
+		first_health.damage(100000.0)
 		await get_tree().process_frame
 		await get_tree().process_frame
 		assert(rush.stage == rush.Stage.FIGHT and rush.remaining_bosses == 1)
-		rush.on_boss_died(first_id)
+		rush.on_boss_died(null, 0)
 		assert(rush.remaining_bosses == 1)
 		assert(not upgrades.choice_screen_open)
 		bosses[1].get_node("HealthComponent").damage(100000.0)

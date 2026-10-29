@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://gisddfn8bqx"]
+[gd_scene load_steps=8 format=3 uid="uid://gisddfn8bqx"]
 
 [ext_resource type="Script" path="res://scenes/ui/vignette.gd" id="1_abhjy"]
 [ext_resource type="Shader" path="res://scenes/ui/vignette.gdshader" id="1_yjtis"]
@@ -101,6 +101,12 @@ shader_parameter/vignette_intensity = 0.59
 shader_parameter/vignette_opacity = 0.115
 shader_parameter/vignette_rgb = Color(0.247059, 0.14902, 0.192157, 1)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_low_health"]
+shader = ExtResource("1_yjtis")
+shader_parameter/vignette_intensity = 2.0
+shader_parameter/vignette_opacity = 0.5
+shader_parameter/vignette_rgb = Color(0.95, 0.12, 0.1, 1)
+
 [node name="Vignette" type="CanvasLayer"]
 layer = 9
 script = ExtResource("1_abhjy")
@@ -118,4 +124,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 scale = Vector2(1.00191, 1)
+mouse_filter = 2
+
+[node name="LowHealthOverlay" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_low_health")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2

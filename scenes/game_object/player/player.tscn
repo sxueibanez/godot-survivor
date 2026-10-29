@@ -85,10 +85,10 @@ tracks/2/path = NodePath("Visuals/Sprite2D:scale")
 tracks/2/interp = 2
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1)]
+"values": [Vector2(1.08, 0.92), Vector2(0.95, 1.05), Vector2(1.08, 0.92), Vector2(0.95, 1.05), Vector2(1.08, 0.92)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uoq76"]
@@ -151,6 +151,7 @@ offset_right = 16.0
 offset_bottom = -17.0
 pivot_offset = Vector2(16, 3)
 max_value = 1.0
+step = 0.0
 value = 0.5
 show_percentage = false
 
@@ -167,6 +168,20 @@ max_value = 1.0
 show_percentage = false
 theme_override_styles/background = SubResource("StyleBoxEmpty_shield")
 theme_override_styles/fill = SubResource("StyleBoxFlat_shield")
+
+[node name="MovementStatus" type="Label" parent="."]
+z_index = 50
+z_as_relative = false
+offset_left = -54.0
+offset_top = -42.0
+offset_right = 54.0
+offset_bottom = -25.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.65, 0.91, 1, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.1, 0.18, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
 
 [node name="PickupArea2D" type="Area2D" parent="."]
 visible = false

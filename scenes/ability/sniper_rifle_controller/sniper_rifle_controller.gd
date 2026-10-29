@@ -78,9 +78,22 @@ func show_rifle(player: Node2D, direction: Vector2) -> void:
 	rifle.z_index = 20
 	player.add_child(rifle)
 	var tween := rifle.create_tween()
-	tween.tween_interval(RIFLE_VISIBLE_TIME)
+	tween.tween_property(rifle, "position", direction * 5.0, 0.06)
+	tween.tween_property(rifle, "position", direction * 12.0, 0.12)
+	tween.tween_interval(RIFLE_VISIBLE_TIME - 0.18)
 	tween.tween_property(rifle, "modulate:a", 0.0, 0.1)
 	tween.tween_callback(rifle.queue_free)
+	var flash := Polygon2D.new()
+	flash.polygon = PackedVector2Array([Vector2(0, -4), Vector2(9, -2), Vector2(18, 0), Vector2(9, 2), Vector2(0, 4)])
+	flash.color = Color(1.0, 0.83, 0.35)
+	flash.position = direction * 44.0
+	flash.rotation = direction.angle()
+	flash.z_as_relative = false
+	flash.z_index = 21
+	player.add_child(flash)
+	var flash_tween := flash.create_tween()
+	flash_tween.tween_property(flash, "modulate:a", 0.0, 0.12)
+	flash_tween.tween_callback(flash.queue_free)
 
 
 func on_ability_upgrade_added(upgrade: AbilityUpgrade, current_upgrades: Dictionary) -> void:

@@ -19,6 +19,7 @@ const IMPLOSION_PULL_SPEED := 120.0
 @onready var explosion_sprite: Sprite2D = $ExplosionSprite
 @onready var explosion_sound: AudioStreamPlayer2D = $ExplosionSound
 @onready var launch_sound: AudioStreamPlayer2D = $LaunchSound
+var landing_ring: Line2D
 
 var start_position := Vector2.ZERO
 var target_position := Vector2.ZERO
@@ -56,6 +57,7 @@ func _ready() -> void:
 		bomb_sprite.modulate = Color("ffb66b")
 	explosion_sprite.scale = Vector2.ONE * get_explosion_radius() / 150.0
 	explosion_sprite.visible = false
+	show_landing_ring()
 	explosion_sound.volume_db = -12.0 if is_mini else -4.0
 	launch_sound.volume_db = -14.0 if is_mini else -8.0
 	launch_sound.play()
@@ -65,14 +67,26 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	if exploding:
 		explosion_sprite.frame = mini(floori(elapsed / EXPLOSION_DURATION * EXPLOSION_FRAMES), EXPLOSION_FRAMES - 1)
+		queue_redraw()
 		if elapsed >= EXPLOSION_DURATION:
 			queue_free()
 		return
 	var progress := minf(elapsed / FLIGHT_DURATION, 1.0)
 	global_position = start_position.lerp(target_position, progress) + Vector2.UP * sin(progress * PI) * (20.0 if is_mini else 42.0)
+	landing_ring.modulate.a = lerpf(0.25, 0.7, progress)
 	bomb_sprite.rotation += delta * 7.0
 	if progress >= 1.0:
 		explode()
+
+
+func _draw() -> void:
+	if not exploding or elapsed >= 0.26:
+		return
+	var progress := clampf(elapsed / 0.26, 0.0, 1.0)
+	var ring_radius := get_explosion_radius() * lerpf(0.2, 1.0, progress)
+	var alpha := (1.0 - progress) * (0.5 if is_mini else 0.85)
+	draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 40, Color(1.0, 0.46, 0.12, alpha * 0.6), 4.0, true)
+	draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 40, Color(1.0, 0.88, 0.48, alpha), 1.5, true)
 
 
 func _physics_process(delta: float) -> void:
@@ -84,6 +98,7 @@ func explode() -> void:
 	if exploding:
 		return
 	exploding = true
+	landing_ring.visible = false
 	elapsed = 0.0
 	bomb_sprite.visible = false
 	explosion_sprite.visible = true
@@ -93,6 +108,22 @@ func explode() -> void:
 		spawn_cluster_bombs()
 	if bounce_remaining > 0:
 		spawn_bounce()
+
+
+func show_landing_ring() -> void:
+	landing_ring = Line2D.new()
+	landing_ring.name = "LandingRing"
+	landing_ring.top_level = true
+	landing_ring.z_as_relative = false
+	landing_ring.z_index = -1
+	landing_ring.width = 1.5 if not is_mini else 1.0
+	landing_ring.default_color = Color(1.0, 0.72, 0.3)
+	landing_ring.modulate.a = 0.25
+	landing_ring.closed = true
+	for index in 32:
+		landing_ring.add_point(Vector2.RIGHT.rotated(TAU * index / 32.0) * get_explosion_radius())
+	add_child(landing_ring)
+	landing_ring.global_position = target_position
 
 
 func damage_enemies() -> void:
@@ -180,12 +211,27 @@ func spawn_bomb(from: Vector2, to: Vector2, new_damage: float, new_radius: float
 
 
 func find_bounce_target() -> Vector2:
-	var closest: Node2D
+	var enemies: Array[Node2D] = []
 	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
-		var distance := global_position.distance_squared_to(enemy.global_position)
-		if distance > radius * radius and distance <= BOUNCE_TARGET_RANGE * BOUNCE_TARGET_RANGE and (closest == null or distance < global_position.distance_squared_to(closest.global_position)):
-			closest = enemy
-	return closest.global_position if closest != null else global_position + Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 70.0
+		var health := enemy.get_node_or_null("HealthComponent") as HealthComponent
+		if not enemy.is_queued_for_deletion() and (health == null or health.current_health > 0.0):
+			enemies.append(enemy)
+	var best: Node2D
+	var best_count := 0
+	var best_distance := INF
+	for candidate: Node2D in enemies:
+		var distance := global_position.distance_squared_to(candidate.global_position)
+		if distance <= radius * radius or distance > BOUNCE_TARGET_RANGE * BOUNCE_TARGET_RANGE:
+			continue
+		var nearby := 0
+		for enemy: Node2D in enemies:
+			if candidate.global_position.distance_squared_to(enemy.global_position) <= radius * radius:
+				nearby += 1
+		if nearby > best_count or (nearby == best_count and distance < best_distance):
+			best = candidate
+			best_count = nearby
+			best_distance = distance
+	return best.global_position if best != null else global_position + Vector2.RIGHT.rotated(randf_range(0.0, TAU)) * 70.0
 
 
 static func get_child_damage(weapon_damage: float) -> float:

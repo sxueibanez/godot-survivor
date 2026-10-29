@@ -11,7 +11,7 @@ region = Rect2(353, 202, 566, 896)
 script = ExtResource("1")
 id = "avenger"
 display_name = "复仇者"
-passive_description = "累计损失 40 生命后狂怒 5 秒：伤害 +40%，
-获得最大生命 20% 的临时护盾；狂怒期间不积攒怒气。"
+passive_description = "累计损失 40 生命后狂怒 5 秒：伤害 +40%，获得最大生命 20% 的临时护盾。
+超出怒气最多保留 40，满额后狂怒结束时再次触发；狂怒期间不积攒怒气。"
 sprite = SubResource("AtlasTexture_original")
 sprite_offset = Vector2(0, -448)

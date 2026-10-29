@@ -23,6 +23,7 @@ var attack_time := 0.0
 var cooldown := 0.0
 var attacking := false
 var attack_center := Vector2.ZERO
+var ground_warning: GroundWarning
 
 
 class GroundWarning extends Node2D:
@@ -41,12 +42,35 @@ class GroundWarning extends Node2D:
 		draw_arc(Vector2.ZERO, ATTACK_RANGE, 0.0, TAU, 40, Color(1.0, 0.1, 0.1, 0.9), 2.0)
 
 
+class GroundImpact extends Node2D:
+	const DURATION := 0.28
+	var elapsed := 0.0
+
+	func _ready() -> void:
+		z_as_relative = false
+		z_index = 1
+
+	func _process(delta: float) -> void:
+		elapsed += delta
+		if elapsed >= DURATION:
+			queue_free()
+		else:
+			queue_redraw()
+
+	func _draw() -> void:
+		var progress := clampf(elapsed / DURATION, 0.0, 1.0)
+		var radius := lerpf(18.0, ATTACK_RANGE, progress)
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, Color(1.0, 0.75, 0.35, 0.8 * (1.0 - progress)), 3.0)
+
+
 func _ready() -> void:
 	health_component.health_changed.connect(update_health_bar)
 	show_frame(run_texture, 0, RUN_FRAME_EDGES, RUN_FRAME_ANCHORS)
 
 
 func _process(delta: float) -> void:
+	if health_component.current_health <= 0.0:
+		return
 	if attacking:
 		attack_time += delta
 		show_frame(attack_texture, mini(int(attack_time / WINDUP_DURATION * ATTACK_FRAME_ANCHORS.size()), ATTACK_FRAME_ANCHORS.size() - 1), ATTACK_FRAME_EDGES, ATTACK_FRAME_ANCHORS)
@@ -74,18 +98,27 @@ func start_attack() -> void:
 	velocity = Vector2.ZERO
 	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
-		var warning := GroundWarning.new()
-		foreground.add_child(warning)
-		warning.global_position = attack_center
+		ground_warning = GroundWarning.new()
+		foreground.add_child(ground_warning)
+		ground_warning.global_position = attack_center
 
 
 func slam() -> void:
+	if not attacking or health_component.current_health <= 0.0:
+		return
+	attacking = false
+	if is_instance_valid(ground_warning):
+		ground_warning.queue_free()
+	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
+	if foreground != null:
+		var impact := GroundImpact.new()
+		foreground.add_child(impact)
+		impact.global_position = attack_center
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player != null and player.global_position.distance_to(attack_center) <= ATTACK_RANGE:
 		var player_health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if player_health != null:
 			player_health.damage(GameEvents.get_enemy_damage(self, ATTACK_DAMAGE), "铁魔像")
-	attacking = false
 	cooldown = ATTACK_COOLDOWN
 	animation_time = 0.0
 
@@ -99,3 +132,7 @@ func show_frame(texture: Texture2D, frame: int, edges: Array, anchors: Array) ->
 
 func update_health_bar() -> void:
 	$HealthBar.value = health_component.get_health_percent()
+	if health_component.current_health <= 0.0:
+		attacking = false
+		if is_instance_valid(ground_warning):
+			ground_warning.queue_free()

@@ -409,7 +409,7 @@ func _ready() -> void:
 	env.warning_time = 0
 	env.radius = 40
 	env.affect_enemies = true
-	main.get_node("Foreground").add_child(env)
+	main.get_node("CombatEffects").add_child(env)
 	env.global_position = boss.global_position
 	env.set_process(false)
 	var boss_before: float = boss.health_component.current_health

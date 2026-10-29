@@ -19,6 +19,7 @@ var hit_player := false
 var trail_time := 0.0
 var animation_time := 0.0
 var normal_mask := 0
+var warning: ChargeWarning
 
 
 class ChargeWarning extends Node2D:
@@ -38,6 +39,9 @@ class ChargeWarning extends Node2D:
 		var alpha := 0.35 + sin(elapsed * 26.0) * 0.18
 		draw_line(Vector2.ZERO, direction * CHARGE_DISTANCE, Color(0.45, 0.9, 1.0, alpha), 34.0)
 		draw_line(Vector2.ZERO, direction * CHARGE_DISTANCE, Color.WHITE, 2.0)
+		var progress := clampf(elapsed / WARNING_DURATION, 0.0, 1.0)
+		if progress > 0.0:
+			draw_arc(Vector2.ZERO, 17.0, -PI / 2.0, -PI / 2.0 + TAU * progress, 32, Color(1.0, 0.85, 0.3), 3.0)
 
 
 class IceTrail extends Node2D:
@@ -65,6 +69,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if health_component.current_health <= 0.0:
+		return
 	animation_time += delta * (3.0 if charging else 1.0)
 	show_frame(int(animation_time * 8.0) % 8)
 	if warning_time > 0.0:
@@ -96,7 +102,7 @@ func start_charge(player: Node2D) -> void:
 	velocity_component.accelerate_in_direction(Vector2.ZERO)
 	var foreground := get_tree().get_first_node_in_group("enemy_projectiles_layer") as Node2D
 	if foreground != null:
-		var warning := ChargeWarning.new(charge_direction)
+		warning = ChargeWarning.new(charge_direction)
 		foreground.add_child(warning)
 		warning.global_position = global_position
 
@@ -110,8 +116,18 @@ func charge(delta: float) -> void:
 	if trail_time <= 0.0:
 		spawn_ice_trail()
 		trail_time = 0.09
+	hit_player_along_path(previous, global_position)
+	if distance_left <= 0.0 or is_on_wall():
+		charging = false
+		collision_mask = normal_mask
+		velocity = Vector2.ZERO
+		cooldown = 3.4
+
+
+func hit_player_along_path(from: Vector2, to: Vector2) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	if not hit_player and player != null and global_position.distance_squared_to(player.global_position) <= 30.0 * 30.0:
+	var closest := Geometry2D.get_closest_point_to_segment(player.global_position, from, to) if player != null else Vector2.INF
+	if not hit_player and player != null and closest.distance_squared_to(player.global_position) <= 30.0 * 30.0:
 		hit_player = true
 		var health := player.get_node_or_null("HealthComponent") as HealthComponent
 		if health != null:
@@ -119,11 +135,6 @@ func charge(delta: float) -> void:
 		var movement := player.get_node_or_null("VelocityComponent") as VelocityComponent
 		if movement != null:
 			movement.apply_knockback(charge_direction, 320.0, 0.25)
-	if distance_left <= 0.0 or is_on_wall():
-		charging = false
-		collision_mask = normal_mask
-		velocity = Vector2.ZERO
-		cooldown = 3.4
 
 
 func spawn_ice_trail() -> void:
@@ -144,3 +155,5 @@ func show_frame(frame: int) -> void:
 
 func update_health_bar() -> void:
 	$HealthBar.value = health_component.get_health_percent()
+	if health_component.current_health <= 0.0 and is_instance_valid(warning):
+		warning.queue_free()

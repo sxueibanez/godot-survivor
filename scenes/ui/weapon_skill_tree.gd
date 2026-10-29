@@ -17,7 +17,7 @@ const WEAPON_NAMES: Dictionary = {
 }
 const WEAPON_SKILLS: Dictionary = {
 	"sword": [
-		{"id": "tree_sword_chain", "title": "剑影追击", "description": "剑命中后有 30% 概率触发追击剑。", "requires": []},
+		{"id": "tree_sword_chain", "title": "剑影追击", "description": "剑命中后有 30% 概率触发追击剑，优先攻击附近其他敌人。", "requires": []},
 		{"id": "tree_sword_rain", "title": "剑阵", "description": "场上同时有超过 5 柄剑时，在怪物最密集处释放持续剑阵。", "requires": ["tree_sword_chain"]},
 		{"id": "tree_sword_rain_giant", "title": "巨型剑阵", "description": "同时存在 3 个剑阵时，在主角位置释放双倍剑阵。", "requires": ["tree_sword_rain"]},
 		{"id": "tree_sword_barrage", "title": "剑雨", "description": "同一敌人受到 10 次剑伤害后，从主角当前位置连续发射 10 把剑。", "requires": ["tree_sword_rain"]},
@@ -44,7 +44,7 @@ const WEAPON_SKILLS: Dictionary = {
 		{"id": "tree_lightning_paralysis", "title": "麻痹电流", "description": "所有伤害有20%概率麻痹0.5秒。", "requires": []},
 	],
 	"bomb": [
-		{"id": "tree_bomb_bounce", "title": "跳弹", "description": "解锁局内跳弹升级；每级增加1次弹跳爆炸，最多3级。", "requires": []},
+		{"id": "tree_bomb_bounce", "title": "跳弹", "description": "解锁局内跳弹升级；每级增加1次弹跳爆炸，最多3级，优先跳向附近怪物密集处。", "requires": []},
 		{"id": "tree_bomb_burn", "title": "燃烧弹", "description": "解锁局内燃烧弹升级；命中后每秒造成60%武器伤害，持续5秒。", "requires": []},
 		{"id": "tree_bomb_cluster", "title": "子母弹", "description": "解锁局内子母弹升级；每次主炸弹爆炸洒出5枚30%威力与范围的小炸弹。", "requires": []},
 		{"id": "tree_bomb_heat_reaction", "title": "热爆反应", "description": "结算50%剩余燃烧伤害并刷新燃烧。", "requires": ["tree_bomb_burn"]},
@@ -53,7 +53,7 @@ const WEAPON_SKILLS: Dictionary = {
 	],
 	"thunder_orb_book": [
 		{"id": "tree_thunder_orb_chain", "title": "雷链", "description": "解锁局内雷链升级；雷球每秒攻击周围最多3名敌人。", "requires": []},
-		{"id": "tree_thunder_orb_count", "title": "雷球增殖", "description": "解锁局内雷球数量升级；每级数量+1，最多3级。", "requires": []},
+		{"id": "tree_thunder_orb_count", "title": "雷球增殖", "description": "解锁局内雷球数量升级；每级数量+1，最多3级，多球优先分别瞄准不同敌人。", "requires": []},
 		{"id": "tree_thunder_orb_growth", "title": "雷霆膨胀", "description": "解锁局内成长升级；雷球距离越远体积越大。", "requires": []},
 		{"id": "tree_thunder_orb_plasma", "title": "雷浆爆裂", "description": "解锁局内终点爆炸与持续3秒的雷浆。", "requires": []},
 		{"id": "tree_thunder_orb_boss_tracking", "title": "雷霆追猎", "description": "解锁局内BOSS追踪；没有BOSS时雷球保持原本直线轨迹。", "requires": []},

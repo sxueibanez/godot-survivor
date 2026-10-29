@@ -66,7 +66,10 @@ func _process(delta: float) -> void:
 		next_position = wall_hit["position"]
 	global_position = next_position
 	travelled_distance += previous_position.distance_to(global_position)
+	queue_redraw()
 	damage_crossed_enemies(previous_position, global_position)
+	if finished:
+		return
 	if not wall_hit.is_empty():
 		if ricochet_enabled:
 			direction = direction.bounce(wall_hit["normal"])
@@ -79,14 +82,29 @@ func _process(delta: float) -> void:
 		finish_at_endpoint()
 
 
+func _draw() -> void:
+	if finished:
+		return
+	var length := minf(travelled_distance, 30.0)
+	draw_line(Vector2(-length, 0), Vector2.ZERO, Color(1.0, 0.56, 0.18, 0.45), 3.0 * size_multiplier, true)
+	draw_line(Vector2(-length * 0.7, 0), Vector2.ZERO, Color(1.0, 0.96, 0.72, 0.9), 1.0 * size_multiplier, true)
+
+
 func damage_crossed_enemies(from: Vector2, to: Vector2) -> void:
+	var enemies: Array[Node2D] = []
 	for enemy: Node2D in get_tree().get_nodes_in_group("enemy"):
-		var enemy_id := enemy.get_instance_id()
-		if hit_enemy_ids.has(enemy_id):
+		if hit_enemy_ids.has(enemy.get_instance_id()):
 			continue
 		var closest_point := Geometry2D.get_closest_point_to_segment(enemy.global_position, from, to)
-		if closest_point.distance_squared_to(enemy.global_position) > pow(HIT_RADIUS * size_multiplier, 2):
-			continue
+		if closest_point.distance_squared_to(enemy.global_position) <= pow(HIT_RADIUS * size_multiplier, 2):
+			enemies.append(enemy)
+	# A fast bullet can cross several enemies in one frame; apply penetration in travel order.
+	enemies.sort_custom(func(a: Node2D, b: Node2D):
+		return from.distance_squared_to(Geometry2D.get_closest_point_to_segment(a.global_position, from, to)) < from.distance_squared_to(Geometry2D.get_closest_point_to_segment(b.global_position, from, to))
+	)
+	for enemy: Node2D in enemies:
+		var enemy_id := enemy.get_instance_id()
+		var closest_point := Geometry2D.get_closest_point_to_segment(enemy.global_position, from, to)
 		var hurtbox := enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent
 		if hurtbox == null or hurtbox.health_component == null:
 			continue
@@ -104,9 +122,11 @@ func damage_crossed_enemies(from: Vector2, to: Vector2) -> void:
 			explode_at(enemy.global_position, get_explosion_damage(hit_damage))
 		hit_count += 1
 		if hit_count >= max_hits:
+			global_position = closest_point
 			spawn_fragments()
 			finished = true
 			sprite.visible = false
+			queue_redraw()
 			return
 
 

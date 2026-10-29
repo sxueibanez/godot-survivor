@@ -15,6 +15,45 @@ var health_reroll_button: Button
 var health_reroll_used := false
 var allow_disable := true
 var dangerous_investment_button: Button
+var keyboard_index := -1
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if closing or not event.is_pressed() or event.is_echo():
+		return
+	var cards := card_container.get_children()
+	if cards.is_empty():
+		return
+	if cards.any(func(card: Node): return (card as AbilityUpgradeCard).disabled):
+		return
+	if event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
+		var step := -1 if event.is_action_pressed("ui_left") else 1
+		var index := keyboard_index if keyboard_index >= 0 else (-1 if step > 0 else 0)
+		for _attempt in cards.size():
+			index = posmod(index + step, cards.size())
+			if not (cards[index] as AbilityUpgradeCard).disabled:
+				set_keyboard_selection(index)
+				break
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_accept") and keyboard_index >= 0:
+		var card := cards[keyboard_index] as AbilityUpgradeCard
+		if not card.disabled:
+			get_viewport().set_input_as_handled()
+			card.select_card()
+
+
+func set_keyboard_selection(index: int) -> void:
+	keyboard_index = index
+	for card_index in card_container.get_child_count():
+		var hint := card_container.get_child(card_index).get_node("%KeyHint") as Label
+		if card_index == keyboard_index:
+			hint.add_theme_color_override("font_color", Color(1.0, 0.82, 0.2))
+			hint.add_theme_font_size_override("font_size", 20)
+			card_container.get_child(card_index).get_node("%NameLabel").add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
+		else:
+			hint.remove_theme_color_override("font_color")
+			hint.add_theme_font_size_override("font_size", 16)
+			card_container.get_child(card_index).get_node("%NameLabel").remove_theme_color_override("font_color")
 
 
 func _ready():
@@ -26,6 +65,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	var card_index := (event as InputEventKey).keycode - KEY_1
 	var cards := card_container.get_children()
+	if cards.any(func(card: Node): return (card as AbilityUpgradeCard).disabled):
+		return
 	if card_index < 0 or card_index >= cards.size():
 		return
 	if (cards[card_index] as AbilityUpgradeCard).disabled:
@@ -35,6 +76,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func set_ability_upgrades(upgrades: Array[AbilityUpgrade]):
+	keyboard_index = -1
 	for card: Node in card_container.get_children():
 		card_container.remove_child(card)
 		card.queue_free()
@@ -104,10 +146,14 @@ func on_upgrade_selected(upgrade: AbilityUpgrade):
 func on_upgrade_disabled(upgrade: AbilityUpgrade, card: Control) -> void:
 	upgrade_disabled.emit(upgrade)
 	available_card_count -= 1
+	var previously_selected: Node = card_container.get_child(keyboard_index) if keyboard_index >= 0 and keyboard_index < card_container.get_child_count() else null
 	card_container.remove_child(card)
 	card.queue_free()
 	for index in card_container.get_child_count():
 		card_container.get_child(index).get_node("%KeyHint").text = str(index + 1)
+	if keyboard_index >= 0 and card_container.get_child_count() > 0:
+		var selected_index := card_container.get_children().find(previously_selected)
+		set_keyboard_selection(selected_index if selected_index >= 0 else mini(keyboard_index, card_container.get_child_count() - 1))
 	if available_card_count <= 0:
 		closing = true
 		closed_without_selection.emit()

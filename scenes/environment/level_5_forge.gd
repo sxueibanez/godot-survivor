@@ -6,6 +6,12 @@ const CENTER := Vector2(384, 384)
 const BOUNDS := Rect2(-192, -192, 1152, 1152)
 const VALVE_OFFSETS := [Vector2(-120, -95), Vector2(120, -95), Vector2(0, 125)]
 const CRACK_ENDS := [Vector2(-210, -75), Vector2(210, -75), Vector2(110, 180)]
+const COOLING_POOL_POSITION := CENTER + Vector2(-420, 0)
+const COOLING_POOL_RADIUS := 72.0
+const COOLING_POOL_CHARGE := 1.0
+const COOLING_POOL_COOLDOWN := 25.0
+const COOLING_POOL_HEAL := 0.08
+const UI_FONT := preload("res://resources/fonts/FusionPixel12ProportionalZhHans.woff2")
 
 var active := false
 var solids: Array[StaticBody2D] = []
@@ -20,6 +26,8 @@ var elapsed := 0.0
 var redraw_left := 0.0
 var introduction_left := 0.0
 var introduction: Label
+var cooling_pool_charge := 0.0
+var cooling_pool_cooldown := 0.0
 
 func _ready() -> void:
 	add_to_group("forge_map")
@@ -34,7 +42,7 @@ func _ready() -> void:
 	add_prop("furnace", CENTER + Vector2(0, -430), Vector2(128, 112), true)
 	add_prop("bench", CENTER + Vector2(410, -25), Vector2(64, 48), true)
 	add_prop("anvil", CENTER + Vector2(415, 65), Vector2(40, 36), true)
-	add_prop("cooling_pool", CENTER + Vector2(-420, 0), Vector2(96, 64), true)
+	add_prop("cooling_pool", COOLING_POOL_POSITION, Vector2(96, 64), true)
 	for index in 3:
 		add_prop("ore", CENTER + Vector2(-100 + index * 95, 440), Vector2(48, 40), true, index)
 	for index in 3:
@@ -65,6 +73,8 @@ func activate(enabled: bool) -> void:
 	visible = enabled
 	scheduler_paused = false
 	schedule_left = 8.0
+	cooling_pool_charge = 0.0
+	cooling_pool_cooldown = 0.0
 	for solid in solids:
 		solid.collision_layer = 1 if enabled else 0
 	for valve: Dictionary in valves:
@@ -181,6 +191,7 @@ func _process(delta: float) -> void:
 		if introduction_left <= 0 and is_instance_valid(introduction):
 			introduction.hide()
 	var player := get_tree().get_first_node_in_group("player") as Node2D
+	update_cooling_pool(delta, player)
 	for index in valves.size():
 		var valve: Dictionary = valves[index]
 		valve.cooldown = maxf(0, valve.cooldown - delta)
@@ -196,6 +207,23 @@ func _process(delta: float) -> void:
 		if schedule_left <= 0:
 			trigger_crack(randi_range(0, 2))
 			schedule_left = 6.0
+
+
+func update_cooling_pool(delta: float, player: Node2D) -> void:
+	if not active or get_tree().paused:
+		return
+	if cooling_pool_cooldown > 0.0:
+		cooling_pool_cooldown = maxf(cooling_pool_cooldown - delta, 0.0)
+		return
+	var health := player.get_node_or_null("HealthComponent") as HealthComponent if is_instance_valid(player) else null
+	if health == null or health.current_health <= 0.0 or health.current_health >= health.max_health or GameEvents.curse_no_normal_healing or player.global_position.distance_squared_to(COOLING_POOL_POSITION) > COOLING_POOL_RADIUS * COOLING_POOL_RADIUS:
+		cooling_pool_charge = 0.0
+		return
+	cooling_pool_charge += delta
+	if cooling_pool_charge >= COOLING_POOL_CHARGE:
+		health.heal(health.max_health * COOLING_POOL_HEAL)
+		cooling_pool_charge = 0.0
+		cooling_pool_cooldown = COOLING_POOL_COOLDOWN
 
 func _draw() -> void:
 	var floor := ART.texture("floor_tiles")
@@ -246,6 +274,14 @@ func _draw() -> void:
 		var cell := Vector2(96, 96) if prop.kind == "furnace" else Vector2(64, 48) if prop.kind == "cooling_pool" else Vector2(32, 32)
 		var frame: int = int(elapsed * 6) % 4 if prop.kind == "furnace" else prop.variant
 		draw_texture_rect_region(ART.texture(prop.kind), Rect2(prop.position - Vector2(size.x / 2, size.y * 0.8), size), Rect2(frame * cell.x, 0, cell.x, cell.y))
+	var pool_progress := 1.0 - cooling_pool_cooldown / COOLING_POOL_COOLDOWN if cooling_pool_cooldown > 0.0 else cooling_pool_charge / COOLING_POOL_CHARGE
+	var pool_color := Color(0.35, 0.75, 1.0, 0.5) if cooling_pool_cooldown > 0.0 else Color(0.45, 1.0, 0.9, 0.85)
+	draw_arc(COOLING_POOL_POSITION, COOLING_POOL_RADIUS, 0.0, TAU, 48, Color(pool_color, 0.25), 1.5)
+	if pool_progress > 0.0:
+		draw_arc(COOLING_POOL_POSITION, COOLING_POOL_RADIUS, -PI / 2.0, -PI / 2.0 + TAU * clampf(pool_progress, 0.0, 1.0), 48, pool_color, 2.5)
+	var pool_text := "冷却池：%d秒" % ceili(cooling_pool_cooldown) if cooling_pool_cooldown > 0.0 else "冷却池：停留1秒回复8%"
+	draw_string_outline(UI_FONT, COOLING_POOL_POSITION + Vector2(-95, -76), pool_text, HORIZONTAL_ALIGNMENT_CENTER, 190.0, 12, 3, Color(0.1, 0.1, 0.15))
+	draw_string(UI_FONT, COOLING_POOL_POSITION + Vector2(-95, -76), pool_text, HORIZONTAL_ALIGNMENT_CENTER, 190.0, 12, pool_color)
 	# West-side pipe segments are decoration, not extra obstacles.
 	for y in range(224, 544, 16):
 		draw_texture_rect_region(ART.texture("pipe"), Rect2(-100, y, 16, 16), Rect2(0, 0, 16, 16))

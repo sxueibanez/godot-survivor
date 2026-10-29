@@ -7,4 +7,4 @@ script = ExtResource("1")
 id = "thunder_orb_count"
 max_quantity = 3
 name = "雷球增殖"
-description = "每级额外释放1个雷球，最多3级。"
+description = "每级额外释放1个雷球，最多3级；多球优先分别瞄准不同敌人。"

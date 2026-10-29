@@ -12,11 +12,16 @@ var danger_boost_left := 0.0
 var scan_left := 0.0
 var dash_left := 0.0
 var dash_cooldown_left := 0.0
+var dash_trail_left := 0.0
 var attack_bonus_left := 0.0
 var dash_direction := Vector2.RIGHT
 var last_direction := Vector2.RIGHT
 var rage := 0.0
 var frenzy_left := 0.0
+var mage_charges := 0
+var one_armed_kills := 0
+var one_armed_boost_left := 0.0
+var frenzy_extension := 0.0
 var status: Label
 var skill_icon: TextureRect
 var cooldown_label: Label
@@ -69,10 +74,15 @@ func setup(data: CharacterData) -> void:
 	danger_boost_left = 0.0
 	scan_left = 0.0
 	dash_left = 0.0
+	dash_trail_left = 0.0
 	dash_cooldown_left = 0.0
 	attack_bonus_left = 0.0
 	rage = 0.0
 	frenzy_left = 0.0
+	mage_charges = 0
+	one_armed_kills = 0
+	one_armed_boost_left = 0.0
+	frenzy_extension = 0.0
 	health.set_temporary_shield(0.0, 0.0)
 	update_status()
 
@@ -80,11 +90,16 @@ func setup(data: CharacterData) -> void:
 func _process(delta: float) -> void:
 	if character == null or health.current_health <= 0.0:
 		return
+	one_armed_boost_left = maxf(one_armed_boost_left - delta, 0.0)
 	danger_cooldown_left = maxf(danger_cooldown_left - delta, 0.0)
 	danger_boost_left = maxf(danger_boost_left - delta, 0.0)
 	dash_cooldown_left = maxf(dash_cooldown_left - delta, 0.0)
 	attack_bonus_left = maxf(attack_bonus_left - delta, 0.0)
+	var was_frenzied := frenzy_left > 0.0
 	frenzy_left = maxf(frenzy_left - delta, 0.0)
+	if was_frenzied and frenzy_left <= 0.0 and character.id == "avenger" and rage >= maxf(character.rage_damage_threshold, 0.01):
+		rage -= maxf(character.rage_damage_threshold, 0.01)
+		start_frenzy()
 	var movement: Vector2 = player.call("get_movement_vector")
 	if movement != Vector2.ZERO:
 		last_direction = movement.normalized()
@@ -124,7 +139,10 @@ func get_damage_multiplier(weapon_id: String) -> float:
 	if character == null:
 		return 1.0
 	if character.id == "one_armed":
-		return 1.5
+		return 1.5 * (1.0 + signature_level() * 0.05 if one_armed_boost_left > 0.0 else 1.0)
+	if character.id == "elf_ranger" and mage_charges >= 5:
+		mage_charges = 0
+		return 1.0 + signature_level() * 0.1
 	if character.id == "lone_gunner" and int(GameEvents.weapon_types.get(weapon_id, -1)) == Ability.WeaponType.RANGED:
 		return solitude_multiplier
 	if character.id == "avenger" and frenzy_left > 0.0:
@@ -146,8 +164,10 @@ func try_dash() -> bool:
 	var direction: Vector2 = player.call("get_movement_vector")
 	dash_direction = last_direction if direction == Vector2.ZERO else direction.normalized()
 	dash_left = maxf(character.dash_duration, 0.01)
+	dash_trail_left = 0.0
 	dash_cooldown_left = character.dash_cooldown
 	attack_bonus_left = character.dash_attack_window
+	update_status()
 	return true
 
 
@@ -158,11 +178,28 @@ func move_dash(delta: float) -> void:
 	if movement.stun_time_left > 0.0 or movement.knockback_time_left > 0.0:
 		dash_left = 0.0
 		return
+	dash_trail_left -= delta
+	if dash_trail_left <= 0.0:
+		spawn_dash_trail()
+		dash_trail_left = 0.05
 	player.velocity = dash_direction * character.dash_distance / maxf(character.dash_duration, 0.01) * minf(delta, dash_left) / delta
 	player.move_and_slide()
 	dash_left = maxf(dash_left - delta, 0.0)
 	if dash_left <= 0.0:
 		movement.velocity = Vector2.ZERO
+
+
+func spawn_dash_trail() -> void:
+	var sprite := player.get_node("Visuals/Sprite2D") as Sprite2D
+	var trail := sprite.duplicate() as Sprite2D
+	var original_transform := sprite.global_transform
+	player.get_parent().add_child(trail)
+	trail.global_transform = original_transform
+	trail.modulate = Color(0.5, 0.8, 1.0, 0.45)
+	trail.z_index = -1
+	var tween := trail.create_tween()
+	tween.tween_property(trail, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(trail.queue_free)
 
 
 func get_damage_bonus() -> float:
@@ -172,33 +209,78 @@ func get_damage_bonus() -> float:
 
 
 func spend_reroll_health() -> bool:
-	return character != null and character.id == "gambling_scholar" and health.spend_health(health.current_health * character.health_reroll_fraction)
+	return character != null and character.id == "gambling_scholar" and health.spend_health(health.current_health * maxf(character.health_reroll_fraction - signature_level() * 0.01, 0.05))
+
+
+func signature_level() -> int:
+	return MetaProgression.get_character_upgrade(character.id, "signature") if character != null else 0
 
 
 func on_enemy_defeated(enemy: Node2D) -> void:
-	if character != null and character.id == "gambling_scholar" and enemy.is_in_group("elite") and health.current_health > 0.0:
-		health.heal(health.max_health * character.elite_heal_fraction, "elite_reward")
+	if character == null or health.current_health <= 0.0:
+		return
+	var level := signature_level()
+	match character.id:
+		"warrior":
+			if level > 0 and enemy.global_position.distance_to(player.global_position) <= 100.0:
+				var shield := minf(health.max_health * 0.1, health.temporary_shield + health.max_health * level * 0.002)
+				health.set_temporary_shield(shield, 3.0)
+		"elf_ranger":
+			if level > 0:
+				mage_charges = mini(mage_charges + 1, 5)
+		"blooddrinker":
+			if level > 0 and (enemy.is_in_group("elite") or enemy.is_in_group("boss")) and health.get_health_percent() <= 0.5:
+				health.heal(health.max_health * level * 0.01, "elite_reward")
+		"lone_gunner":
+			if level > 0 and (enemy.is_in_group("elite") or enemy.is_in_group("boss")):
+				danger_cooldown_left = maxf(0.0, danger_cooldown_left - level * 0.5)
+		"gambling_scholar":
+			if enemy.is_in_group("elite"):
+				health.heal(health.max_health * character.elite_heal_fraction, "elite_reward")
+		"ronin":
+			if level > 0 and attack_bonus_left > 0.0:
+				dash_cooldown_left = maxf(0.0, dash_cooldown_left - level * 0.1)
+		"avenger":
+			if level > 0 and frenzy_left > 0.0:
+				var extension := minf(level * 0.1, 3.0 - frenzy_extension)
+				frenzy_left += extension
+				frenzy_extension += extension
+				health.temporary_shield_time_left += extension
+		"one_armed":
+			if level > 0:
+				one_armed_kills += 1
+				if one_armed_kills >= 10:
+					one_armed_kills = 0
+					one_armed_boost_left = 4.0
 
 
 func on_damage_taken(amount: float) -> void:
 	if character == null or character.id != "avenger" or frenzy_left > 0.0 or health.current_health <= 0.0:
 		return
 	rage += amount
-	if rage >= maxf(character.rage_damage_threshold, 0.01):
-		rage = 0.0
-		frenzy_left = character.rage_duration
-		health.set_temporary_shield(health.max_health * character.rage_shield_fraction, character.rage_duration)
+	var threshold := maxf(character.rage_damage_threshold, 0.01)
+	if rage >= threshold:
+		rage = minf(rage - threshold, threshold)
+		start_frenzy()
 	update_status()
+
+
+func start_frenzy() -> void:
+	frenzy_left = character.rage_duration
+	frenzy_extension = 0.0
+	health.set_temporary_shield(health.max_health * character.rage_shield_fraction, character.rage_duration)
 
 
 func update_status() -> void:
 	if status == null or character == null:
 		return
 	match character.id:
+		"ronin":
+			status.text = "冲刺免伤" if player.is_dash_invulnerable() else ""
 		"lone_gunner":
 			status.text = "远程 +%.0f%%" % [(solitude_multiplier - 1.0) * 100.0]
 		"avenger":
-			status.text = "狂怒 %.1fs · 护盾 %.0f" % [frenzy_left, health.temporary_shield] if frenzy_left > 0.0 else "怒气 %.0f/%.0f" % [rage, character.rage_damage_threshold]
+			status.text = "狂怒 %.1fs · 护盾 %.0f · 储备 %.0f/%.0f" % [frenzy_left, health.temporary_shield, rage, character.rage_damage_threshold] if frenzy_left > 0.0 else "怒气 %.0f/%.0f" % [rage, character.rage_damage_threshold]
 		_:
 			status.text = ""
 	skill_icon.visible = true

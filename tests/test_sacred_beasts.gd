@@ -17,6 +17,8 @@ func run() -> void:
 	health.owner = player
 	var foreground := Node2D.new()
 	foreground.add_to_group("foreground_layer")
+	foreground.add_to_group("player_projectiles_layer")
+	foreground.add_to_group("combat_effects_layer")
 	add_child(foreground)
 
 	var controller := load("res://scenes/ability/azure_dragon_controller/azure_dragon_controller.tscn").instantiate() as AzureDragonController

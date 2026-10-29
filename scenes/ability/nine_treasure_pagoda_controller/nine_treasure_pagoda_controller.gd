@@ -137,9 +137,10 @@ func apply_size_to_weapon_controllers() -> void:
 		var target_size := base_size * GameEvents.support_size_multiplier
 		controller.set_meta("pagoda_base_size", base_size)
 		controller.set_meta("pagoda_applied_size", target_size)
-		controller.set(size_property, target_size)
-		if controller.has_method("refresh_dragon"):
-			controller.call("refresh_dragon")
+		if not is_equal_approx(current_size, target_size):
+			controller.set(size_property, target_size)
+			if controller.has_method("refresh_dragon"):
+				controller.call("refresh_dragon")
 
 
 func apply_attack_count_to_weapon_controllers() -> void:

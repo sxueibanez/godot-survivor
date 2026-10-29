@@ -159,13 +159,13 @@ func spawn_test_enemies(count: int = 20) -> void:
 func apply_difficulty(enemy: Node2D) -> void:
 	var health = enemy.get_node_or_null("HealthComponent") as HealthComponent
 	if health != null and GameEvents.is_endless_mode():
-		var level_health_multiplier := 1.6 if level == 2 else 1.0
-		var mode_health_multiplier := ENDLESS_ENEMY_HEALTH_MULTIPLIER if GameEvents.is_endless_mode() else 1.0
-		health.max_health *= mode_health_multiplier * level_health_multiplier * (1.0 + arena_time_manager.arena_difficulty * 0.05)
+		health.max_health *= ENDLESS_ENEMY_HEALTH_MULTIPLIER * (1.0 + arena_time_manager.arena_difficulty * 0.05)
 
 	var velocity = enemy.get_node_or_null("VelocityComponent") as VelocityComponent
 	if velocity != null:
 		velocity.max_speed = roundi(velocity.max_speed * (1.0 + arena_time_manager.arena_difficulty * 0.015))
+		if GameEvents.game_mode == "expedition":
+			velocity.max_speed *= GameEvents.expedition_enemy_speed_multiplier
 
 
 func spawn_elite() -> Node2D:

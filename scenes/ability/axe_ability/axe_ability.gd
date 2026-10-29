@@ -6,28 +6,46 @@ const MAX_ROTATION := 2
 const MAX_DISTANCE_MULTIPLIER := 2.0
 const PROJECTILE_REFLECT_RANGE := 20.0
 const KNOCKBACK_SPEED := 220.0
+const TRAIL_POINTS := 16
+const TRAIL_STEP := 3.0
+const TRAIL_BREAK_DISTANCE := 80.0
 
 @onready var hitbox_component: HitboxComponent = $HitboxComponent
 @onready var launch_sound: AudioStreamPlayer2D = $LaunchSound
 @onready var hit_sound: AudioStreamPlayer2D = $HitSound
 
 
-var base_rotation: Vector2
+var base_rotation := Vector2.ZERO
 var reflect_projectiles := false
 var return_to_player := false
 var knockback_enabled := false
 var distance_scaling_enabled := false
 var base_scale := Vector2.ONE
 var base_damage := 0.0
+var trail: Line2D
 
 
 func _ready() -> void:
-	base_rotation = Vector2.RIGHT.rotated(randf_range(0, TAU))
+	if base_rotation == Vector2.ZERO:
+		base_rotation = Vector2.RIGHT.rotated(randf_range(0, TAU))
 	base_scale = scale
 	hitbox_component.damage = base_damage
 	hitbox_component.weapon_id = "axe"
 	hitbox_component.area_entered.connect(on_hitbox_area_entered)
 	launch_sound.play()
+	trail = Line2D.new()
+	trail.top_level = true
+	trail.z_as_relative = false
+	trail.z_index = 19
+	trail.width = 3.0
+	trail.width_curve = Curve.new()
+	trail.width_curve.add_point(Vector2(0.0, 0.1))
+	trail.width_curve.add_point(Vector2(1.0, 1.0))
+	trail.gradient = Gradient.new()
+	trail.gradient.set_color(0, Color(0.7, 0.85, 1.0, 0.0))
+	trail.gradient.set_color(1, Color(0.8, 0.95, 1.0, 0.8))
+	add_child(trail)
+	trail.global_position = Vector2.ZERO
 
 	var tween: Tween = create_tween()
 	tween.tween_method(move_outward, 0.0, 1.0, 1.5)
@@ -51,12 +69,26 @@ func move_along_arc(current_radius: float, rotations: float) -> void:
 		return
 
 	global_position = player.global_position + (current_direction * current_radius)
+	update_trail()
 	if distance_scaling_enabled:
 		var multiplier := get_distance_multiplier(global_position.distance_to(player.global_position))
 		scale = base_scale * multiplier
 		hitbox_component.damage = base_damage * multiplier
 	if reflect_projectiles:
 		reflect_enemy_projectiles()
+
+
+func update_trail() -> void:
+	var count := trail.get_point_count()
+	if count > 0:
+		var distance_squared := trail.get_point_position(count - 1).distance_squared_to(global_position)
+		if distance_squared < TRAIL_STEP * TRAIL_STEP:
+			return
+		if distance_squared > TRAIL_BREAK_DISTANCE * TRAIL_BREAK_DISTANCE:
+			trail.clear_points()
+	trail.add_point(global_position)
+	if trail.get_point_count() > TRAIL_POINTS:
+		trail.remove_point(0)
 
 
 static func get_distance_multiplier(distance: float) -> float:

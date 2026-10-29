@@ -11,6 +11,7 @@ const CHARGE_DURATION := 1.5
 
 var charging := false
 var charge_time := 0.0
+var detonated := false
 var smoke_scene: PackedScene = preload("res://scenes/game_object/explosion_smoke/explosion_smoke.tscn")
 
 
@@ -24,9 +25,14 @@ func _draw() -> void:
 	var pulse := 0.5 + 0.5 * sin(charge_time * 18.0)
 	draw_circle(Vector2.ZERO, DETONATION_RANGE, Color(1.0, 0.12, 0.08, 0.12 + pulse * 0.12))
 	draw_arc(Vector2.ZERO, DETONATION_RANGE, 0.0, TAU, 64, Color(1.0, 0.25, 0.12, 0.7 + pulse * 0.3), 2.0)
+	var progress := clampf(charge_time / CHARGE_DURATION, 0.0, 1.0)
+	if progress > 0.0:
+		draw_arc(Vector2.ZERO, DETONATION_RANGE - 4.0, -PI / 2.0, -PI / 2.0 + TAU * progress, 64, Color(1.0, 0.9, 0.3), 3.0)
 
 
 func _process(delta: float) -> void:
+	if detonated or health_component.current_health <= 0.0:
+		return
 	if charging:
 		charge_time += delta
 		queue_redraw()
@@ -47,6 +53,9 @@ func _process(delta: float) -> void:
 
 
 func detonate() -> void:
+	if detonated or health_component.current_health <= 0.0:
+		return
+	detonated = true
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if enemy != self and enemy is Node2D and global_position.distance_to(enemy.global_position) <= DETONATION_RANGE:
 			var health := enemy.get_node_or_null("HealthComponent") as HealthComponent

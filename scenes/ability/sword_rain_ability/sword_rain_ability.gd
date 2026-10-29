@@ -17,9 +17,22 @@ var duration := DURATION
 var radius_multiplier := 1.0
 var elapsed := 0.0
 var damage_time_left := 0.0
+var range_ring: Line2D
 
 
 func _ready() -> void:
+	range_ring = Line2D.new()
+	range_ring.name = "RangeRing"
+	range_ring.top_level = true
+	range_ring.z_as_relative = false
+	range_ring.z_index = -1
+	range_ring.closed = true
+	range_ring.width = 1.5
+	range_ring.default_color = Color(0.58, 0.85, 1.0, 0.7)
+	for index in 48:
+		range_ring.add_point(Vector2.RIGHT.rotated(TAU * index / 48.0) * get_damage_radius())
+	add_child(range_ring)
+	range_ring.global_position = global_position
 	circle_sprite.visible = false
 	circle_sprite.scale = Vector2.ONE * CIRCLE_VISUAL_SCALE * 0.3
 	for sword: Sprite2D in falling_swords:
@@ -28,6 +41,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	range_ring.global_position = global_position
 	elapsed += delta
 	damage_time_left -= delta
 	if damage_time_left <= 0.0:
@@ -35,9 +49,25 @@ func _process(delta: float) -> void:
 		damage_time_left = DAMAGE_INTERVAL
 	animate_falling_swords()
 	animate_circle()
+	queue_redraw()
 	modulate.a = minf(elapsed * 2.5, 1.0) * clampf((duration - elapsed) / 0.7, 0.0, 1.0)
 	if elapsed >= duration:
 		queue_free()
+
+
+func _draw() -> void:
+	for sword: Sprite2D in falling_swords:
+		if not sword.visible:
+			continue
+		var point := sword.position
+		draw_line(point + Vector2.UP * 15.0, point, Color(0.65, 0.88, 1.0, 0.45), 2.0, true)
+		if point.y > -4.0:
+			var alpha := clampf((point.y + 4.0) / 12.0, 0.0, 1.0)
+			draw_arc(Vector2(point.x, 8.0), 4.0 + alpha * 6.0, PI, TAU, 12, Color(0.8, 0.96, 1.0, 1.0 - alpha), 1.5, true)
+
+
+func get_damage_radius() -> float:
+	return DAMAGE_RADIUS * radius_multiplier
 
 
 func animate_falling_swords() -> void:
@@ -62,7 +92,7 @@ func animate_circle() -> void:
 func deal_damage() -> void:
 	for enemy_value: Variant in get_tree().get_nodes_in_group("enemy"):
 		var enemy: Node2D = enemy_value as Node2D
-		var effective_radius: float = DAMAGE_RADIUS * radius_multiplier
+		var effective_radius := get_damage_radius()
 		if enemy == null or global_position.distance_squared_to(enemy.global_position) > effective_radius * effective_radius:
 			continue
 		var hurtbox: HurtboxComponent = enemy.get_node_or_null("HurtboxComponent") as HurtboxComponent

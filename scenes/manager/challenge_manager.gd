@@ -4,9 +4,13 @@ const HUNT_TIME := 60.0
 const OVERLOAD_TIME := 110.0
 const BOUNTY_TIME := 150.0
 const OFFER_END := 180.0
+const ELITE_DURATION := 30.0
+const DIRECTIONS := ["右", "右下", "下", "左下", "左", "左上", "上", "右上"]
 
 var main: Node
 var status: Label
+var elite_pointer: Label
+var objective_pointer: Label
 var status_left := 0.0
 var stopped := false
 var hunt_offered := false
@@ -32,6 +36,8 @@ var generation := 0
 class ChallengeRing extends Node2D:
 	var tint := Color(1.0, 0.65, 0.15)
 	var pulse := 0.0
+	var charge_progress := -1.0
+	var time_remaining_fraction := -1.0
 
 	func _process(delta: float) -> void:
 		pulse += delta * 3.0
@@ -43,6 +49,15 @@ class ChallengeRing extends Node2D:
 		for index in 4:
 			var direction := Vector2.RIGHT.rotated(pulse * 0.4 + index * TAU / 4.0)
 			draw_line(direction * 18.0, direction * 31.0, tint, 3.0)
+		if charge_progress >= 0.0:
+			draw_arc(Vector2.ZERO, 33.0, 0.0, TAU, 48, Color(0.18, 0.45, 0.5, 0.7), 3.0)
+			if charge_progress > 0.0:
+				draw_arc(Vector2.ZERO, 33.0, -PI / 2.0, -PI / 2.0 + TAU * charge_progress, 48, Color(0.75, 1.0, 0.9), 3.0)
+		if time_remaining_fraction >= 0.0:
+			var remaining_tint := Color(1.0, 0.3, 0.2) if time_remaining_fraction <= 0.25 else Color(1.0, 0.83, 0.3)
+			draw_arc(Vector2.ZERO, 33.0, 0.0, TAU, 48, Color(0.4, 0.23, 0.12, 0.7), 3.0)
+			if time_remaining_fraction > 0.0:
+				draw_arc(Vector2.ZERO, 33.0, -PI / 2.0, -PI / 2.0 + TAU * time_remaining_fraction, 48, remaining_tint, 3.0)
 
 
 func _ready() -> void:
@@ -57,6 +72,34 @@ func _ready() -> void:
 	status.add_theme_constant_override("shadow_offset_x", 1)
 	status.add_theme_constant_override("shadow_offset_y", 1)
 	hud.add_child(status)
+	elite_pointer = Label.new()
+	elite_pointer.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	elite_pointer.offset_left = -210.0
+	elite_pointer.offset_right = -12.0
+	elite_pointer.offset_top = 82.0
+	elite_pointer.offset_bottom = 102.0
+	elite_pointer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	elite_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	elite_pointer.add_theme_font_size_override("font_size", 12)
+	elite_pointer.add_theme_constant_override("outline_size", 4)
+	elite_pointer.add_theme_color_override("font_outline_color", Color(0.247, 0.149, 0.192))
+	elite_pointer.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
+	elite_pointer.hide()
+	hud.add_child(elite_pointer)
+	objective_pointer = Label.new()
+	objective_pointer.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	objective_pointer.offset_left = -250.0
+	objective_pointer.offset_right = -12.0
+	objective_pointer.offset_top = 104.0
+	objective_pointer.offset_bottom = 140.0
+	objective_pointer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	objective_pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	objective_pointer.add_theme_font_size_override("font_size", 11)
+	objective_pointer.add_theme_constant_override("outline_size", 4)
+	objective_pointer.add_theme_color_override("font_outline_color", Color(0.247, 0.149, 0.192))
+	objective_pointer.add_theme_color_override("font_color", Color(0.6, 1.0, 0.95))
+	objective_pointer.hide()
+	hud.add_child(objective_pointer)
 
 
 func _process(delta: float) -> void:
@@ -92,6 +135,7 @@ func _process(delta: float) -> void:
 		if is_instance_valid(overload_point):
 			if player_position().distance_to(overload_point.global_position) < 24.0:
 				overload_charge = minf(5.0, overload_charge + delta)
+			overload_point.set("charge_progress", overload_charge / 5.0)
 			(overload_point.get_child(0) as Label).text = "超载点：蓄力 %.1f / 5秒\n离圈保留进度 / 激活20秒狂潮 / 经验x2" % overload_charge
 			if overload_charge >= 5.0:
 				start_overload()
@@ -104,6 +148,8 @@ func _process(delta: float) -> void:
 		bounty_point = null
 		overload_charge = 0.0
 	update_elite_countdowns(delta)
+	update_elite_pointer()
+	update_objective_pointer()
 	if overload_left > 0:
 		overload_left = maxf(0.0, overload_left - delta)
 		overload_tick -= delta
@@ -189,6 +235,7 @@ func make_elite(position: Vector2) -> Node2D:
 		visuals.scale *= 1.35
 	var marker := ChallengeRing.new()
 	marker.position.y = -12
+	marker.time_remaining_fraction = 1.0
 	elite.add_child(marker)
 	var label := Label.new()
 	label.position = Vector2(-100, -76)
@@ -197,7 +244,7 @@ func make_elite(position: Vector2) -> Node2D:
 	label.add_theme_font_size_override("font_size", 12)
 	label.text = "★ 精英 30s\n击杀：武器升级"
 	elite.add_child(label)
-	elite_timers.append({"enemy": elite, "label": label, "left": 30.0})
+	elite_timers.append({"enemy": elite, "label": label, "marker": marker, "left": ELITE_DURATION})
 	return elite
 
 
@@ -208,6 +255,7 @@ func update_elite_countdowns(delta: float) -> void:
 			elite_timers.remove_at(index)
 			continue
 		entry["left"] = maxf(0.0, float(entry["left"]) - delta)
+		(entry["marker"] as ChallengeRing).time_remaining_fraction = float(entry["left"]) / ELITE_DURATION
 		(entry["label"] as Label).text = "★ 精英 %ds\n击杀：武器升级" % ceili(entry["left"])
 		var health := entry["enemy"].get_node("HealthComponent") as HealthComponent
 		if entry["left"] <= 0 and health.current_health > 0:
@@ -216,6 +264,54 @@ func update_elite_countdowns(delta: float) -> void:
 			entry["enemy"].queue_free()
 			elite_timers.remove_at(index)
 			show_status("精英已撤退，本次无奖励")
+
+
+func update_elite_pointer() -> void:
+	var target: Node2D
+	var time_left := INF
+	var view := get_viewport().get_visible_rect().grow(-10.0)
+	var transform := get_viewport().get_canvas_transform()
+	for entry: Dictionary in elite_timers:
+		var enemy := entry["enemy"] as Node2D
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
+			continue
+		var health := enemy.get_node_or_null("HealthComponent") as HealthComponent
+		if health == null or health.current_health <= 0.0 or view.has_point(transform * enemy.global_position):
+			continue
+		if float(entry["left"]) < time_left:
+			target = enemy
+			time_left = float(entry["left"])
+	if target == null:
+		elite_pointer.hide()
+		return
+	var offset := target.global_position - player_position()
+	var direction: String = DIRECTIONS[posmod(roundi(offset.angle() / (PI / 4.0)), DIRECTIONS.size())]
+	elite_pointer.text = "精英：%s · %d · %d秒" % [direction, roundi(offset.length()), ceili(time_left)]
+	elite_pointer.show()
+
+
+func update_objective_pointer() -> void:
+	if stopped or not has_living_player():
+		objective_pointer.hide()
+		return
+	var view := get_viewport().get_visible_rect().grow(-10.0)
+	var transform := get_viewport().get_canvas_transform()
+	var objectives := [
+		{"point": overload_point, "title": "超载 %.0f%%" % (overload_charge / 5.0 * 100.0)},
+		{"point": bounty_point, "title": "悬赏 %d秒" % ceili(bounty_offer_left)},
+	]
+	var lines: Array[String] = []
+	for objective: Dictionary in objectives:
+		if not is_instance_valid(objective["point"]):
+			continue
+		var point := objective["point"] as Node2D
+		if point == null or point.is_queued_for_deletion() or view.has_point(transform * point.global_position):
+			continue
+		var offset := point.global_position - player_position()
+		var direction: String = DIRECTIONS[posmod(roundi(offset.angle() / (PI / 4.0)), DIRECTIONS.size())]
+		lines.append("%s：%s · %d" % [objective["title"], direction, roundi(offset.length())])
+	objective_pointer.text = "\n".join(lines)
+	objective_pointer.visible = not lines.is_empty()
 
 
 func start_hunt() -> void:
@@ -428,6 +524,8 @@ func reset_challenges() -> void:
 	overload_offered = false
 	bounty_offered = false
 	status.text = ""
+	elite_pointer.hide()
+	objective_pointer.hide()
 
 
 func stop_challenges() -> void:

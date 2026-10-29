@@ -24,6 +24,7 @@ var current_map_id := 0
 var previous_map_id := 0
 var challenges: Node
 var boss_rush: Node
+var expedition: Node
 var current_level_boss_started := false
 var next_endless_boss_time := ENDLESS_BOSS_INTERVAL
 var map_order := [1, 2, 3, 4, 5]
@@ -48,6 +49,9 @@ class LevelEntrance extends Node2D:
 
 
 func _ready():
+	var momentum := preload("res://scenes/manager/combat_momentum.gd").new()
+	momentum.name = "CombatMomentum"
+	add_child(momentum)
 	forge_map = preload("res://scenes/environment/level_5_forge.gd").new()
 	forge_map.name = "ForgeMap"
 	forge_map.z_index = -100
@@ -77,6 +81,10 @@ func _ready():
 	if GameEvents.game_mode == "boss_rush":
 		boss_rush = preload("res://scenes/manager/boss_rush_manager.gd").new()
 		add_child(boss_rush)
+	elif GameEvents.game_mode == "expedition":
+		expedition = preload("res://scenes/manager/expedition_manager.gd").new()
+		expedition.name = "ExpeditionManager"
+		add_child(expedition)
 	elif GameEvents.is_endless_mode():
 		$EnemyManager.stop_spawning()
 	else:
@@ -98,6 +106,8 @@ func on_character_selected(character: Resource) -> void:
 	%Player.set_character(character)
 	if boss_rush != null:
 		boss_rush.start()
+	elif expedition != null:
+		expedition.start()
 	elif GameEvents.is_endless_mode():
 		begin_endless_mode()
 		$UpgradeManager.start_initial_choices(ENDLESS_INITIAL_SKILL_CHOICES)
@@ -133,6 +143,8 @@ func on_player_died() -> void:
 	if death_sequence_running:
 		return
 	death_sequence_running = true
+	if expedition != null:
+		expedition.stop_for_defeat()
 	set_process(false)
 	if curse_manager != null:
 		curse_manager.set_process(false)
@@ -164,6 +176,8 @@ func on_player_died() -> void:
 	var end_screen_instance = end_screen_scene.instantiate() as EndScreen
 	add_child(end_screen_instance)
 	end_screen_instance.set_defeat()
+	if expedition != null:
+		expedition.describe_result(end_screen_instance)
 	MetaProgression.save()
 
 
@@ -234,7 +248,7 @@ func on_test_level_selected(index: int) -> void:
 
 
 func _process(_delta: float) -> void:
-	if boss_rush != null:
+	if boss_rush != null or expedition != null:
 		return
 	var time_elapsed: float = $ArenaTimeManager.get_time_elapsed()
 	if GameEvents.is_endless_mode():
@@ -332,6 +346,11 @@ func spawn_level_entrance() -> void:
 	label.text = "第%d关入口" % (completed_maps + 1)
 	label.position = Vector2(-32, -36)
 	entrance.add_child(label)
+	var tracker := preload("res://scenes/ui/entrance_tracker.gd").new()
+	tracker.name = "EntranceTracker"
+	tracker.player = player
+	tracker.entrance = entrance
+	entrance.add_child(tracker)
 	while is_instance_valid(entrance) and is_instance_valid(player) and player.global_position.distance_to(entrance.global_position) > 24.0:
 		await get_tree().process_frame
 	if not is_instance_valid(player) or not is_instance_valid(entrance):

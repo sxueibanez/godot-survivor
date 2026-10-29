@@ -2,7 +2,7 @@ extends Node
 
 
 func _ready() -> void:
-	GameEvents.game_mode = "endless" # Test the original asset stats, not campaign scaling.
+	GameEvents.game_mode = "endless" # Test asset stats without campaign scaling.
 	var golem := preload("res://scenes/game_object/iron_golem/iron_golem.tscn").instantiate()
 	add_child(golem)
 	await get_tree().process_frame
@@ -13,5 +13,5 @@ func _ready() -> void:
 	assert(constants["ATTACK_FRAME_EDGES"].size() == 10)
 	assert(constants["ATTACK_FRAME_ANCHORS"].size() == 9)
 	assert((golem.get_node("Visuals/Sprite2D") as Sprite2D).region_enabled)
-	assert((golem.get_node("HealthComponent") as HealthComponent).max_health == 95.0)
+	assert((golem.get_node("HealthComponent") as HealthComponent).max_health == 10.0)
 	get_tree().quit()

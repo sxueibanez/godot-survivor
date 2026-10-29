@@ -42,7 +42,7 @@ func _ready() -> void:
 	player.damage(20.0)
 	assert(is_equal_approx(player.current_health, 87.0))
 	GameEvents.campaign_completed_maps = 2
-	assert(make_health(10.0, "enemy").max_health > basic.max_health * 2.0)
+	assert(is_equal_approx(make_health(10.0, "enemy").max_health, basic.max_health * 2.3))
 	assert(make_health(7600.0, "enemy", true).max_health > queen.max_health * 2.0)
 	assert(GameEvents.get_campaign_spawn_count() == 2)
 	assert(GameEvents.get_campaign_damage_multiplier() > 0.65)
